@@ -36,4 +36,10 @@ for(i in 1:nrow(file_list)){
   
   print(paste0(i, " ", file_list$data_type[i], " ", file_list$disease[i], " ", file_list$file_name[i])) ## if the code breaks, you know which file it broke on
 }
-# ----------------------------------------------
+
+# formatting of data
+#--if necessary--
+
+# save prepped data 
+saveRDS(prepped_vax_data, outputFile2a)
+

@@ -6,7 +6,7 @@
 strip_chars <- function(dt){
   
   ## vector dictionary of special characters to regular characters
-  unwanted_array = list('ã'='a', 'é'="e", "Í"="I", "í"="i")
+  unwanted_array = list('ã'='a', 'é'="e", "Í"="I", "í"="i", "Ō"="O", "ō"="o", "á"="a", "Á"="A")
   
   # vector of characters or phrases to remove
   remove_chars <- c(" ", "[\u2018\u2019\u201A\u201B\u2032\u2035]","[\u201C\u201D\u201E\u201F\u2033\u2036]"

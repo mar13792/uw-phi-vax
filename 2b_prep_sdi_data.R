@@ -2,33 +2,50 @@
 # Purpose: Prep socio-demographic data for analyses
 # Date: Last modified July 13, 2021
 
-# read in SDI data downloaded from GBD
+########### To-dos:########
+# need to find the loction ID for India (subnational estimates) somewhere
+# add check to make sure there are no duplicate rows added or removed
+###########################
+
+###################################################
+# read in relevant SDI and location data files
+###################################################
+
+# SDI data downloaded from GBD
 sdi.dat <- as.data.table(read_xlsx(path = paste0(local_data_dir, "/sdi/IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.xlsx")))
 
-# re-name variable names
+# read in codebook for locations
+loc.codebook <- as.data.table(read_xlsx(path = paste0(codebook_directory, "/IHME_GBD_2019_GBD_LOCATION_HIERARCHY_Y2020M10D15.xlsx")))
+
+# locations that need to be added in manually
+add.locations <- as.data.table(read_xlsx(path = paste0(codebook_directory, "/gbd_location_corrections.xlsx")))
+
+###################################################
+# Data Prep
+###################################################
+
+# re-name variable names of sdi data
 names_sdi <- as.character(sdi.dat[1])
 names(sdi.dat) <- names_sdi
-setnames(sdi.dat, old=c("Location"), new=c("location"))
-
-# remove extra name row from the field
 sdi.dat <- sdi.dat[-c(1),]
 
-# read in codebook
-sdi.codebook <- as.data.table(read_xlsx(path = paste0(codebook_directory, "/IHME_GBD_2019_GBD_LOCATION_HIERARCHY_Y2020M10D15.xlsx")))
+# subset codebook to location ID and Name for matching
+loc.cleaning <- loc.codebook[,.(`Location ID`, `Location Name`)]
 
-# rename location name variable 
-setnames(sdi.codebook, old=c("Location Name"), new=c("location"))
-
-# subset codebook to location ID and Name
+# rename location name variable in all three data files
+setnames(loc.cleaning, old=c("Location Name", "Location ID"), new=c("location", "id"))
+setnames(sdi.dat, old=c("Location"), new=c("location"))
+setnames(add.locations, old=c("Location ID", "Location Name"), new=c("id", "location"))
 
 # bind rows with country names that are not spelled exactly the same in the codebook
+loc.cleaning <- rbind(loc.cleaning, add.locations, fill=TRUE)
 
 # create merge label name in both codebook and data
 sdi.dat <- strip_chars(sdi.dat)
-sdi.codebook <- strip_chars(sdi.codebook)
+loc.cleaning <- strip_chars(loc.cleaning)
 
 # check to make sure that all locations in codebook are in the data
-code_check <- paste0(sdi.codebook$location)
+code_check <- paste0(loc.cleaning$location)
 data_check <- paste0(sdi.dat$location)
 
 unmapped_codes <- sdi.dat[!data_check%in%code_check]
@@ -39,15 +56,69 @@ if(nrow(unmapped_codes)>0){
   stop("You have locations in the data that aren't in the codebook!")
 }
 
-# what to do with the locations that are not mapped--drop them from SDI?
+############################################# 
+# remove unmapped locations without a location ID for now
+#############################################
+sdi.dat <- sdi.dat[!location%in%unmapped_codes$location]
 
+# merge the location IDs to the sdi data
+sdi.dat <- merge(sdi.dat, loc.cleaning[,.(id, location)], by = "location", all.x = TRUE)
 
-# merge codebook with the SDI data-sheet using the location ID
-sdi.test <- merge(sdi.dat, sdi.codebook, by.x = "Location ID", by.y = "Location ID", all.x = TRUE)
+# merge rest of the codebook values to the SDI data
+sdi.dat <- merge(sdi.dat, loc.codebook, by.x = "id", by.y = "Location ID", all.x = TRUE)
 
-# subset data
+# check for duplicate rows
+print(sdi.dat[duplicated(sdi.dat[,.(location, id)])])
+
+################## manual correction to prepped SDI data due to duplicate names
+
+# manually correct Georgia values (where country and US subnational region are misclassified) 
+sdi.georgia <- sdi.dat[location=="georgia"]
+sdi.georgia <- sdi.georgia[-c(2,3),] 
+
+# manually correct Mexico values (where country and Mexico subnational region are misclassified)
+sdi.mexico <- sdi.dat[location=="mexico"]
+sdi.mexico <- sdi.mexico[-c(2,3),] 
+
+# manually correct South Asia values (which is Super-Region and region)
+sdi.southasia <- sdi.dat[location=="southasia"]
+sdi.southasia <- sdi.southasia[-c(2,3),]
+
+# manually correct North Africa values (which is Super-Region and region)
+sdi.northafrica <- sdi.dat[location=="northafricaandmiddleeast"]
+sdi.northafrica <- sdi.northafrica[-c(2,3),]
+
+# remove rows that have been cleaned elsewhere
+sdi.dat.prepped <- sdi.dat[location != c('georgia') & 
+                             location != c('southasia') & 
+                             location != c('mexico') & 
+                             location !=c('northafricaandmiddleeast')]
+
+# add in rows for newly cleaned data
+sdi.dat.prepped <- rbind(sdi.dat.prepped, sdi.georgia, sdi.mexico, sdi.southasia, sdi.northafrica)
+
+# check again for duplicates
+print(sdi.dat.prepped[duplicated(sdi.dat.prepped[,.(location, id)])])
 
 # reshape data
+sdi.dat.prepped.long = melt(sdi.dat.prepped, id.vars = c("id", "location", "orig_location", "Location Set Version ID", 
+                                                         "Location Name", "Parent ID", "Level", "Sort Order"),
+                            variable.name = "year", value.name = "sdi")
+
+# rename columns in newly prepped data frame
+setnames(sdi.dat.prepped.long, 
+         old = c("Location Set Version ID", "Location Name", "Parent ID", "Level", "Sort Order", "id", "year"), 
+         new = c("location_set_version_id", "location_name", "parent_id", "level", "sort_order", "location_id", "year_id" ))
+
+# subset columns
+sdi.dat.prepped.long <- sdi.dat.prepped.long[,.(location_name, location_id, location_set_version_id, parent_id, level, sort_order, year_id, sdi)]
+
+# clean numerical values of SDIs
+sdi.dat.prepped.long$sdi <- gsub("·",".",sdi.dat.prepped.long$sdi)
+
+# convert variable structures
+sdi.dat.prepped.long$year_id <- as.numeric(levels(sdi.dat.prepped.long$year_id))[sdi.dat.prepped.long$year_id]
+sdi.dat.prepped.long$sdi <- as.numeric(sdi.dat.prepped.long$sdi)
 
 # save in prepped data folder
-
+saveRDS(sdi.dat.prepped.long, outputFile2b)
