@@ -5,7 +5,7 @@
 ####### read in vaccine trend data
 
 # Read in list of files to prep
-file_list <- data.table(read_excel(paste0(local_data_dir, "/data_file_list.xlsx")))
+file_list <- data.table(read_excel(paste0(local_data_dir, "data_file_list.xlsx")))
 
 # subset files to vaccine trends
 file_list <- file_list[data_type=="vaccination_trends"]

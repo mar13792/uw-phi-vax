@@ -15,7 +15,7 @@ prep_vax_trend_data <- function(dir, inFile, sheet_name, data_type){
   
   # Load data
   if (data_type == 'vaccination_trends'){
-    vax_data = data.table(read.csv(paste0(dir,inFile)))
+    vax_data = data.table(read.csv(paste0(dir,inFile), encoding = "UTF-8"))
   } else {
     stop('Not a valid file iteration value.')
   }

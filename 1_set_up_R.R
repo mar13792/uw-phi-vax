@@ -10,15 +10,17 @@
 library(data.table)
 library(ggplot2)
 library(readxl)
+library(GGally)
 
 ###############################
 # important variables
 ###############################
-shared_data_dir <- "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Data"
-local_data_dir <- "G:/My Drive/PHI/local_data"
+shared_data_dir <- "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Data/"
+local_data_dir <- "G:/My Drive/PHI/local_data/"
 prepped_data_dir <- "G:/My Drive/PHI/local_data/prepped_data/"
 code_dir <- "./"
-codebook_directory <- paste0(local_data_dir,"/codebooks")
+codebook_directory <- paste0(local_data_dir,"/codebooks/")
+visDir <- paste0("G:/My Drive/PHI/visualizations/")
 
 ###############################
 # output files
@@ -26,6 +28,7 @@ codebook_directory <- paste0(local_data_dir,"/codebooks")
 outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
 outputFile2b = paste0(prepped_data_dir, "2b_sdi.RDS")
 outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
+outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
 
 ###############################
 # source shared functions

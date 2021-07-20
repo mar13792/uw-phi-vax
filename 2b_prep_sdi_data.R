@@ -12,13 +12,13 @@
 ###################################################
 
 # SDI data downloaded from GBD
-sdi.dat <- as.data.table(read_xlsx(path = paste0(local_data_dir, "/sdi/IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.xlsx")))
+sdi.dat <- as.data.table(read_xlsx(path = paste0(local_data_dir, "sdi/IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.xlsx")))
 
 # read in codebook for locations
-loc.codebook <- as.data.table(read_xlsx(path = paste0(codebook_directory, "/IHME_GBD_2019_GBD_LOCATION_HIERARCHY_Y2020M10D15.xlsx")))
+loc.codebook <- as.data.table(read_xlsx(path = paste0(codebook_directory, "IHME_GBD_2019_GBD_LOCATION_HIERARCHY_Y2020M10D15.xlsx")))
 
 # locations that need to be added in manually
-add.locations <- as.data.table(read_xlsx(path = paste0(codebook_directory, "/gbd_location_corrections.xlsx")))
+add.locations <- as.data.table(read_xlsx(path = paste0(codebook_directory, "gbd_location_corrections.xlsx")))
 
 ###################################################
 # Data Prep
@@ -119,6 +119,15 @@ sdi.dat.prepped.long$sdi <- gsub("·",".",sdi.dat.prepped.long$sdi)
 # convert variable structures
 sdi.dat.prepped.long$year_id <- as.numeric(levels(sdi.dat.prepped.long$year_id))[sdi.dat.prepped.long$year_id]
 sdi.dat.prepped.long$sdi <- as.numeric(sdi.dat.prepped.long$sdi)
+
+# calculate tertiles from 2019 country-level data
+sdi.ter <- sdi.dat.prepped.long[level==3 & year_id==2019]$sdi
+# quantile(sdi.ter, c(0:3/3))
+
+# classify countries into groups based on SDI
+sdi.dat.prepped.long$sdi_group[sdi.dat.prepped.long$sdi <= 0.5826667 ] <- "low"
+sdi.dat.prepped.long$sdi_group[sdi.dat.prepped.long$sdi > 0.5826667 & sdi.dat.prepped.long$sdi <= 0.742667 ] <- "medium"
+sdi.dat.prepped.long$sdi_group[sdi.dat.prepped.long$sdi > 0.742667 ] <- "high"
 
 # save in prepped data folder
 saveRDS(sdi.dat.prepped.long, outputFile2b)
