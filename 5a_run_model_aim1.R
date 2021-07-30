@@ -26,15 +26,20 @@ dt3 <- dt3[!is.infinite(percent_change)]
 
 # create a function to spot outliers in data
 is_outlier <- function(x) {
-  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+  return(x > quantile(x, 0.75) + 1.5 * IQR(x))
 }
 
-dt3 %>%
-  group_by(vaccine_name) %>%
-  mutate(outlier = ifelse(is_outlier(percent_change), location_name, as.numeric(NA))) %>%
-  ggplot(., aes(x = factor(vaccine_name), y = percent_change)) +
+vaccines = unique(dt3$vaccine_name)
+
+
+dt3[,outlier:=ifelse(is_outlier(percent_change), location_name, as.numeric(NA)), by=.(vaccine_name)]
+
+for (i in 1:length(vaccines)) {
+  g <- ggplot(dt3[vaccine_name==vaccines[i]], aes(x = factor(vaccine_name), y = percent_change)) +
   geom_boxplot() +
   geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)
+print(g)
+}
 
 # dat <- dt3 %>% tibble::rownames_to_column(var="outlier") %>% group_by(vaccine_name) %>% mutate(is_outlier=ifelse(is_outlier(percent_change), percent_change, as.numeric(NA)))
 # dat$outlier[which(is.na(dat$is_outlier))] <- as.numeric(NA)

@@ -46,8 +46,8 @@ source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
 ##############################
 prep_vax_trends = FALSE
 prep_sdi = FALSE
-prep_dx_trends = TRUE
-merge_files = TRUE
+prep_dx_trends = FALSE
+merge_files = FALSE
 
 ################################
 #
