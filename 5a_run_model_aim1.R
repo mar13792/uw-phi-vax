@@ -35,9 +35,10 @@ vaccines = unique(dt3$vaccine_name)
 dt3[,outlier:=ifelse(is_outlier(percent_change), location_name, as.numeric(NA)), by=.(vaccine_name)]
 
 for (i in 1:length(vaccines)) {
-  g <- ggplot(dt3[vaccine_name==vaccines[i]], aes(x = factor(vaccine_name), y = percent_change)) +
+  g <- ggplot(dt3[vaccine_name==vaccines[i]], aes(x = vaccine_name, y = percent_change)) +
   geom_boxplot() +
-  geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)
+  geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)+
+    theme_minimal
 print(g)
 }
 
