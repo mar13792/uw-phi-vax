@@ -34,13 +34,20 @@ vaccines = unique(dt3$vaccine_name)
 
 dt3[,outlier:=ifelse(is_outlier(percent_change), location_name, as.numeric(NA)), by=.(vaccine_name)]
 
+# Save file
+print(paste('Saving:', outputFile5a)) 
+pdf(outputFile5a, height=5.5, width=9)
+
 for (i in 1:length(vaccines)) {
   g <- ggplot(dt3[vaccine_name==vaccines[i]], aes(x = vaccine_name, y = percent_change)) +
   geom_boxplot() +
-  geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)+
-    theme_minimal
+  # geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)+
+    theme_minimal()+
+    geom_text_repel(aes(label = outlier))
 print(g)
 }
+
+dev.off()
 
 # dat <- dt3 %>% tibble::rownames_to_column(var="outlier") %>% group_by(vaccine_name) %>% mutate(is_outlier=ifelse(is_outlier(percent_change), percent_change, as.numeric(NA)))
 # dat$outlier[which(is.na(dat$is_outlier))] <- as.numeric(NA)
@@ -65,4 +72,12 @@ print(g)
 # 
 # # make table among low SDI countries
 # # ggplot(dt3, aes(location_name, vaccine_name, color = vaccine_name, size= percent_change)) + geom_point() + theme_classic() 
+
+# calculate average change according to vaccine name
+dt4 <- dt3
+
+# create a table of the countries that are outliers
+
+
+
 ggplot(dt3, aes(vaccine_name, location_name, fill= percent_change)) + geom_tile() + theme_bw()

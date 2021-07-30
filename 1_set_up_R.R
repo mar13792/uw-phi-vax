@@ -11,8 +11,7 @@ library(data.table)
 library(ggplot2)
 library(readxl)
 library(GGally)
-library(dplyr)
-library(tibble)
+library(ggrepel)
 
 ###############################
 # important variables
@@ -33,6 +32,7 @@ outputFile2c = paste0(prepped_data_dir, "2c_disease_trends.RDS")
 outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
 outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
 outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
+outputFile5a = paste0(visDir, "aim1_exemplars.PDF")
 
 ###############################
 # source shared functions
