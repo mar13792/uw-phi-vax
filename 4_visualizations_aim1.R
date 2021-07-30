@@ -11,9 +11,11 @@ n=6
 lctns <- sample(dt[sdi_group=="low"]$location_name, n)
 sample = dt[location_name %in% lctns]
 
+##############################################
 # sample plot of vaccine trends in six regions
+##############################################
 
-# organize series and label for graphings
+# organize series and label for graphing
 varGroups = unique(dt$vaccine_name)
 labelTable <- unique(dt[,.(vaccine_name)])
 
@@ -37,14 +39,15 @@ for(i in seq(length(tsPlots))) {
 dev.off()
 
 # create graphs showing trends in each location for all vaccines
-locations = unique(dt$location_id)
-locations = sample(dt[sdi_group=="low"]$location_id, n)
-sample2 = dt[location_id %in% locations]
-locTable <- unique(dt[,.(location_id, location_name)])
+# locations = unique(dt$location_id)
+# locations = sample(dt[sdi_group=="low"]$location_id, n)
+# sample2 = dt[location_id %in% locations]
+# locTable <- unique(dt[,.(location_id, location_name)])
 
-loctsPlots = lapply(seq(length(locations)), function(g) {
+tsPlots2 = lapply(seq(length(locations)), function(g) {
   l2 = locTable[location_id%in%locations[[g]]]$location_name
-  ggplot(dt[location_id%in%locations[[g]]], aes(y=val, x=year_id, color=vaccine_name)) + 
+  ggplot(sample[location_id%in%]
+    dt[location_id%in%locations[[g]]], aes(y=val, x=year_id, color=vaccine_name)) + 
     geom_line(size = 1, alpha = .8) +
     labs(title=paste('Time series of vaccine coverage in', l2), y='Percent', x='Year')
     theme_minimal()
@@ -54,7 +57,7 @@ loctsPlots = lapply(seq(length(locations)), function(g) {
 print(paste('Saving:', outputFile4b)) 
 pdf(outputFile4b, height=5.5, width=9)
 for(i in seq(length(loctsPlots))) { 
-  print(loctsPlots[[i]])
+  print(tsPlots2[[i]])
 }
 
 dev.off()

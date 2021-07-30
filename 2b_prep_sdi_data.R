@@ -100,34 +100,37 @@ sdi.dat.prepped <- rbind(sdi.dat.prepped, sdi.georgia, sdi.mexico, sdi.southasia
 # check again for duplicates
 print(sdi.dat.prepped[duplicated(sdi.dat.prepped[,.(location, id)])])
 
-# reshape data
-sdi.dat.prepped.long = melt(sdi.dat.prepped, id.vars = c("id", "location", "orig_location", "Location Set Version ID", 
-                                                         "Location Name", "Parent ID", "Level", "Sort Order"),
-                            variable.name = "year", value.name = "sdi")
-
-# rename columns in newly prepped data frame
-setnames(sdi.dat.prepped.long, 
-         old = c("Location Set Version ID", "Location Name", "Parent ID", "Level", "Sort Order", "id", "year"), 
-         new = c("location_set_version_id", "location_name", "parent_id", "level", "sort_order", "location_id", "year_id" ))
-
-# subset columns
-sdi.dat.prepped.long <- sdi.dat.prepped.long[,.(location_name, location_id, location_set_version_id, parent_id, level, sort_order, year_id, sdi)]
+# rename columns in data frame
+setnames(sdi.dat.prepped, 
+         old = c("Location Set Version ID", "Location Name", "Parent ID", "Level", "Sort Order", "id"), 
+         new = c("location_set_version_id", "location_name", "parent_id", "level", "sort_order", "location_id"))
 
 # clean numerical values of SDIs
-sdi.dat.prepped.long$sdi <- gsub("·",".",sdi.dat.prepped.long$sdi)
+cols = names(sdi.dat.prepped)[3:32]   # define which columns to work with
+sdi.dat.prepped[ , (cols) := lapply(.SD, function(x) { as.numeric(gsub("·", ".", x)) }), .SDcols = cols] # replace symbol
+
+# remove unnecessary columns
+sdi.dat.prepped[,c("orig_location", "location"):=NULL]
+
+# calculate tertiles from 2019 country-level data
+sdi.ter <- sdi.dat.prepped[level==3]$`2019`
+# quantile(sdi.ter, c(0:3/3))
+
+# classify countries into groups based on SDI in 2019
+sdi.dat.prepped$sdi_group[sdi.dat.prepped$`2019` <= 0.5790 ] <- "low"
+sdi.dat.prepped$sdi_group[sdi.dat.prepped$`2019` > 0.5790 & sdi.dat.prepped$`2019` <= 0.7423 ] <- "medium"
+sdi.dat.prepped$sdi_group[sdi.dat.prepped$`2019` > 0.7423 ] <- "high"
+
+# reshape data
+sdi.dat.prepped.long = melt(sdi.dat.prepped, id.vars = c("location_name", "location_id", "location_set_version_id", 
+                                                         "sdi_group", "parent_id", "level", "sort_order"),
+                            variable.name = "year_id", value.name = "sdi")
 
 # convert variable structures
 sdi.dat.prepped.long$year_id <- as.numeric(levels(sdi.dat.prepped.long$year_id))[sdi.dat.prepped.long$year_id]
-sdi.dat.prepped.long$sdi <- as.numeric(sdi.dat.prepped.long$sdi)
-
-# calculate tertiles from 2019 country-level data
-sdi.ter <- sdi.dat.prepped.long[level==3 & year_id==2019]$sdi
-# quantile(sdi.ter, c(0:3/3))
-
-# classify countries into groups based on SDI
-sdi.dat.prepped.long$sdi_group[sdi.dat.prepped.long$sdi <= 0.5826667 ] <- "low"
-sdi.dat.prepped.long$sdi_group[sdi.dat.prepped.long$sdi > 0.5826667 & sdi.dat.prepped.long$sdi <= 0.742667 ] <- "medium"
-sdi.dat.prepped.long$sdi_group[sdi.dat.prepped.long$sdi > 0.742667 ] <- "high"
 
 # save in prepped data folder
 saveRDS(sdi.dat.prepped.long, outputFile2b)
+
+# print final statement
+print("Step 2b: Prepping SDI data now complete.")
