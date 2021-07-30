@@ -29,3 +29,6 @@ dt <- dt[year_id>=1990]
 
 # save location data
 saveRDS(dt, outputFile3)
+
+# Print final statement
+print("Step 3: Merging complete; data set saved in prepped data folder")

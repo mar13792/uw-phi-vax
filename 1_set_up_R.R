@@ -11,6 +11,8 @@ library(data.table)
 library(ggplot2)
 library(readxl)
 library(GGally)
+library(dplyr)
+library(tibble)
 
 ###############################
 # important variables
@@ -45,6 +47,7 @@ source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
 prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = TRUE
+merge_files = TRUE
 
 ################################
 #
@@ -74,7 +77,9 @@ if(prep_dx_trends == TRUE){
 # ---------------------------------------
 # Merge major data sets together
 # --------------------------------------- 
-
+if(merge_files == TRUE){
+  source('./3_merge_data.R')
+}
 
 # ---------------------------------------
 # Exploratory graphs etc 
