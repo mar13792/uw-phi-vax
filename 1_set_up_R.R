@@ -12,6 +12,7 @@ library(ggplot2)
 library(readxl)
 library(GGally)
 library(ggrepel)
+library(reactable)
 
 ###############################
 # important variables
