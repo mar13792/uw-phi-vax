@@ -1,5 +1,5 @@
 # Author: Francisco Rios 
-# Purpose: calculate observed percent change for low-SDI countries
+# Purpose: calculate observed percent change for high-SDI countries
 # Date: Last modified August 3, 2021
 
 # load data
@@ -13,7 +13,7 @@ data = readRDS(outputFile3)
 dt <- data[year_id %in% c('2014', '2019')]
 
 # subset to only low-SDI countries
-dt <- dt[sdi_group=="low"]
+dt <- dt[sdi_group=="high"]
 
 # # remove the unnecessary columns
 dt <- dt[,c("location_name", "year_id", "vaccine_name", "val")]
@@ -44,19 +44,19 @@ vaccines = unique(dt$vaccine_name)
 dt[,outlier:=ifelse(is_outlier(percent_change), location_name, as.numeric(NA)), by=.(vaccine_name)]
 
 # Save file
-print(paste('Saving:', outputFile5a)) 
-pdf(outputFile5a, height=5.5, width=9)
+print(paste('Saving:', outputFile5k)) 
+pdf(outputFile5k, height=5.5, width=9)
 
 # create series of boxplots
 for (i in 1:length(vaccines)) {
   g <- ggplot(dt[vaccine_name==vaccines[i]], aes(x = vaccine_name, y = percent_change)) +
-  geom_boxplot() +
-  # geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)+
+    geom_boxplot() +
+    # geom_text(aes(label = outlier), na.rm = TRUE, hjust = -0.3)+
     theme_bw()+
     labs(title=paste('Change in vaccine coverage (with outliers labeled)'), y='Percent Change', x='Vaccine', 
-         subtitle=paste0('between 2014 and 2019, among low-SDI countries')) + 
+         subtitle=paste0('between 2014 and 2019, among high-SDI countries')) + 
     geom_text_repel(aes(label = outlier), na.rm =TRUE, hjust = -0.3)
-print(g)
+  print(g)
 }
 
 dev.off()
@@ -82,10 +82,10 @@ h <- ggplot(data=dt2, aes(x=outlier, y=N)) +
   geom_text(aes(label=N), hjust=1.6, color="white")+
   theme_minimal(base_size = 12)+
   labs(title=paste('Countries that exceeded median improvement in vaccine coverage'), y='Number of vaccines that saw greater-than-expected improvement', x='Location', 
-       subtitle=paste0('between 2014 and 2019, among low-SDI countries'))
+       subtitle=paste0('between 2014 and 2019, among high-SDI countries'))
 
 # save pdf of bar plot
-pdf(outputFile5b, height=9, width=11)
+pdf(outputFile5l, height=9, width=11)
 print(h)
 dev.off()
 
@@ -131,10 +131,10 @@ j <- ggplot(dt3, aes(vaccine_name, location_name)) +
   scale_fill_gradient(low = "white", high = "steelblue")+
   geom_tile(data=median, size=1, fill=NA, colour="black")+
   labs(title=paste('Percent change in countries that saw above-average improvement'), y='Location', x='Vaccine', 
-       subtitle=paste0('between 2014 and 2019, among low-SDI countries'))
+       subtitle=paste0('between 2014 and 2019, among high-SDI countries'))
 
 # save pdf of raster plot
-pdf(outputFile5c, height=9, width=11.5)
+pdf(outputFile5m, height=9, width=11.5)
 print(j)
 dev.off()
 
@@ -143,18 +143,18 @@ dev.off()
 ##### ##### ##### #####
 dt4 <- copy(data)
 
-# create  time series graphs of five locations from low SDI group with greatest improvements:
-# LBR, CAF, NGA, VUT, GTM
+# create  time series graphs of five locations from high SDI group with greatest improvements:
+# BGR, SMR, ISR, GRL, DNK
 
-# save a datset for each country and vaccines that will be plotted to see overall trends
-lbr <- dt4[location_name=="Liberia" & vaccine_name%in%unique(dt3[location_name=="Liberia"]$vaccine_name)]
-caf <- dt4[location_name=="Central African Republic" & vaccine_name%in%unique(dt3[location_name=="Central African Republic"]$vaccine_name)]
-nga <- dt4[location_name=="Nigeria" & vaccine_name%in%unique(dt3[location_name=="Nigeria"]$vaccine_name)]
-vut <- dt4[location_name=="Vanuatu" & vaccine_name%in%unique(dt3[location_name=="Vanuatu"]$vaccine_name)]
-gtm <- dt4[location_name=="Guatemala" & vaccine_name%in%unique(dt3[location_name=="Guatemala"]$vaccine_name)]
+# save a dataset for each country and vaccines that will be plotted to see overall trends
+bgr <- dt4[location_name=="Bulgaria" & vaccine_name%in%unique(dt3[location_name=="Bulgaria"]$vaccine_name)]
+smr <- dt4[location_name=="San Marino" & vaccine_name%in%unique(dt3[location_name=="San Marino"]$vaccine_name)]
+isr <- dt4[location_name=="Israel" & vaccine_name%in%unique(dt3[location_name=="Israel"]$vaccine_name)]
+grl <- dt4[location_name=="Greenland" & vaccine_name%in%unique(dt3[location_name=="Greenland"]$vaccine_name)]
+dnk <- dt4[location_name=="Denmark" & vaccine_name%in%unique(dt3[location_name=="Denmark"]$vaccine_name)]
 
 # merge together the multiple datasets
-dt4 <- do.call("rbind", list(lbr, caf, nga, vut, gtm))
+dt4 <- do.call("rbind", list(bgr, smr, isr, grl, dnk))
 
 # make vector of all the locations
 lctns <- unique(dt4$location_name)
@@ -162,18 +162,18 @@ labelTable <- unique(dt4[,.(location_name, vaccine_name)])
 
 tsPlots = lapply(seq(length(lctns)), function(g) {
   l = unique(labelTable[location_name==lctns[[g]]]$location_name)
-  ggplot(dt4[location_name==lctns[[g]]], aes(y=val, x=year_id, color=vaccine_name)) + 
-     geom_line(size = 1, alpha = .8) + 
-     facet_wrap(~vaccine_name)+ 
-     labs(title=paste('Time series of vaccine coverage for', l), y='Percent', x='Year', 
-          subtitle=paste('vaccines with most improvement')) + 
-      theme_minimal()
+  ggplot(dt4[location_name==lctns[[g]]], aes(y=val, x=year_id, color=vaccine_name)) +
+    geom_line(size = 1, alpha = .8) +
+    facet_wrap(~vaccine_name)+
+    labs(title=paste('Time series of vaccine coverage for', l), y='Percent', x='Year',
+         subtitle=paste('vaccines with most improvement in high-SDI locations')) +
+    theme_minimal()
 })
 
 # Save file
-print(paste('Saving:', outputFile5d)) 
-pdf(outputFile5d, height=5.5, width=9)
-for(i in seq(length(tsPlots))) { 
+print(paste('Saving:', outputFile5n))
+pdf(outputFile5n, height=5.5, width=9)
+for(i in seq(length(tsPlots))) {
   print(tsPlots[[i]])
 }
 dev.off()
@@ -184,20 +184,20 @@ dev.off()
 dt5 <- copy(data)
 dt5 <- dt5[year_id==2014 & val==0]
 
-missing <- unique(dt5[sdi_group=="low",.(location_name, vaccine_name)])
+missing <- unique(dt5[sdi_group=="high",.(location_name, vaccine_name)])
 
 msgPlots = lapply(seq(nrow(missing)), function(g) {
   ggplot(data[location_name==missing$location_name[[g]] & vaccine_name==missing$vaccine_name[[g]]], aes(y=val, x=year_id, color=vaccine_name)) + 
     geom_line(size = 1, alpha = .8)+
     labs(title=paste('Time series of', missing$vaccine_name[[g]],  'vaccine coverage for', missing$location_name[[g]]), y='Percent', x='Year', 
-         subtitle=paste('locations that had 0% coverage in 2014')) + 
+         subtitle=paste('high-SDI locations that had 0% coverage in 2014')) + 
     theme_minimal()+
     ylim(0, 1)
 })
 
 # Save file
-print(paste('Saving:', outputFile5e)) 
-pdf(outputFile5e, height=5.5, width=9)
+print(paste('Saving:', outputFile5o)) 
+pdf(outputFile5o, height=5.5, width=9)
 par(mfrow=c(2,2))
 for(i in seq(length(msgPlots))) { 
   print(msgPlots[[i]])

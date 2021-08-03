@@ -23,7 +23,7 @@ prepped_data_dir <- "G:/My Drive/PHI/local_data/prepped_data/"
 code_dir <- "./"
 codebook_directory <- paste0(local_data_dir,"/codebooks/")
 visDir <- paste0("G:/My Drive/PHI/visualizations/")
-
+aim1_vis <- paste0(visDir, "aim1/")
 ###############################
 # output files
 ###############################
@@ -34,11 +34,23 @@ outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
 outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
 outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
 
-outputFile5a = paste0(visDir, "1_outliers.PDF")
-outputFile5b = paste0(visDir, "2_barplot.PDF")
-outputFile5c = paste0(visDir, "3_detailed_table.PDF")
-outputFile5d = paste0(visDir, "4_timeseries_plots_improvement.PDF")
-outputFile5e = paste0(visDir, "5_timeseries_plots_missing_data.PDF")
+outputFile5a = paste0(aim1_vis, "exemplar_countries/1_outliers_low_sdi.PDF")
+outputFile5b = paste0(aim1_vis, "exemplar_countries/2_barplot_low_sdi.PDF")
+outputFile5c = paste0(aim1_vis, "exemplar_countries/3_detailed_table_low_sdi.PDF")
+outputFile5d = paste0(aim1_vis, "exemplar_countries/4_timeseries_plots_improvement_low_sdi.PDF")
+outputFile5e = paste0(aim1_vis, "exemplar_countries/5_timeseries_plots_missing_data_low_sdi.PDF")
+
+outputFile5f = paste0(aim1_vis, "exemplar_countries/6_outliers_med_sdi.PDF")
+outputFile5g = paste0(aim1_vis, "exemplar_countries/7_barplot_med_sdi.PDF")
+outputFile5h = paste0(aim1_vis, "exemplar_countries/8_detailed_table_med_sdi.PDF")
+outputFile5i = paste0(aim1_vis, "exemplar_countries/9_timeseries_plots_improvement_med_sdi.PDF")
+outputFile5j = paste0(aim1_vis, "exemplar_countries/10_timeseries_plots_missing_data_med_sdi.PDF")
+
+outputFile5k = paste0(aim1_vis, "exemplar_countries/11_outliers_high_sdi.PDF")
+outputFile5l = paste0(aim1_vis, "exemplar_countries/12_barplot_high_sdi.PDF")
+outputFile5m = paste0(aim1_vis, "exemplar_countries/13_detailed_table_high_sdi.PDF")
+outputFile5n = paste0(aim1_vis, "exemplar_countries/14_timeseries_plots_improvement_high_sdi.PDF")
+outputFile5o = paste0(aim1_vis, "exemplar_countries/15_timeseries_plots_missing_data_high_sdi.PDF")
 
 ###############################
 # source shared functions
@@ -55,6 +67,9 @@ prep_sdi = FALSE
 prep_dx_trends = FALSE
 merge_files = FALSE
 
+id_low_sdi = TRUE
+id_med_sdi = TRUE
+id_high_sdi = TRUE
 ################################
 #
 ################################
@@ -92,8 +107,18 @@ if(merge_files == TRUE){
 # ---------------------------------------
 
 # ---------------------------------------
-# Run models 
+# Identify outlier countries
 # ---------------------------------------
+if(id_low_sdi == TRUE){
+  source('./5a_id_countries_low_sdi.R')
+}
 
+if(id_med_sdi == TRUE){
+  source('./5b_id_countries_med_sdi.R')
+}
+
+if(id_high_sdi == TRUE){
+  source('./5c_id_countries_high_sdi.R')
+}
 
 
