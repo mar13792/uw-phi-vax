@@ -17,13 +17,13 @@ library(reactable)
 ###############################
 # important variables
 ###############################
-shared_data_dir <- "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Data/"
-local_data_dir <- "G:/My Drive/PHI/local_data/"
-prepped_data_dir <- "G:/My Drive/PHI/local_data/prepped_data/"
+data_dir <- "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Data/"
+prepped_data_dir <- paste0(data_dir,"prepped_data/")
 code_dir <- "./"
-codebook_directory <- paste0(local_data_dir,"/codebooks/")
-visDir <- paste0("G:/My Drive/PHI/visualizations/")
-aim1_vis <- paste0(visDir, "aim1/")
+codebook_directory <- paste0(data_dir,"codebooks/")
+visDir <- paste0("G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Visualizations/")
+aim1_vis <- paste0(visDir, "aim_1/")
+
 ###############################
 # output files
 ###############################

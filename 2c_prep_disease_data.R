@@ -14,7 +14,7 @@ print("Now prepping:")
 
 for(i in 1:nrow(file_list)){
   # Set up file path 
-  file_dir = paste0(local_data_dir, file_list$data_type[i], '/', file_list$data_source[i], '/' )
+  file_dir = paste0(data_dir, file_list$data_type[i], '/', file_list$data_source[i], '/' )
   
   # set up arguments
   args <- list(file_dir, file_list$file_name[i], file_list$data_type[i])
