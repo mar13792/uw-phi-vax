@@ -1,11 +1,6 @@
 # Author: Francisco Rios 
-# Purpose: calculate observed percent change for all countries and locations
-# Date: Last modified July 13, 2021
-
-# to-do: 
-#       - make trend graphs for each of the countries that are outliers
-#       - save visualizations on shared google drive
-#       - plot some visuals of countries reporting zero coverage in 2014--reasons for this?
+# Purpose: calculate observed percent change for low-SDI countries
+# Date: Last modified August 3, 2021
 
 # load data
 data = readRDS(outputFile3)
