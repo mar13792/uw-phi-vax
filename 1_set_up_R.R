@@ -52,6 +52,10 @@ outputFile5m = paste0(aim1_vis, "exemplar_countries/13_detailed_table_high_sdi.P
 outputFile5n = paste0(aim1_vis, "exemplar_countries/14_timeseries_plots_improvement_high_sdi.PDF")
 outputFile5o = paste0(aim1_vis, "exemplar_countries/15_timeseries_plots_missing_data_high_sdi.PDF")
 
+outputFile5p = paste0(aim1_vis, "exemplar_countries/16_outliers_low_sdi_decade.PDF")
+outputFile5q = paste0(aim1_vis, "exemplar_countries/17_barplot_low_sdi_decade.PDF")
+outputFile5r = paste0(aim1_vis, "exemplar_countries/18_detailed_table_low_sdi_decade.PDF")
+
 ###############################
 # source shared functions
 ###############################
@@ -67,9 +71,9 @@ prep_sdi = FALSE
 prep_dx_trends = FALSE
 merge_files = FALSE
 
-id_low_sdi = TRUE
-id_med_sdi = TRUE
-id_high_sdi = TRUE
+id_low_sdi = FALSE
+id_med_sdi = FALSE
+id_high_sdi = FALSE
 ################################
 #
 ################################
