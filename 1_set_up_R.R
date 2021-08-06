@@ -3,6 +3,7 @@
 # Date: Last modified July 12, 2021
 
 # Manually set the working directory
+# Manually update the important variables section according to file structure of computer
 
 ###############################
 # load required packages
@@ -14,15 +15,27 @@ library(GGally)
 library(ggrepel)
 library(reactable)
 library(rdhs)
+library(devtools)
+library(rdhs)
 
 ###############################
 # important variables
 ###############################
-data_dir <- "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Data/"
+
+# set shared team G drive dynamically
+if (Sys.info()[1]=='Windows'){
+    g_drive = "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/"
+    code_dir = "tbd"
+  } else {
+    g_drive = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/"
+    code_dir = ("~/Documents/uw-phi-vax")
+    }
+
+setwd(code_dir)
+data_dir <- paste0(g_drive,"Data/raw_data/")
 prepped_data_dir <- paste0(data_dir,"prepped_data/")
-code_dir <- "./"
 codebook_directory <- paste0(data_dir,"codebooks/")
-visDir <- paste0("G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/Visualizations/")
+visDir <- paste0(g_drive,"Visualizations/")
 aim1_vis <- paste0(visDir, "aim_1/")
 
 ###############################
@@ -70,7 +83,9 @@ source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
 prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = FALSE
+
 prep_dhs_data = TRUE
+
 merge_files = FALSE
 
 
