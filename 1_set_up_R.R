@@ -13,6 +13,7 @@ library(readxl)
 library(GGally)
 library(ggrepel)
 library(reactable)
+library(rdhs)
 
 ###############################
 # important variables
@@ -69,11 +70,14 @@ source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
 prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = FALSE
+prep_dhs_data = TRUE
 merge_files = FALSE
+
 
 id_low_sdi = FALSE
 id_med_sdi = FALSE
 id_high_sdi = FALSE
+
 ################################
 #
 ################################
