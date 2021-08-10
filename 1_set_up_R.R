@@ -17,6 +17,7 @@ library(reactable)
 library(rdhs)
 library(devtools)
 library(rdhs)
+library(haven)
 
 ###############################
 # important variables
@@ -28,7 +29,7 @@ if (Sys.info()[1]=='Windows'){
     code_dir = "tbd"
   } else {
     g_drive = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/"
-    code_dir = ("~/Documents/uw-phi-vax")
+    code_dir = ("~/Documents/uw-phi-vax/")
     }
 
 setwd(code_dir)
