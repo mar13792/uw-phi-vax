@@ -18,6 +18,9 @@ library(rdhs)
 library(devtools)
 library(rdhs)
 library(haven)
+library(table1)
+library(tidyr)
+library(dplyr)
 
 ###############################
 # important variables
