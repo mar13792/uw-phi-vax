@@ -38,7 +38,7 @@ if (Sys.info()[1]=='Windows'){
     }
 
 setwd(code_dir)
-data_dir <- paste0(g_drive,"Data/raw_data/")
+data_dir <- paste0(g_drive,"Data/")
 prepped_data_dir <- paste0(data_dir,"prepped_data/")
 codebook_directory <- paste0(data_dir,"codebooks/")
 visDir <- paste0(g_drive,"Visualizations/")
@@ -50,6 +50,8 @@ aim1_vis <- paste0(visDir, "aim_1/")
 outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
 outputFile2b = paste0(prepped_data_dir, "2b_sdi.RDS")
 outputFile2c = paste0(prepped_data_dir, "2c_disease_trends.RDS")
+outputFile2d = paste0(prepped_data_dir, "2d_dhs_vaccination_data.RDS")
+
 outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
 outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
 outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
