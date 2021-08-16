@@ -3,7 +3,7 @@
 # # Date: Last modified August 12, 2021
 
 # read in raw dataset
-dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"vaccination_trends/dhs/LBIR7ADT/LBIR7AFL.DTA")))
+dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"raw_data/vaccination_trends/dhs/LBIR7ADT/LBIR7AFL.DTA")))
 
 # to-do #####
 
@@ -11,7 +11,7 @@ dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"vaccination_trends/dhs/
 # subset columns into id variables and variables that need tidying
 ###############################################################
 idVars = c("caseid", "v000", "v005", "v007", "v006", "v016") # id variables for merging
-demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191a", "v025") # demographic variables
+demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191", "v190a", "v191a", "v025") # demographic variables
 
 dobyearVars = names(dhs_data)[grepl('b2_', names(dhs_data))] # child's year of birth
 dobmonthVars = names(dhs_data)[grepl('b1_', names(dhs_data))] # child's month of birth
@@ -395,6 +395,9 @@ prepped_dhs_data <- filter(prepped_dhs_data, child_resid!=4)
 
 # remove children that weren't born in the last three years
 prepped_dhs_data <- filter(prepped_dhs_data, birth_year >2017)
+
+# keep only info for children alive at time of interview
+prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
 
 ###############################################################
 # subset columns

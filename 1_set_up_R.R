@@ -23,6 +23,7 @@ library(tidyr)
 library(dplyr)
 library(tidyverse)
 library(lubridate)
+library(naniar)
 
 ###############################
 # important variables
@@ -124,6 +125,13 @@ if(prep_sdi == TRUE){
 # ---------------------------------------
 if(prep_dx_trends == TRUE){
   source('./2c_prep_disease_data.R')
+}
+
+# ---------------------------------------
+# Prep DHS data
+# ---------------------------------------
+if(prep_dhs_data == TRUE){
+  source('./2d_prep_dhs_data.R')
 }
 
 # ---------------------------------------
