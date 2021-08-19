@@ -344,7 +344,7 @@ dt3 <- dt3 %>% mutate(vaccine=recode(vaccine,
                                                                `h65`="hib2",
                                                                `h66`="hib3"))
 # calculate single vaccination date variable
-dt3 <- dt3 %>% mutate(vaxdate := make_date(year, month, day))
+dt3 <- dt3 %>% mutate(vaxdate := make_date(month=month, day=day, year=year))
 
 # subset relevant columns
 dt3 <- dt3 %>% select(caseid, v000, v005, v007, v006, v016, vaccine, child, vaxdate)
@@ -377,8 +377,8 @@ prepped_dhs_data <- dt1 %>% full_join(dt2, by = mergeCols) %>%
 
 # date interview was conducted and date of birth (dob)
 prepped_dhs_data <- prepped_dhs_data %>%
-  mutate(intv_date := make_date(v007, v006, v016)) %>%
-  mutate(dob := make_date(birth_year, birth_month, birth_day))
+  mutate(intv_date := make_date(month=v006, day=v016, year=v007)) %>%
+  mutate(dob := make_date(month=birth_month, day=birth_day, year=birth_year))
   
 ###############################################################
 # subset rows

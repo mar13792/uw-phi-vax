@@ -79,6 +79,8 @@ outputFile5p = paste0(aim1_vis, "exemplar_countries/16_outliers_low_sdi_decade.P
 outputFile5q = paste0(aim1_vis, "exemplar_countries/17_barplot_low_sdi_decade.PDF")
 outputFile5r = paste0(aim1_vis, "exemplar_countries/18_detailed_table_low_sdi_decade.PDF")
 
+outputFile6a = paste0(prepped_data_dir, "6a_dhs_data_for_analyses.RDS")
+
 ###############################
 # source shared functions
 ###############################
@@ -93,7 +95,7 @@ prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = FALSE
 
-prep_dhs_data = TRUE
+extract_dhs_data = FALSE
 
 merge_files = FALSE
 
@@ -130,8 +132,8 @@ if(prep_dx_trends == TRUE){
 # ---------------------------------------
 # Prep DHS data
 # ---------------------------------------
-if(prep_dhs_data == TRUE){
-  source('./2d_prep_dhs_data.R')
+if(extract_dhs_data == TRUE){
+  source('./2d_extract_dhs_data.R')
 }
 
 # ---------------------------------------
