@@ -12,7 +12,7 @@
 ####################################################
 # read in dataset
 ####################################################
-dt <- read_rds(outputFile2d)
+dt <- readRDS(outputFile2d)
 
 ####################################################
 # 1. calculate new variables
@@ -34,6 +34,8 @@ dt <- dt %>% mutate(has_health_card_bin=recode(has_health_card_bin,
 dt$has_health_card_bin <- factor(dt$has_health_card_bin,
                                  levels = c(0,1),
                                  labels = c("No", "Yes"))
+
+
 
 # female sex
 dt$female <- as.character(dt$sex_of_child)
@@ -162,19 +164,54 @@ dt$female_head <- factor(dt$female_head,
 #####  Assign the MINIMUM and MAXIMUM ages each vaccine should be given 
 #  Assumption: Vaccine is due at month X. We will accept vaccines given at month X-0.5 through X+1.5. 
 # Example: Measles due at 9 mos is acceptable 8.5-10.5 months of age.
-dt$mea1_age_due_min = 9*30.4 - 15.2
-dt$mea1_age_due_max = 10*30.4 +  15.2
+dt$mea1_age_due_min = 9*30.4 - 15.2 # 258 days
+dt$mea1_age_due_max = 10*30.4 +  15.2 # 319.2 days
 
 ##### do Rotavirus (3 series) as well as DPT
 
 # calculate the age of child in days
 dt$kid_age <- time_length(difftime(dt$intv_date, dt$dob), "days")
 
-# calculate the age at which child was vaccinated with measles-containing vaccine
+# calculate the age at which child was vaccinated with measles-containing vaccine and all other vaccines
 dt$age_at_mea1 <- time_length(difftime(dt$mea1, dt$dob), "days")
+dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
+dt$age_at_dpt1 <- time_length(difftime(dt$dpt1, dt$dob), "days")
+dt$age_at_pol1 <- time_length(difftime(dt$pol1, dt$dob), "days")
+dt$age_at_dpt2 <- time_length(difftime(dt$dpt2, dt$dob), "days")
+dt$age_at_pol2 <- time_length(difftime(dt$pol2, dt$dob), "days")
+dt$age_at_dpt3 <- time_length(difftime(dt$dpt3, dt$dob), "days")
 
-# Add indicator:
-# What is the difference in days between appropriate timing and the actual age at vaccination? 
+dt$age_at_pol3 <- time_length(difftime(dt$pol3, dt$dob), "days")
+dt$age_at_mea2 <- time_length(difftime(dt$mea2, dt$dob), "days")
+dt$age_at_pol0 <- time_length(difftime(dt$pol0, dt$dob), "days")
+dt$age_at_hepbbirth <- time_length(difftime(dt$hepbbirth, dt$dob), "days")
+dt$age_at_pent1 <- time_length(difftime(dt$pent1, dt$dob), "days")
+dt$age_at_pent2 <- time_length(difftime(dt$pent2, dt$dob), "days")
+dt$age_at_pent3 <- time_length(difftime(dt$pent3, dt$dob), "days")
+
+dt$age_at_pneu1 <- time_length(difftime(dt$pneu1, dt$dob), "days")
+dt$age_at_pneu2 <- time_length(difftime(dt$pneu2, dt$dob), "days")
+dt$age_at_pneu3 <- time_length(difftime(dt$pneu3, dt$dob), "days")
+dt$age_at_rota1 <- time_length(difftime(dt$rota1, dt$dob), "days")
+dt$age_at_rota2 <- time_length(difftime(dt$rota2, dt$dob), "days")
+dt$age_at_rota3 <- time_length(difftime(dt$rota3, dt$dob), "days")
+dt$age_at_poln <- time_length(difftime(dt$poln, dt$dob), "days")
+
+dt$age_at_hepb1 <- time_length(difftime(dt$hepb1, dt$dob), "days")
+dt$age_at_hepb2 <- time_length(difftime(dt$hepb2, dt$dob), "days")
+dt$age_at_hepb3 <- time_length(difftime(dt$hepb3, dt$dob), "days")
+dt$age_at_hib1 <- time_length(difftime(dt$hib1, dt$dob), "days")
+dt$age_at_hib2 <- time_length(difftime(dt$hib2, dt$dob), "days")
+dt$age_at_hib3 <- time_length(difftime(dt$hib3, dt$dob), "days")
+
+# variable indicating when the oldest vaccination date took place
+dt <- dt %>% mutate(oldest_visit = pmax(bcg, dpt1, pol1, dpt2, pol2, dpt3, pent1, pent2, pent3, pneu1, pneu2, pneu3, rota1, rota2, rota3, poln, hepb1, hepb2, hepb3, hib1, hib2, hib3,
+                    na.rm=TRUE))
+
+# calculate the age at the oldest visit
+dt$age_at_oldest_visit = time_length(difftime(dt$oldest_visit, dt$dob), "days")
+
+# Add indicator for the difference in days between appropriate timing and the actual age at vaccination
 # How to interpret: 
 # (1) a value of <0 for mmr_age_minus_min means that they were vaccinated too early -- all of the days lived after the end of the mmr window will be considered days at risk; 
 # (2) a value of >0 for mmr_age_minus_min and <0 for mmr_age_minus_max means that they were vaccinated in the proper time window and they will accrue 0 days at risk; 
@@ -188,50 +225,89 @@ dt$mea1_age_minus_max <- dt$age_at_mea1 - dt$mea1_age_due_max
 # (3) vaccinated too late, or
 # (4) never vaccinated
 
-dt <- dt %>% mutate(early_mea1 = case_when(mea1_age_minus_min<0 & kid_age>=mea1_age_due_max ~ 1, # vaccinated too early
+dt <- dt %>% 
+  mutate(
+    # vaccinated too early
+    early_mea1 = case_when(mea1_age_minus_min<0 ~ 1, 
                                            TRUE ~ 0),
-                    mea1_within_interval = case_when(mea1_age_minus_min>=0 & mea1_age_minus_max<=0 & kid_age>=mea1_age_due_max ~ 1, # vaccinated within appropriate time frame
+    
+    # vaccinated within appropriate time frame
+    mea1_within_interval = case_when(mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ 1, 
                                                      TRUE ~ 0),
-                    mea1_late = case_when(mea1_age_minus_max>0 & !is.na(mea1_age_minus_max) & kid_age>=mea1_age_due_max ~ 1, # vaccinated but too late
+    
+    # vaccinated but too late
+    mea1_late = case_when(mea1_age_minus_max>0 ~ 1, 
                                           TRUE ~ 0),
-                    
-                    never_got_mea1 = case_when(!is.na(age_at_mea1) & has_health_card_bin=="Yes" ~ 0,
-                                               is.na(age_at_mea1) & has_health_card_bin=="Yes" ~ 1), #  never received vaccine (1 is never received, 0 is did receive)
-                                               
-                    # variable that transposes the age at which the vaccination was given (for those vaccinated early, late, or within the correct time frame)
-                    mea1_age_at_counted_vac = case_when(mea1_age_minus_min<0 & kid_age>=mea1_age_due_max ~ age_at_mea1,
-                                                        mea1_age_minus_min>=0 & mea1_age_minus_max<=0 & kid_age>=mea1_age_due_max ~ age_at_mea1,
-                                                        mea1_age_minus_max>0 & !is.na(mea1_age_minus_max) & kid_age>=mea1_age_due_max ~ age_at_mea1),
-                    
-                    # variable that indicates how much time each child was at risk (for those that were vaccinated early or late)
-                    mea1_days_at_risk = case_when(mea1_age_minus_min<0 & kid_age>=mea1_age_due_max ~ kid_age - mea1_age_due_max,
-                                                  mea1_age_minus_min>=0 & mea1_age_minus_max<=0 & kid_age>=mea1_age_due_max ~ 0,
-                                                  mea1_age_minus_max>0 & !is.na(mea1_age_minus_max) & kid_age>=mea1_age_due_max ~ mea1_age_minus_max,
-                                                  never_got_mea1==1 & kid_age>=mea1_age_due_max ~ kid_age - mea1_age_due_max),
-                    
-                    # variable indicating when the oldest vaccination date took place
-                    oldest_visit = pmax(bcg, dpt1, pol1, dpt2, pol2, dpt3, pent1, pent2, pent3, pneu1, pneu2, pneu3, rota1, rota2, rota3, poln, hepb1, hepb2, hepb3, hib1, hib2, hib3,
-                                       na.rm=TRUE),
-                    # calculate the age at the oldest visit
-                    age_at_oldest_visit = time_length(difftime(dt$oldest_visit, dt$dob), "days"),
-                    
-                    # variable that indicates missed opportunities
-                    mea1_missed_opportunity = case_when(never_got_mea1==1 & age_at_oldest_visit>mea1_age_due_min & kid_age>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_oldest_visit) ~ 1,
-                                                        TRUE ~ 0),
-                    
-                    # We also want to know how old the child was at the earliest eligible visit 
-                    
-                    # The child got measles late, but there was a visit for another vaccine in between the MMR due age and actual age at MMR 
-                    
-                    # Now compute a compliance with MO
-                    mea1_compliant_card_mop = case_when(mea1_date_recorded%in%c(0) ~0,
-                                                        mea1_date_recorded%in%c(1,3) ~1,
-                                                        mea1_missed_opportunity==1 ~1),
-                    
-                    # compute days of risk if opportunity was not missed
-                    mea1_days_at_risk_mop = case_when(mea1_missed_opportunity==0 ~ mea1_days_at_risk,
-                                                      )
-                    )
+    
+    #  never received vaccine (1 is never received, 0 is did receive))                
+    never_got_mea1 = case_when(!is.na(age_at_mea1) & has_health_card_bin=="Yes" ~ 0,
+                                               is.na(age_at_mea1) & has_health_card_bin=="Yes" ~ 1), 
+    
+    # transpose the age at which children that did receive measles were counted
+    mea1_age_at_counted_vac = case_when(mea1_age_minus_min<0 ~ age_at_mea1,
+                                        mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ age_at_mea1,
+                                        mea1_age_minus_max>0 ~ age_at_mea1),
+    
+    # variable that indicates how much time each child was at risk (for those that were vaccinated early or late)
+    mea1_days_at_risk = case_when(mea1_age_minus_min<0 & kid_age>=mea1_age_due_max ~ kid_age - mea1_age_due_max,
+                                  mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ 0,
+                                  mea1_age_minus_max>0  ~ mea1_age_minus_max,
+                                  never_got_mea1==1 & kid_age>=mea1_age_due_max  ~ kid_age - mea1_age_due_max),
+    
+    # variable that indicates missed opportunities
+    mea1_missed_opportunity = case_when(never_got_mea1==1 & age_at_oldest_visit>mea1_age_due_min & kid_age>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_oldest_visit) ~ 1,
+                                        kid_age>=mea1_age_due_max & !is.na(mea1_days_at_risk) ~ 0)
+)
+
+# calculate age at each vaccine
+
+# make vector of vaccine_dates
+# dateVars = names(dt)[grepl('age_at', names(dt))][4:29]
+   
+
+# dt <- dt %>% 
+#   mutate_at(
+#     vars(one_of(dateVars)),
+#     list(case_when(
+#       .>=mea1_age_due_min ~ .
+#     )))
+
+
+  #   ))
+  # # We also want to know how old the child was at the earliest eligible visit 
+  # no_mea1_mop_age = case_when(never_got_mea1==0 ~ NA,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_dpt1>=mea1_age_due_min ~ age_at_dpt1,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,
+  #                             never_got_mea1==1 & age_at_bcg>=mea1_age_due_min ~ age_at_bcg,)
+  #                   
+  #                   # The child got measles late, but there was a visit for another vaccine in between the measles due age and actual age at measles 
+  #                   
+  #                   # Now compute a compliance with MO
+  #                   mea1_compliant_card_mop = case_when(mea1_date_recorded%in%c(0) ~0,
+  #                                                       mea1_date_recorded%in%c(1,3) ~1,
+  #                                                       mea1_missed_opportunity==1 ~1),
+  #                   
+  #                   # compute days of risk if opportunity was not missed
+  #                   mea1_days_at_risk_mop = case_when(mea1_missed_opportunity==0 ~ mea1_days_at_risk,
+  #                                                     )
+  #                   )
                     
 
 # // 7a. MMR

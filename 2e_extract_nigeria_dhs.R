@@ -3,7 +3,7 @@
 # # Date: Last modified August 12, 2021
 
 # read in raw dataset
-dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"raw_data/vaccination_trends/dhs/LBIR7ADT/LBIR7AFL.DTA")))
+dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"raw_data/vaccination_trends/dhs/NGIR7BDT/NGIR7BFL.DTA")))
 
 # to-do #####
 
@@ -300,7 +300,7 @@ dt2 <- dt2 %>% select(caseid, v000, v005, v007, v006, v016, child, has_health_ca
 # pivot dataset wider
 dt2 <- dt2 %>% 
   pivot_wider(names_from = vaccine_date_recorded, values_from = is_date_recorded)
-  
+
 #########################
 ##### 3. child vaccines dates 
 #########################
@@ -316,33 +316,33 @@ dt3 <- vaxyearData %>%
 # recode vaccine column to actual vaccine names 
 # bcg, dpt, polio, mea (measles only), hepb, pent, pneu, rota, hepb, hib
 dt3 <- dt3 %>% mutate(vaccine=recode(vaccine, 
-                                                               `h2`="bcg",
-                                                               `h3`="dpt1",
-                                                               `h4`="pol1",
-                                                               `h5`="dpt2",
-                                                               `h6`="pol2",
-                                                               `h7`="dpt3",
-                                                               `h8`="pol3",
-                                                               `h9`="mea1",
-                                                               `h9a`="mea2",
-                                                               `h0`="pol0",
-                                                               `h50`="hepbbirth",
-                                                               `h51`="pent1",
-                                                               `h52`="pent2",
-                                                               `h53`="pent3",
-                                                               `h54`="pneu1",
-                                                               `h55`="pneu2",
-                                                               `h56`="pneu3",
-                                                               `h57`="rota1",
-                                                               `h58`="rota2",
-                                                               `h59`="rota3",
-                                                               `h60`="poln",
-                                                               `h61`="hepb1",
-                                                               `h62`="hepb2",
-                                                               `h63`="hepb3",
-                                                               `h64`="hib1",
-                                                               `h65`="hib2",
-                                                               `h66`="hib3"))
+                                     `h2`="bcg",
+                                     `h3`="dpt1",
+                                     `h4`="pol1",
+                                     `h5`="dpt2",
+                                     `h6`="pol2",
+                                     `h7`="dpt3",
+                                     `h8`="pol3",
+                                     `h9`="mea1",
+                                     `h9a`="mea2",
+                                     `h0`="pol0",
+                                     `h50`="hepbbirth",
+                                     `h51`="pent1",
+                                     `h52`="pent2",
+                                     `h53`="pent3",
+                                     `h54`="pneu1",
+                                     `h55`="pneu2",
+                                     `h56`="pneu3",
+                                     `h57`="rota1",
+                                     `h58`="rota2",
+                                     `h59`="rota3",
+                                     `h60`="poln",
+                                     `h61`="hepb1",
+                                     `h62`="hepb2",
+                                     `h63`="hepb3",
+                                     `h64`="hib1",
+                                     `h65`="hib2",
+                                     `h66`="hib3"))
 # calculate single vaccination date variable
 dt3 <- dt3 %>% mutate(vaxdate := make_date(month=month, day=day, year=year))
 
@@ -379,7 +379,7 @@ prepped_dhs_data <- dt1 %>% full_join(dt2, by = mergeCols) %>%
 prepped_dhs_data <- prepped_dhs_data %>%
   mutate(intv_date := make_date(month=v006, day=v016, year=v007)) %>%
   mutate(dob := make_date(month=birth_month, day=birth_day, year=birth_year))
-  
+
 ###############################################################
 # subset rows
 ###############################################################
@@ -422,8 +422,40 @@ prepped_dhs_data$caseid <- gsub('\\s+', '', prepped_dhs_data$caseid)
 ###############################################################
 # save as an r-object
 ###############################################################
-saveRDS(prepped_dhs_data, file=outputFile2d)
+saveRDS(prepped_dhs_data, file=paste0(prepped_data_dir, "2d_dhs_nigeria_data.RDS"))
 
 # print final statement
-print("Step 2d: Prepping DHS data now complete.")
+print("Step 2d: Prepping Nigeria DHS data now complete.")
+
+prepped_dhs_data <- as.data.table(prepped_dhs_data)
+
+# calculate the number of children in sample
+prepped_dhs_data[, .(.N), by = .(v000)]
+
+# code if has health card
+# has health card binary
+prepped_dhs_data$has_health_card_bin <- as.character(prepped_dhs_data$has_health_card)
+prepped_dhs_data <- prepped_dhs_data %>% mutate(has_health_card_bin=recode(has_health_card_bin,
+                                               `0`=0,                                 
+                                               `1`=1,
+                                               `2`=0,
+                                               `3`=1,
+                                               `4`=0,
+                                               `5`=1,
+                                               `6`=1,
+                                               `7`=1,
+                                               `8`=0))
+
+prepped_dhs_data$has_health_card_bin <- factor(prepped_dhs_data$has_health_card_bin,
+                                 levels = c(0,1),
+                                 labels = c("No", "Yes"))
+
+# calculate how many children has a vaccination card
+prepped_dhs_data[has_health_card_bin == "Yes",.(total_with_card= .N), by = v000]
+
+# calculate how many children were covered by each vaccine according to recall and card
+prepped_dhs_data[bcg_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
+
+# calculate how many children received bcg according to health card only
+prepped_dhs_data[has_health_card_bin == "Yes" & mea1_date_recorded%in%c(1,3),.(received_mea= .N), by = v000]
 
