@@ -3,7 +3,7 @@
 # # Date: Last modified August 12, 2021
 
 # read in raw dataset
-dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"raw_data/vaccination_trends/dhs/LBIR6ADT/LBIR6AFL.DTA")))
+dhs_data <- as.data.table(read_dta(file=paste0(data_dir,"raw_data/vaccination_trends/dhs/NGIR6ADT/NGIR6AFL.DTA")))
 
 # to-do #####
 
@@ -289,7 +289,7 @@ dt2 <- dt2 %>% mutate(vaccine=recode(vaccine,
                                      # `h64`="hib1",
                                      # `h65`="hib2",
                                      # `h66`="hib3"
-                                     ))
+))
 
 # revise vaccien_date_recorded to ensure it will be tidy variable name when pivoted wider
 dt2 <- dt2 %>% mutate(
@@ -345,7 +345,7 @@ dt3 <- dt3 %>% mutate(vaccine=recode(vaccine,
                                      # `h64`="hib1",
                                      # `h65`="hib2",
                                      # `h66`="hib3"
-                                     ))
+))
 # calculate single vaccination date variable
 dt3 <- dt3 %>% mutate(vaxdate := make_date(month=month, day=day, year=year))
 
@@ -411,7 +411,7 @@ prepped_dhs_data <- prepped_dhs_data %>%
             # h80, 
             h31, birth_year, birth_month, 
             # birth_day
-            ))
+  ))
 
 # reorder columns to put demographic variables first
 prepped_dhs_data <- prepped_dhs_data %>% relocate(intv_date, .after = v025) %>%
@@ -429,7 +429,7 @@ prepped_dhs_data$caseid <- gsub('\\s+', '', prepped_dhs_data$caseid)
 ###############################################################
 # save as an r-object
 ###############################################################
-saveRDS(prepped_dhs_data, file=paste0(prepped_data_dir, "2d_dhs_liberia_2013_data.RDS"))
+saveRDS(prepped_dhs_data, file=paste0(prepped_data_dir, "2e_dhs_nigeria_2013_data.RDS"))
 
 # print final statement
 print("Step 2d: Prepping Liberia 2013 MIS DHS data now complete.")
@@ -442,17 +442,21 @@ prepped_dhs_data[, .(.N), by = .(v000)]
 # code if has health card
 # has health card binary
 prepped_dhs_data$has_health_card_bin <- as.character(prepped_dhs_data$has_health_card)
+
+prepped_dhs_data <- prepped_dhs_data%>%
+  mutate(has_health_card_bin = na_if(has_health_card_bin, 9))
+
 prepped_dhs_data <- prepped_dhs_data %>% mutate(has_health_card_bin=recode(has_health_card_bin,
                                                                            `0`=0,                                 
                                                                            `1`=1,
                                                                            `2`=0,
-                                                                           `3`=1,
+                                                                           `3`=1
                                                                            # `4`=0,
                                                                            # `5`=1,
                                                                            # `6`=1,
                                                                            # `7`=1,
                                                                            # `8`=0
-                                                                           ))
+)) 
 
 prepped_dhs_data$has_health_card_bin <- factor(prepped_dhs_data$has_health_card_bin,
                                                levels = c(0,1),
@@ -462,7 +466,7 @@ prepped_dhs_data$has_health_card_bin <- factor(prepped_dhs_data$has_health_card_
 prepped_dhs_data[has_health_card_bin == "Yes",.(total_with_card= .N), by = v000]
 
 # calculate how many children were covered by each vaccine according to recall and card
-prepped_dhs_data[bcg_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
+# prepped_dhs_data[bcg_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
 
 # calculate how many children received bcg according to health card only
 prepped_dhs_data[has_health_card_bin == "Yes" & mea1_date_recorded%in%c(1,3),.(received_mea= .N), by = v000]

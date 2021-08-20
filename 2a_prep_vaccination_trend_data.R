@@ -15,13 +15,13 @@ for(i in 1:nrow(file_list)){
   file_dir = paste0(data_dir, file_list$data_type[i], '/', file_list$data_source[i], '/' )
   
   # set up arguments
-  args <- list(file_dir, file_list$file_name[i], file_list$sheet[i], file_list$data_type[i])
+  args <- list(file_dir, file_list$file_name[i], file_list$containing_folder[i], file_list$data_source[i])
   
   ### RUN THE PREP FUNCTION HERE ###
-  tmpData = do.call(prep_vax_trend_data, args)
+  tmpData = do.call(extract_dhs_data, args)
   
   #Add indexing data
-  append_cols = file_list[i, .(file_name, data_type, data_source)]
+  append_cols = file_list[i, .(file_name, data_source)]
   
   stopifnot(nrow(append_cols)==1)
   

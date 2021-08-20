@@ -394,7 +394,7 @@ prepped_dhs_data <- filter(prepped_dhs_data, child %in% c("1", "2", "3", "4", "5
 prepped_dhs_data <- filter(prepped_dhs_data, child_resid!=4)
 
 # remove children that weren't born in the last three years
-prepped_dhs_data <- filter(prepped_dhs_data, birth_year >2017)
+prepped_dhs_data <- filter(prepped_dhs_data, birth_year >2015)
 
 # keep only info for children alive at time of interview
 prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
