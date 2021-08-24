@@ -29,7 +29,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   if (dhs_version=="dhs7"){
   demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191", "v190a", "v191a", "v025") # demographic variables
   } else if (dhs_version=="dhs6"){
-    demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191", "v025")
+    demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191", "v025") # slighlty different demographic variables
   }
   
   dobyearVars = names(dhs_data)[grepl('b2_', names(dhs_data))] # child's year of birth
@@ -110,6 +110,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
     dobdayData <- select(dobdayData, -(variable))
     
   }
+  
   
   ######################
   # child sex data
@@ -272,12 +273,17 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   
   # merge the mother and household demographic variables with child child characteristics
   mergeCols <- c(idVars, "child")
-  dt1 <- demoData %>% full_join(dobyearData, by = idVars) %>% 
-    full_join(dobmonthData,  by = mergeCols) %>%
-    # full_join(dobdayData, by = mergeCols) %>%
-    full_join(childsexData, by = mergeCols) %>%
+  dt1 <- demoData %>% 
+    full_join(childsexData, by = idVars) %>%
     full_join(childlivingData, by = mergeCols) %>%
-    full_join(childresidData, by=mergeCols)
+    full_join(childresidData, by=mergeCols) %>% 
+    full_join(dobyearData, by = mergeCols) %>% 
+    full_join(dobmonthData,  by = mergeCols) 
+  
+  if (dhs_version=="dhs7"){
+    dt1 <- dt1 %>% 
+      full_join(dobdayData, by=mergeCols)
+  }
   
   ######################### 
   ##### 2. vaccine health card variables
@@ -287,6 +293,8 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   dt2 <- vaxcardData %>% full_join(vaxcarddateData, by = mergeCols)
   
   # bcg, dpt, polio, mea (measles only), hepb, pent, pneu, rota, hepb, hib
+  
+  if (dhs_version=="dhs7"){
   dt2 <- dt2 %>% mutate(vaccine=recode(vaccine, 
                                        `h2`="bcg",
                                        `h3`="dpt1",
@@ -296,28 +304,40 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
                                        `h7`="dpt3",
                                        `h8`="pol3",
                                        `h9`="mea1",
-                                       # `h9a`="mea2",
+                                       `h9a`="mea2",
                                        `h0`="pol0",
-                                       # `h50`="hepbbirth",
-                                       # `h51`="pent1",
-                                       # `h52`="pent2",
-                                       # `h53`="pent3",
-                                       # `h54`="pneu1",
-                                       # `h55`="pneu2",
-                                       # `h56`="pneu3",
-                                       # `h57`="rota1",
-                                       # `h58`="rota2",
-                                       # `h59`="rota3",
-                                       # `h60`="poln",
-                                       # `h61`="hepb1",
-                                       # `h62`="hepb2",
-                                       # `h63`="hepb3",
-                                       # `h64`="hib1",
-                                       # `h65`="hib2",
-                                       # `h66`="hib3"
-  ))
+                                       `h50`="hepbbirth",
+                                       `h51`="pent1",
+                                       `h52`="pent2",
+                                       `h53`="pent3",
+                                       `h54`="pneu1",
+                                       `h55`="pneu2",
+                                       `h56`="pneu3",
+                                       `h57`="rota1",
+                                       `h58`="rota2",
+                                       `h59`="rota3",
+                                       `h60`="poln",
+                                       `h61`="hepb1",
+                                       `h62`="hepb2",
+                                       `h63`="hepb3",
+                                       `h64`="hib1",
+                                       `h65`="hib2",
+                                       `h66`="hib3"))
   
-  # revise vaccien_date_recorded to ensure it will be tidy variable name when pivoted wider
+  } else if (dhs_version=="dhs6"){
+    dt2 <- dt2 %>% mutate(vaccine=recode(vaccine, 
+                                         `h2`="bcg",
+                                         `h3`="dpt1",
+                                         `h4`="pol1",
+                                         `h5`="dpt2",
+                                         `h6`="pol2",
+                                         `h7`="dpt3",
+                                         `h8`="pol3",
+                                         `h9`="mea1",
+                                         `h0`="pol0"))
+  }
+  
+  # revise vaccine_date_recorded to ensure it will be tidy variable name when pivoted wider
   dt2 <- dt2 %>% mutate(
     vaccine_date_recorded = paste(vaccine, "date_recorded", sep = "_")
   )
@@ -328,5 +348,150 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   # pivot dataset wider
   dt2 <- dt2 %>% 
     pivot_wider(names_from = vaccine_date_recorded, values_from = is_date_recorded)
+  
+  
+  #########################
+  ##### 3. child vaccines dates 
+  #########################
+  
+  # vaccine merge columns
+  vaxmergeCols <- c(idVars, "child", "vaccine")
+  
+  # merge vaccine dates into one variable
+  dt3 <- vaxyearData %>%
+    full_join(vaxmonthData, by = vaxmergeCols) %>%
+    full_join(vaxdayData, by = vaxmergeCols)
+  
+  # recode vaccine column to actual vaccine names 
+  # bcg, dpt, polio, mea (measles only), hepb, pent, pneu, rota, hepb, hib
+  
+  if (dhs_version=="dhs7"){
+    
+  dt3 <- dt3 %>% mutate(vaccine=recode(vaccine, 
+                                       `h2`="bcg",
+                                       `h3`="dpt1",
+                                       `h4`="pol1",
+                                       `h5`="dpt2",
+                                       `h6`="pol2",
+                                       `h7`="dpt3",
+                                       `h8`="pol3",
+                                       `h9`="mea1",
+                                       `h9a`="mea2",
+                                       `h0`="pol0",
+                                       `h50`="hepbbirth",
+                                       `h51`="pent1",
+                                       `h52`="pent2",
+                                       `h53`="pent3",
+                                       `h54`="pneu1",
+                                       `h55`="pneu2",
+                                       `h56`="pneu3",
+                                       `h57`="rota1",
+                                       `h58`="rota2",
+                                       `h59`="rota3",
+                                       `h60`="poln",
+                                       `h61`="hepb1",
+                                       `h62`="hepb2",
+                                       `h63`="hepb3",
+                                       `h64`="hib1",
+                                       `h65`="hib2",
+                                       `h66`="hib3"))
+  } else if (dhs_version=="dhs6"){
+    dt3 <- dt3 %>% mutate(vaccine=recode(vaccine, 
+                                         `h2`="bcg",
+                                         `h3`="dpt1",
+                                         `h4`="pol1",
+                                         `h5`="dpt2",
+                                         `h6`="pol2",
+                                         `h7`="dpt3",
+                                         `h8`="pol3",
+                                         `h9`="mea1",
+                                         `h0`="pol0"))
+  }
+  
+  # calculate single vaccination date variable
+  dt3 <- dt3 %>% mutate(vaxdate := make_date(month=month, day=day, year=year))
+  
+  # subset relevant columns
+  dt3 <- dt3 %>% select(caseid, v000, v005, v007, v006, v016, vaccine, child, vaxdate)
+  
+  # pivot vaccine dates wider
+  dt3 <- dt3 %>% 
+    pivot_wider(names_from = vaccine, values_from = vaxdate)
+  
+  ###############################################################
+  # merge three main datasets together
+  ###############################################################
+  
+  # re-code child variable in first datatable (dt1) in order to facilitate merge
+  dt1 <- dt1 %>% mutate(child=recode(child,
+                                     `01`="1",
+                                     `02`="2",
+                                     `03`="3",
+                                     `04`="4",
+                                     `05`="5",
+                                     `06`="6"))
+  
+  
+  # merge into new dataset called prepped_dhs_data
+  prepped_dhs_data <- dt1 %>% full_join(dt2, by = mergeCols) %>%
+    full_join(dt3, by = mergeCols)
+  
+  ###############################################################
+  # calculate new variables
+  ###############################################################
+  
+  # if dataset doesn't contain the birth year then add in a placeholder for middle of the month
+  if ("birth_day"%in%names(prepped_dhs_data)==FALSE){
+    prepped_dhs_data$birth_day <- 15
+  }
+  
+  # date interview was conducted and date of birth (dob)
+  prepped_dhs_data <- prepped_dhs_data %>%
+    mutate(intv_date := make_date(month=v006, day=v016, year=v007)) %>%
+    mutate(dob := make_date(month=birth_month, day=birth_day, year=birth_year))
+  
+  ###############################################################
+  # subset rows --change to be updated dynamically
+  ###############################################################
+  
+  # drop rows that have NA for key columns
+  prepped_dhs_data <- prepped_dhs_data %>% drop_na(dob, sex_of_child)
+  
+  # keep only info for the six most recent births
+  prepped_dhs_data <- filter(prepped_dhs_data, child %in% c("1", "2", "3", "4", "5", "6"))
+  
+  # remove children that aren't residing with mom
+  prepped_dhs_data <- filter(prepped_dhs_data, child_resid!=4)
+  
+  # remove children that weren't born in the last three years
+  year_of_interest <- max(unique(prepped_dhs_data$v007)) -3
+  prepped_dhs_data <- filter(prepped_dhs_data, birth_year >year_of_interest)
+  
+  # keep only info for children alive at time of interview
+  prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
+  
+  ###############################################################
+  # subset columns
+  ###############################################################
+  # remove unnecessary columns
+  prepped_dhs_data <- prepped_dhs_data %>%
+    select(-c(v007, v006, v016, h12, h32, h37, h15, h36, h40, 
+              # h80, 
+              h31, birth_year, birth_month, 
+              # birth_day
+    ))
+  
+  # reorder columns to put demographic variables first
+  prepped_dhs_data <- prepped_dhs_data %>% relocate(intv_date, .after = v025) %>%
+    relocate(dob, .after = child)
+  
+  # fix white space in caseid variable
+  prepped_dhs_data$caseid <- gsub('\\s+', '', prepped_dhs_data$caseid)
+  
+  ###############################################################
+  # read in next year and country file and bind dataset together once confirmed what the final variable names will be--
+  # maybe create a codebook for dhs derived dataset which could be read in to make sure all names are consistent
+  ###############################################################
+  
   
 }
