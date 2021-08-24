@@ -2,9 +2,6 @@
 # Purpose: Set up R for prepping UW PHI Vaccination Data
 # Date: Last modified July 12, 2021
 
-# Manually set the working directory
-# Manually update the important variables section according to file structure of computer
-
 ###############################
 # load required packages
 ###############################
@@ -20,6 +17,7 @@ library(rdhs)
 library(haven)
 library(table1)
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(tidyverse)
 library(lubridate)
@@ -51,7 +49,7 @@ aim1_vis <- paste0(visDir, "aim_1/")
 outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
 outputFile2b = paste0(prepped_data_dir, "2b_sdi.RDS")
 outputFile2c = paste0(prepped_data_dir, "2c_disease_trends.RDS")
-outputFile2d = paste0(prepped_data_dir, "2d_dhs_vaccination_data.RDS")
+outputFile2d = paste0(prepped_data_dir, "2d_dhs_vaccination_data_all_locations.RDS")
 
 outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
 outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
@@ -87,6 +85,8 @@ outputFile6a = paste0(prepped_data_dir, "6a_dhs_data_for_analyses.RDS")
 source(paste0(code_dir, "functions/", "prep_vax_trend_data.R"))
 source(paste0(code_dir, "functions/", "prep_dx_trend_data.R"))
 source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
+source(paste0(code_dir, "functions/", "extract_dhs_data.R"), encoding = "UTF-8")
+
 
 ###############################
 # set Boolean switches
@@ -95,7 +95,7 @@ prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = FALSE
 
-extract_dhs_data = FALSE
+prep_dhs_data = FALSE
 
 merge_files = FALSE
 
@@ -132,7 +132,7 @@ if(prep_dx_trends == TRUE){
 # ---------------------------------------
 # Prep DHS data
 # ---------------------------------------
-if(extract_dhs_data == TRUE){
+if(prep_dhs_data == TRUE){
   source('./2d_extract_dhs_data.R')
 }
 

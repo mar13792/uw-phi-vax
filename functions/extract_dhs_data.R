@@ -8,10 +8,10 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   ### TROUBLESHOOTING HELP 
   # Uncomment lines below to run tests
   
-  dir = file_dir
-  inFile = file_list$file_name[i]
-  containing_folder = file_list$containing_folder[i]
-  dhs_version = file_list$data_source[i]
+  # dir = file_dir
+  # inFile = file_list$file_name[i]
+  # containing_folder = file_list$containing_folder[i]
+  # dhs_version = file_list$data_source[i]
   
   # Load data
   if (dhs_version %in% c('dhs7', 'dhs6')){
@@ -474,12 +474,16 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   # subset columns
   ###############################################################
   # remove unnecessary columns
-  prepped_dhs_data <- prepped_dhs_data %>%
-    select(-c(v007, v006, v016, h12, h32, h37, h15, h36, h40, 
-              # h80, 
-              h31, birth_year, birth_month, 
-              # birth_day
-    ))
+  if (dhs_version=="dhs7"){
+    prepped_dhs_data <- prepped_dhs_data %>%
+      select(-c(v007, v006, v016, h12, h32, h37, h15, h36, h40, 
+                h80, h31, birth_day, birth_year, birth_month))
+  } else if (dhs_version=="dhs6"){
+    prepped_dhs_data <- prepped_dhs_data %>%
+      select(-c(v007, v006, v016, h12, h32, h33, h37, h15, h36, h40,
+                h31, birth_day, birth_year, birth_month))
+  }
+
   
   # reorder columns to put demographic variables first
   prepped_dhs_data <- prepped_dhs_data %>% relocate(intv_date, .after = v025) %>%
@@ -488,10 +492,11 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   # fix white space in caseid variable
   prepped_dhs_data$caseid <- gsub('\\s+', '', prepped_dhs_data$caseid)
   
-  ###############################################################
-  # read in next year and country file and bind dataset together once confirmed what the final variable names will be--
-  # maybe create a codebook for dhs derived dataset which could be read in to make sure all names are consistent
-  ###############################################################
-  
-  
+  #Check column names, and that you have at least some valid data for the file.
+  if (nrow(prepped_dhs_data)==0){
+    stop(paste0("All data dropped for ", inFile))
+  }
+
+  # return the prepped data set
+  return(prepped_dhs_data)
 }

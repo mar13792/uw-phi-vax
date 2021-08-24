@@ -28,10 +28,24 @@ for(i in 1:nrow(file_list)){
   
   #Bind data together 
   if(i==1){
-    extract_dhs_data = tmpData
+    extracted_dhs_data = tmpData
   } else {
-    extract_dhs_data = rbind(extract_dhs_data, tmpData, use.names=TRUE, fill = TRUE)
+    extracted_dhs_data = rbind.fill(extracted_dhs_data, tmpData)
   }
   print("Now prepping:")
   print(paste0(i, " ", file_list$location_name[i], " ", file_list$data_source[i], " ", file_list$file_name[i])) ## if the code breaks, you know which file it broke on
 }
+
+# formatting of data
+#--if necessary--
+
+###############################################################
+# maybe create a codebook for dhs derived dataset which could be read in to make sure all names are consistent
+###############################################################
+
+
+# save prepped data 
+saveRDS(extracted_dhs_data, outputFile2d)
+
+# print final statement
+print("Step 2a: Reading in vaccination trend data completed.")
