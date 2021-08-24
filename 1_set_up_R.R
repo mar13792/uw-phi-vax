@@ -39,7 +39,7 @@ if (Sys.info()[1]=='Windows'){
 setwd(code_dir)
 data_dir <- paste0(g_drive,"Data/")
 prepped_data_dir <- paste0(data_dir,"prepped_data/")
-codebook_directory <- paste0(data_dir,"codebooks/")
+codebook_directory <- paste0(data_dir,"documentation/codebooks/")
 visDir <- paste0(g_drive,"Visualizations/")
 aim1_vis <- paste0(visDir, "aim_1/")
 
