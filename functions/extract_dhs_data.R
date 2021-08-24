@@ -27,9 +27,9 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   idVars = c("caseid", "v000", "v005", "v007", "v006", "v016") # id variables for merging
   
   if (dhs_version=="dhs7"){
-  demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191", "v190a", "v191a", "v025") # demographic variables
+  demoVars = c("v012", "v106", "v151", "v155", "v201", "v717", "v501", "v136", "v190", "v191", "v190a", "v191a", "v025") # demographic variables
   } else if (dhs_version=="dhs6"){
-    demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v501", "v136", "v190", "v191", "v025") # slighlty different demographic variables
+    demoVars = c("v012", "v106", "v151", "v155", "v201", "v717", "v501", "v136", "v190", "v191", "v025") # slighlty different demographic variables
   }
   
   dobyearVars = names(dhs_data)[grepl('b2_', names(dhs_data))] # child's year of birth
