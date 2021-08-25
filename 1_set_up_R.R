@@ -1,6 +1,6 @@
 # Author: Francisco Rios 
 # Purpose: Set up R for prepping UW PHI Vaccination Data
-# Date: Last modified July 12, 2021
+# Date: Last modified August 24, 2021
 
 ###############################
 # load required packages

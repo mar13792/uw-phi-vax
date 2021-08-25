@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # AUTHOR: Francisco Rios
 # PURPOSE: Extract all necessary DHS data
-# DATE: Last updated August 20 2021
+# DATE: Last updated August 24 2021
 
 # Read in list of files to prep
 file_list <- data.table(read_excel(paste0(data_dir, "data_file_list.xlsx")))
@@ -42,7 +42,7 @@ saveRDS(extracted_dhs_data, outputFile2d)
 dt <- readRDS(outputFile2d)
 
 ####################################################
-# 1. calculate new variables
+# 1. reformat new variables
 ####################################################
 
 # has health card binary
@@ -186,62 +186,48 @@ dt$female_head <- factor(dt$female_head,
                          levels = c(1,2),
                          labels = c('male', 'female'))
 
-###############################################################
-# # Only keep the variable names that are in the codebook for consistency. This should constantly be reviewed. 
-mov_codebook <- read_xlsx(paste0(codebook_directory, "dhs_mov_codebook.xlsx"))
-dropped_vars = names(dt)[!names(dt)%in%mov_codebook$Variable]
+# ###############################################################
+# # # Only keep the variable names that are in the codebook for consistency. This should constantly be reviewed. 
+# mov_codebook <- read_xlsx(paste0(codebook_directory, "dhs_mov_codebook.xlsx"))
+# dropped_vars = names(dt)[!names(dt)%in%mov_codebook$Variable]
+# 
+# if (length(dropped_vars)!=0){
+#   print("Some variables are being dropped because they aren't in the codebook - Review to make sure these shouldn't be in the final data.")
+#   print(dropped_vars)
+# }
+# 
+# dt <- dt[, names(dt)%in%mov_codebook$Variable]
 
-if (length(dropped_vars)!=0){
-  print("Some variables are being dropped because they aren't in the codebook - Review to make sure these shouldn't be in the final data.")
-  print(dropped_vars)
-}
+####################################################
+# calculate new variables 
+####################################################
 
-dt <- dt[, names(dt)%in%mov_codebook$Variable]
-
-###############################################################
-
-#####  Assign the MINIMUM and MAXIMUM ages each vaccine should be given 
+# Assign the MINIMUM and MAXIMUM ages each vaccine should be given 
 #  Assumption: Vaccine is due at month X. We will accept vaccines given at month X-0.5 through X+1.5. 
-# Example: Measles due at 9 mos is acceptable 8.5-10.5 months of age.
-dt$mea1_age_due_min = 9*30.4 - 15.2 # 258 days
-dt$mea1_age_due_max = 10*30.4 +  15.2 # 319.2 days
 
-##### do DPT (3 series) as well as DPT
+# Example: Measles due at 9 mos is acceptable 8.5-10.5 months of age.
+dt$mea1_age_due_min <- 9*30.4 - 15.2 # 258 days
+dt$mea1_age_due_max <- 10*30.4 +  15.2 # 319.2 days
+
+##### DPT (3 series) (due due at 6, 10, 14 weeks)
+dt$dpt1_age_due_min <- 6*7.6- 15.2   # 30.4 days
+dt$dpt1_age_due_max <- 7*7.6 + 15.2  # 68.4 days
+
+dt$dpt2_age_due_min <- 10*7.6 - 15.2 # 60.8 days
+dt$dpt2_age_due_max <- 11*7.6 + 15.2 # 98.8 days
+
+dt$dpt3_age_due_min <- 14*7.6 - 15.2 # 91.2 days
+dt$dpt3_age_due_max <- 15*7.6 + 15.2 # 129.2
 
 # calculate the age of child in days
 dt$kid_age <- time_length(difftime(dt$intv_date, dt$dob), "days")
 
 # calculate the age at which child was vaccinated with measles-containing vaccine and all other vaccines
 dt$age_at_mea1 <- time_length(difftime(dt$mea1, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_dpt1 <- time_length(difftime(dt$dpt1, dt$dob), "days")
-dt$age_at_pol1 <- time_length(difftime(dt$pol1, dt$dob), "days")
-dt$age_at_dpt2 <- time_length(difftime(dt$dpt2, dt$dob), "days")
-dt$age_at_pol2 <- time_length(difftime(dt$pol2, dt$dob), "days")
-dt$age_at_dpt3 <- time_length(difftime(dt$dpt3, dt$dob), "days")
-
-dt$age_at_pol3 <- time_length(difftime(dt$pol3, dt$dob), "days")
 dt$age_at_mea2 <- time_length(difftime(dt$mea2, dt$dob), "days")
-dt$age_at_pol0 <- time_length(difftime(dt$pol0, dt$dob), "days")
-dt$age_at_hepbbirth <- time_length(difftime(dt$hepbbirth, dt$dob), "days")
-dt$age_at_pent1 <- time_length(difftime(dt$pent1, dt$dob), "days")
-dt$age_at_pent2 <- time_length(difftime(dt$pent2, dt$dob), "days")
-dt$age_at_pent3 <- time_length(difftime(dt$pent3, dt$dob), "days")
 
-dt$age_at_pneu1 <- time_length(difftime(dt$pneu1, dt$dob), "days")
-dt$age_at_pneu2 <- time_length(difftime(dt$pneu2, dt$dob), "days")
-dt$age_at_pneu3 <- time_length(difftime(dt$pneu3, dt$dob), "days")
-dt$age_at_rota1 <- time_length(difftime(dt$rota1, dt$dob), "days")
-dt$age_at_rota2 <- time_length(difftime(dt$rota2, dt$dob), "days")
-dt$age_at_rota3 <- time_length(difftime(dt$rota3, dt$dob), "days")
-dt$age_at_poln <- time_length(difftime(dt$poln, dt$dob), "days")
-
-dt$age_at_hepb1 <- time_length(difftime(dt$hepb1, dt$dob), "days")
-dt$age_at_hepb2 <- time_length(difftime(dt$hepb2, dt$dob), "days")
-dt$age_at_hepb3 <- time_length(difftime(dt$hepb3, dt$dob), "days")
-dt$age_at_hib1 <- time_length(difftime(dt$hib1, dt$dob), "days")
-dt$age_at_hib2 <- time_length(difftime(dt$hib2, dt$dob), "days")
-dt$age_at_hib3 <- time_length(difftime(dt$hib3, dt$dob), "days")
+dt$age_at_dpt1 <- time_length(difftime(dt$dpt1, dt$dob), "days")
+dt$age_at_dpt2 <- time_length(difftime(dt$dpt2, dt$dob), "days")
 
 # variable indicating when the oldest vaccination date took place
 dt <- dt %>% mutate(oldest_visit = pmax(bcg, dpt1, pol1, dpt2, pol2, dpt3, pent1, pent2, pent3, pneu1, pneu2, pneu3, rota1, rota2, rota3, poln, hepb1, hepb2, hepb3, hib1, hib2, hib3,
