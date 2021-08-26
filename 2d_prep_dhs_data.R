@@ -349,11 +349,14 @@ dt <- dt %>%
       dpt_dose_6wks==1 & dpt_dose_10wks==1 & dpt_dose_14wks==1 & age_in_days>=dpt3_age_due_max ~ 1,
       
       # kids that did not have all visits during the interval, but had 3 doses with the right spacing
-     first_elig_dpt_after_14wks>=dpt3_age_due_min & first_elig_dpt_after_14wks <=dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~1, 
+     first_elig_dpt_after_14wks>=dpt3_age_due_min & first_elig_dpt_after_14wks <=dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~1,
+     
+     # otherwise 0
+     TRUE ~ 0
      ),
     
     # generate indicator for vaccine 3rd dose too late
-    dpt_late = case_when(first_elig_dpt_after_14wks>dpt3_age_due_max & first_elig_dpt_after_14wks!=. & age_in_days>=dpt3_age_due_max ~ 1),
+    dpt_late = case_when(first_elig_dpt_after_14wks>dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~ 1),
     
     # generate indicator for age at counted vaccine
     dpt_age_at_counted_vac = case_when(
