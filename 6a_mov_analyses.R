@@ -1,12 +1,15 @@
 ####################################################
 # 1: Load prepped dataset for analyses
 ####################################################
-dt <- readRDS(outputFile6a)
+dt <- readRDS(paste0(g_drive, "Data/prepped_data/2d_prepped_dhs_data_for_analysis.RDS"))
+
+# subset data to only Nigeria
+dt <- dt %>% filter(v000 %in% c("NG6", "NG7"))
 
 ####################################################
 # 2: descriptive characteristics of children with and without card
 ####################################################
-table1(~  female + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + wom_occ + assets + hhsize + urban + female_head | has_health_card_bin, data=dt)
+table1(~ child_sex + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + wom_occ + assets + hhsize + urban + female_head | has_health_card_bin, data=dt)
 
 # export table 1 as an image
 
@@ -15,10 +18,10 @@ table1(~  female + kid_agecat + edu + literate + wom_agecat + total_children_bor
 ####################################################
 
 # fit a regression to see which variables are associated with having vaccine coverage card
-mylogit <- glm(has_health_card_bin ~ female + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + wom_occ + assets + hhsize + urban + female_head, data = dt, family = "binomial")
-
-
-exp(cbind(OR = coef(mylogit), confint(mylogit)))
+# mylogit <- glm(has_health_card_bin ~ female + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + wom_occ + assets + hhsize + urban + female_head, data = dt, family = "binomial")
+# 
+# 
+# exp(cbind(OR = coef(mylogit), confint(mylogit)))
 
 # export table 2 as an image
 
@@ -35,9 +38,9 @@ dt[, .(.N), by = .(v000)]
 dt[has_health_card_bin == "Yes",.(total_with_card= .N), by = v000]
 
 # calculate how many children were covered by each vaccine according to recall and card
-dt[bcg_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
+dt[mea1_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
 
-# calculate how many children received bcg according to health card only
+# calculate how many children received mea1 according to health card only
 dt[has_health_card_bin == "Yes" & mea1_date_recorded%in%c(1,3),.(received_mea= .N), by = v000]
 
 # calculate the 
@@ -81,6 +84,7 @@ table1(~  female + edu + wom_agecat +  + wom_occ + assets + hhsize + urban + fem
 ####################################################
 # 6. Regression to compare missed opportunities
 ####################################################
+
 
 ####################################################
 # 7. hazards
