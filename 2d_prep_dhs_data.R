@@ -56,7 +56,10 @@ if (extract_again==TRUE){
 # 1. recode variables into new formats with labels
 ####################################################
 
+###################
 # has health card binary
+###################
+
 dt$has_health_card_bin <- as.character(dt$has_health_card)
 
 dt <- dt%>%
@@ -75,12 +78,17 @@ dt <- dt%>%
 dt$has_health_card_bin <- factor(dt$has_health_card_bin,
                                  levels = c(0,1),
                                  labels = c("No", "Yes"))
-
+###################
 #kid age category
+###################
+
 dt$kid_agecat <- round(time_length(difftime(dt$intv_date, dt$dob), "years"), digits = 0)
 dt$kid_agecat <- as.factor(dt$kid_agecat)
 
+###################
 # mother's education
+###################
+
 dt$edu <- as.character(dt$v106)
 dt <- dt %>% mutate(edu = recode(edu,
                                  `0`=0,
@@ -91,7 +99,9 @@ dt$edu <- factor(dt$edu,
                  levels = c(0,1,2),
                  labels = c("no education", "primary", "secondary or higher"))
 
+###################
 # mother's literacy levels
+###################
 dt$literate <- as.character(dt$v155)
 
 dt <- dt %>% replace_with_na(replace = list(literate = 9))
@@ -107,7 +117,10 @@ dt$literate <- factor(dt$literate,
                       levels = c(0,1),
                       labels = c("iliterate", "literate"))
 
+###################
 # mother's age category
+###################
+
 dt$wom_agecat <- dt$v012
 
 dt <- dt %>%
@@ -120,7 +133,9 @@ dt$wom_agecat <- factor(dt$wom_agecat,
                         levels = c(1,2,3),
                         labels = c("15-19", "20-34", "35-49"))
 
+###################
 # parity
+###################
 dt$total_children_born <- dt$v201 
 
 dt <- dt %>% 
@@ -135,7 +150,9 @@ dt$total_children_born <- factor(dt$total_children_born,
                                  levels = c(1,2,3,4),
                                  labels = c("1 child", "2-3 children", "4-5 children", "6+ children"))
 
+###################
 # marital status
+###################
 dt$marital <- as.character(dt$v501)
 
 dt <- dt %>% mutate(marital = recode(marital,
@@ -150,7 +167,9 @@ dt$marital<- factor(dt$marital,
                     levels = c(1,2,3,4),
                     labels = c("single", "married", "union", "divorced, seperated, widowed, or other"))
 
+###################
 # mother's employment
+###################
 dt$wom_occ <- dt$v717
 
 dt <- dt %>% replace_with_na(replace = list(wom_occ = 99))
@@ -165,31 +184,41 @@ dt$wom_occ <- factor(dt$wom_occ,
                      levels = c(1,2),
                      labels = c("not employed in last 12 months", "employed"))
 
+###################
 # assets
+###################
 
 # each survey should have either v190a or v190 for the household assets
 dt$assets <- ifelse(!is.na(dt$v190a), dt$v190a, dt$v190)
 
 dt$assets <- as.factor(dt$assets)
 
+###################
 # average household size
+###################
 dt$hhsize <- dt$v136
 
+###################
 # urban
+###################
 dt$urban <- abs(dt$v025-2)
 
 dt$urban <-factor(dt$urban,
                   levels = c(0,1),
                   labels = c("rural household", "urban household"))
 
+###################
 # sex of head of household
+###################
 dt$female_head <- dt$v151
 
 dt$female_head <- factor(dt$female_head,
                          levels = c(1,2),
                          labels = c('male', 'female'))
 
+###################
 # asign labels to variable names
+###################
 
 
 ####################################################
@@ -302,7 +331,7 @@ for(i in 1:nrow(dt)){
 # calculate variables related to timing among the DPT-containing vaccine (pentavalent)
 dt <- dt %>% 
   mutate(
-    # calculate variable indicating if never received dtap vaccine
+    # calculate variable indicating if never received dpt vaccine
     never_got_dpt = case_when(!is.na(age_at_dpt1) & has_health_card_bin=="Yes" ~ 0,
                               is.na(age_at_dpt1) & has_health_card_bin=="Yes" ~ 1),
     
