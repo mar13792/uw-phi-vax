@@ -427,48 +427,88 @@ dt <- dt %>% mutate(
     # CASE 1: the child never got measles vaccination but had another vaccination visit during or after measles vaccine was due
     never_got_mea1==1 & age_at_oldest_visit>mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_oldest_visit) ~ 1))
 
-start_col <- grep("bcg", names(dt))[2]
-end_col <- grep("hib3", names(dt))[2]
-
-# make vector of all column names with vaccine dates (except measles for first example)
-# vaccines <- c("bcg", "dpt1", "pol1", "dpt2", "pol2", "dpt3", "dpt3", "pol3", "mea2", "pol0", "pent1", "pent2", "pent3", "pneu1", "pneu2", "pneu3", "rota1", "rota2", "rota3", "poln", "hepb1", "hepb2", "hepb3", "hib1", "hib2", "hib3")
+# start_col <- grep("bcg", names(dt))[2]
+# end_col <- grep("hib3", names(dt))[2]
 
 # calculate ages at other vaccines if relevant
 dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
 dt$age_at_dpt1 <- time_length(difftime(dt$dpt1, dt$dob), "days")
 dt$age_at_pol1 <- time_length(difftime(dt$pol1, dt$dob), "days")
+dt$age_at_dpt2 <- time_length(difftime(dt$dpt2, dt$dob), "days")
+dt$age_at_pol2 <- time_length(difftime(dt$pol2, dt$dob), "days")
+dt$age_at_dpt3 <- time_length(difftime(dt$dpt3, dt$dob), "days")
+dt$age_at_pol3 <- time_length(difftime(dt$pol3, dt$dob), "days")
+dt$age_at_mea2 <- time_length(difftime(dt$mea2, dt$dob), "days")
+dt$age_at_pol0 <- time_length(difftime(dt$pol0, dt$dob), "days")
+dt$age_at_pent1 <- time_length(difftime(dt$pent1, dt$dob), "days")
+dt$age_at_pent2 <- time_length(difftime(dt$pent2, dt$dob), "days")
+dt$age_at_pent3 <- time_length(difftime(dt$pent3, dt$dob), "days")
+dt$age_at_pneu1 <- time_length(difftime(dt$pneu1, dt$dob), "days")
+dt$age_at_pneu2 <- time_length(difftime(dt$pneu2, dt$dob), "days")
+dt$age_at_pneu3 <- time_length(difftime(dt$pneu3, dt$dob), "days")
+dt$age_at_rota1 <- time_length(difftime(dt$rota1, dt$dob), "days")
+dt$age_at_rota2 <- time_length(difftime(dt$rota2, dt$dob), "days")
+dt$age_at_rota3 <- time_length(difftime(dt$rota3, dt$dob), "days")
+dt$age_at_poln <- time_length(difftime(dt$poln, dt$dob), "days")
+dt$age_at_hepb1 <- time_length(difftime(dt$hepb1, dt$dob), "days")
+dt$age_at_hepb2 <- time_length(difftime(dt$hepb2, dt$dob), "days")
+dt$age_at_hepb3 <- time_length(difftime(dt$hepb3, dt$dob), "days")
+dt$age_at_hib1 <- time_length(difftime(dt$hib1, dt$dob), "days")
+dt$age_at_hib2 <- time_length(difftime(dt$hib2, dt$dob), "days")
+dt$age_at_hib3 <- time_length(difftime(dt$hib3, dt$dob), "days")
 
-# and so on #
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
-dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
+# make vector of all column names with vaccine dates (except measles for first example)
+# vaccines <- c("bcg", "dpt1", "pol1", "dpt2", "pol2", "dpt3", "pol3", "mea2", "pol0", "pent1", "pent2", "pent3", "pneu1", "pneu2", 
+#  "pneu3", "rota1", "rota2", "rota3", "poln", "hepb1", "hepb2", "hepb3", "hib1", "hib2", "hib3")
 
-dt$age_at <- dt$dob + dt$mea1_age_due_min
-
-# use dplyr and case when to try to recode the earlies possible dates of vaccination
+# find out how old child was at the earliest possible visit (using all vaccination dates except measles)
 dt %>% mutate(no_mea1_mop_age = case_when(
-  never_got_mea1==1 & age_at_bcg > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg,
-  never_got_mea1==1 & age_at_bcg > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) & #CHECK THAT IT IS SMALLER THAN THE LAST VALUE
+  never_got_mea1==1 & age_at_bcg   > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg,
+  never_got_mea1==1 & age_at_dpt1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt1) & age_at_dpt1 < age_at_bcg ~ age_at_dpt1,
+  never_got_mea1==1 & age_at_pol1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol1) & age_at_pol1 < age_at_dpt1 ~ age_at_pol1,
+  never_got_mea1==1 & age_at_dpt2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt2) & age_at_dpt2 < age_at_pol1 ~ age_at_dpt2,
+  never_got_mea1==1 & age_at_pol2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol2) & age_at_pol2 < age_at_dpt2 ~ age_at_pol2,
+  never_got_mea1==1 & age_at_dpt3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt3) & age_at_dpt3 < age_at_pol2 ~ age_at_dpt3,
+  never_got_mea1==1 & age_at_pol3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol3) & age_at_pol3 < age_at_dpt3 ~ age_at_pol3,
+  never_got_mea1==1 & age_at_mea2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_mea2) & age_at_mea2 < age_at_pol3 ~ age_at_mea2,
+  never_got_mea1==1 & age_at_pol0  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol0) & age_at_pol0 < age_at_mea2 ~ age_at_pol0,
+  never_got_mea1==1 & age_at_pent1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent1) & age_at_pent1 < age_at_pol0 ~ age_at_pent1,
+  never_got_mea1==1 & age_at_pent2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent2) & age_at_pent2 < age_at_pent1 ~ age_at_pent2,
+  never_got_mea1==1 & age_at_pent3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent3) & age_at_pent3 < age_at_pent2 ~ age_at_pent3,
+  never_got_mea1==1 & age_at_pneu1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pneu1) & age_at_pneu1 < age_at_pent3 ~ age_at_pneu1,
+  never_got_mea1==1 & age_at_pneu2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pneu2) & age_at_pneu2 < age_at_pneu1 ~ age_at_pneu2,
+  never_got_mea1==1 & age_at_pneu3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pneu3) & age_at_pneu3 < age_at_pneu2 ~ age_at_pneu3,
+  never_got_mea1==1 & age_at_rota1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota1) & age_at_rota1 < age_at_pneu3 ~ age_at_rota1,
+  never_got_mea1==1 & age_at_rota2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota2) & age_at_rota2 < age_at_rota1 ~ age_at_rota2,
+  never_got_mea1==1 & age_at_rota3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota3) & age_at_rota3 < age_at_rota2 ~ age_at_rota3,
+  never_got_mea1==1 & age_at_poln  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_poln) & age_at_poln < age_at_rota3 ~ age_at_poln,
+  never_got_mea1==1 & age_at_hepb1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1 < age_at_poln ~ age_at_hepb1,
+  never_got_mea1==1 & age_at_hepb1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1 < age_at_poln ~ age_at_hepb1,
+  never_got_mea1==1 & age_at_hepb2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb2) & age_at_hepb2 < age_at_hepb1 ~ age_at_hepb2,
+  never_got_mea1==1 & age_at_hepb3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb3) & age_at_hepb3 < age_at_hepb2 ~ age_at_hepb3,
+  never_got_mea1==1 & age_at_hib1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib1) & age_at_hib1 < age_at_hepb3 ~ age_at_hib1,
+  never_got_mea1==1 & age_at_hib2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib2) & age_at_hib2 < age_at_hib1 ~ age_at_hib2,
+  never_got_mea1==1 & age_at_hib3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib3) & age_at_hib3 < age_at_hib2 ~ age_at_hib3))
+
+# Case 2: The Child got Mea1 late, but there was another visit for another vaccine in between the mea1 due age and actual age at Mea1
+dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
+  TRUE ~ NA,
+  
 ))
 
-x <- c(2,5,3,9,8,11,6)
-count <- 0
-for (val in x) {
-  if(val %% 2 == 0)  count = count+1
-}
-print(count)
+# // Case 2: The child got MMR late, but there was a visit for another vaccine inbetween the MMR due age and actual age at MMR
+# gen earliest_visit_btwn_mmr = . 
+# // Need to calculate the age at earliest visit between MMR due age and first MMR vaccination 
+# foreach var of varlist age_at_*_D*DATE age_at_*_B*DATE {
+#   replace earliest_visit_btwn_mmr= `var' if mmr_late==1 & `var'>`mmr_age_due_min' & `var'<mmr_age_at_counted_vac & mmr_age_at_counted_vac!=. & `var'<earliest_visit_btwn_mmr & age_in_days>=`mmr_age_due_max' & age_in_days!=. & mmr_days_at_risk!=. & `var'!=. 
+# 	}
+# 	replace mmr_missed_opportunity = 1 if earliest_visit_btwn_mmr!=. & age_in_days>=`mmr_age_due_max' & age_in_days!=. & mmr_days_at_risk!=.
+# x <- c(2,5,3,9,8,11,6)
+# count <- 0
+# for (val in x) {
+#   if(val %% 2 == 0)  count = count+1
+# }
+# print(count)
 
 
 # for (i in 1:nrow(dt)){
