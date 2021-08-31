@@ -457,10 +457,6 @@ dt$age_at_hib1 <- time_length(difftime(dt$hib1, dt$dob), "days")
 dt$age_at_hib2 <- time_length(difftime(dt$hib2, dt$dob), "days")
 dt$age_at_hib3 <- time_length(difftime(dt$hib3, dt$dob), "days")
 
-# make vector of all column names with vaccine dates (except measles for first example)
-# vaccines <- c("bcg", "dpt1", "pol1", "dpt2", "pol2", "dpt3", "pol3", "mea2", "pol0", "pent1", "pent2", "pent3", "pneu1", "pneu2", 
-#  "pneu3", "rota1", "rota2", "rota3", "poln", "hepb1", "hepb2", "hepb3", "hib1", "hib2", "hib3")
-
 # find out how old child was at the earliest possible visit (using all vaccination dates except measles)
 dt %>% mutate(no_mea1_mop_age = case_when(
   never_got_mea1==1 & age_at_bcg   > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg,
@@ -490,9 +486,20 @@ dt %>% mutate(no_mea1_mop_age = case_when(
   never_got_mea1==1 & age_at_hib2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib2) & age_at_hib2 < age_at_hib1 ~ age_at_hib2,
   never_got_mea1==1 & age_at_hib3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib3) & age_at_hib3 < age_at_hib2 ~ age_at_hib3))
 
+
+# make vector of all column names with vaccine dates (except measles for first example)
+# vaccines <- c("bcg", "dpt1", "pol1", "dpt2", "pol2", "dpt3", "pol3", "mea2", "pol0", "pent1", "pent2", "pent3", "pneu1", "pneu2", 
+#  "pneu3", "rota1", "rota2", "rota3", "poln", "hepb1", "hepb2", "hepb3", "hib1", "hib2", "hib3")
+
 # Case 2: The Child got Mea1 late, but there was another visit for another vaccine in between the mea1 due age and actual age at Mea1
 dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
-  TRUE ~ NA,
+  
+  # Need to calculate the age at earliest visit between MMR due age and first MMR vaccination
+  mea1_late==1 & age_at_bcg > mea1_age_due_min & age_at_bcg < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_bcg < earliest_visit_btwn_mea1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg,
+  mea1_late==1 & age_at_dpt1 > mea1_age_due_min & age_at_dpt1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_dpt1 < earliest_visit_btwn_mea1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt1) & age_at_dpt1<age_at_bcg ~ age_at_dpt1,
+  mea1_late==1 & age_at_dpt1 > mea1_age_due_min & age_at_dpt1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_dpt1 < earliest_visit_btwn_mea1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt1) & age_at_dpt1<age_at_bcg ~ age_at_dpt1,
+  
+  # mmr_late==1 & `var'>`mmr_age_due_min' & `var'<mmr_age_at_counted_vac & mmr_age_at_counted_vac!=. & `var'<earliest_visit_btwn_mmr & age_in_days>=`mmr_age_due_max' & age_in_days!=. & mmr_days_at_risk!=. & `var'!=. 
   
 ))
 
@@ -503,38 +510,7 @@ dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
 #   replace earliest_visit_btwn_mmr= `var' if mmr_late==1 & `var'>`mmr_age_due_min' & `var'<mmr_age_at_counted_vac & mmr_age_at_counted_vac!=. & `var'<earliest_visit_btwn_mmr & age_in_days>=`mmr_age_due_max' & age_in_days!=. & mmr_days_at_risk!=. & `var'!=. 
 # 	}
 # 	replace mmr_missed_opportunity = 1 if earliest_visit_btwn_mmr!=. & age_in_days>=`mmr_age_due_max' & age_in_days!=. & mmr_days_at_risk!=.
-# x <- c(2,5,3,9,8,11,6)
-# count <- 0
-# for (val in x) {
-#   if(val %% 2 == 0)  count = count+1
-# }
-# print(count)
 
-
-# for (i in 1:nrow(dt)){
-#  dt$no_mea1_mop_age <- 
-# }
-#   
-  # # calculate how many doses of DPT were received
-  # for (i in 1:nrow(dt)){
-  #   dt$tot_num_dpt[i] <- sum(!is.na(dt$dpt1[i]), !is.na(dt$dpt2[i]), !is.na(dt$dpt3[i]))
-  # }
-# gen no_mmr_mop_age = . 
-# foreach var of varlist age_at_*_D*DATE age_at_*_B*DATE {
-#   replace no_mmr_mop_age= `var' if never_got_mmr==1 & `var'>`mmr_age_due_min' & `var'<no_mmr_mop_age & age_in_days>=`mmr_age_due_max' & age_in_days!=. & mmr_days_at_risk!=. & `var'!=.
-# }
-
-# calculate how old the child was at the earliest eligible visit 
- 
-    
-#     # CASE 2: the child got measles late but there was a visit for another vaccine inbetween the measled due age and actual age at MMR 
-#     
-#     ),
-#   
-#   # variable that indicates missed opportunities
-#   dpt_missed_opportunity = case_when(age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0),
-#   
-# )
 
 # // First figure out when was the child's first vaccination after each dose age -- the way we do this will account for both DPT and non-DPT vaccinations 
 # 	gen potential_dpt_2mo = .
