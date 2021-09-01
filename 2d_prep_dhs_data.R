@@ -44,6 +44,7 @@ if (extract_again==TRUE){
   
   # save raw extracted data 
   saveRDS(extracted_dhs_data, outputFile2d)
+  dt <- readRDS(outputFile2d)
   
 } else if (extract_again==FALSE){
   
@@ -286,16 +287,16 @@ dt$dpt3_age_minus_max <- dt$age_at_dpt3 - dt$dpt3_age_due_max
 dt <- dt %>% 
   mutate(
     # vaccinated too early
-    early_mea1 = case_when(mea1_age_minus_min<0 ~ 1, 
-                           TRUE ~ 0),
+    early_mea1 = case_when(mea1_age_minus_min<0 ~ 1,
+                           mea1_age_minus_min>0 ~ 0),
     
     # vaccinated within appropriate time frame
-    mea1_within_interval = case_when(mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ 1, 
-                                     TRUE ~ 0),
+    mea1_within_interval = case_when(mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ 1,
+                                     mea1_age_minus_min<0 | mea1_age_minus_max>0 ~ 0),
     
     # vaccinated but too late
-    mea1_late = case_when(mea1_age_minus_max>0 ~ 1, 
-                          TRUE ~ 0),
+    mea1_late = case_when(mea1_age_minus_max>0 ~ 1,
+                          mea1_age_minus_max<0 ~ 0),
     
     #  never received vaccine (1 is never received, 0 is did receive))                
     never_got_mea1 = case_when(!is.na(age_at_mea1) & has_health_card_bin=="Yes" ~ 0,
@@ -307,11 +308,10 @@ dt <- dt %>%
                                         mea1_age_minus_max>0 ~ age_at_mea1),
     
     # variable that indicates how much time each child was at risk (for those that were vaccinated early or late)
-    mea1_days_at_risk = case_when(mea1_age_minus_min<0 & age_in_days>=mea1_age_due_max ~ age_in_days - mea1_age_due_max,
+    mea1_days_at_risk = case_when(never_got_mea1==1 & age_in_days>=mea1_age_due_max  ~ age_in_days - mea1_age_due_max,
+                                  mea1_age_minus_min<0 & age_in_days>=mea1_age_due_max ~ age_in_days - mea1_age_due_max,
                                   mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ 0,
-                                  mea1_age_minus_max>0  ~ mea1_age_minus_max,
-                                  never_got_mea1==1 & age_in_days>=mea1_age_due_max  ~ age_in_days - mea1_age_due_max)
-  )
+                                  mea1_age_minus_max>0  ~ mea1_age_minus_max))
 
 # calculate additional measles coverage variables that require re-shaping of the data
 
@@ -321,21 +321,31 @@ for (i in 1:nrow(dt)){
 }
 
 ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! 
-## ! REVIEW ! chunk is missing from here to calculate something or other (see stata code)
+## ! REVIEW ! chunk is missing from here to account for DPT dates that are too close to each other!
+##
 ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! 
 
 # calculate variables related to timing among the DPT-containing vaccine (pentavalent)
 dt <- dt %>% 
   mutate(
     # calculate variable indicating if never received dpt vaccine
-    never_got_dpt = case_when(!is.na(age_at_dpt1) & has_health_card_bin=="Yes" ~ 0,
-                              is.na(age_at_dpt1) & is.na(age_at_dpt2) & is.na(age_at_dpt3) & has_health_card_bin=="Yes" ~ 1),
+    never_got_dpt = case_when(is.na(age_at_dpt1) & is.na(age_at_dpt2) & is.na(age_at_dpt3) & has_health_card_bin=="Yes" ~ 1,
+                              !is.na(age_at_dpt1) | !is.na(age_at_dpt2) | !is.na(age_at_dpt3) & has_health_card_bin=="Yes" ~ 0),
+    
+    never_got_dpt1 = case_when(is.na(age_at_dpt1) & has_health_card_bin=="Yes" ~ 1,
+                               !is.na(age_at_dpt1) & has_health_card_bin=="Yes" ~ 0),
+    
+    never_got_dpt2 = case_when(is.na(age_at_dpt2) & has_health_card_bin=="Yes" ~ 1,
+                               !is.na(age_at_dpt2) & has_health_card_bin=="Yes" ~ 0),
+    
+    never_got_dpt3 = case_when(is.na(age_at_dpt3) & has_health_card_bin=="Yes" ~ 1,
+                               !is.na(age_at_dpt3) & has_health_card_bin=="Yes" ~0),
     
     # calculate whether they got the first dose in sixth week
     dpt_dose_6wks = case_when(age_at_dpt1>=dpt1_age_due_min & age_at_dpt1<=dpt1_age_due_max & age_in_days>= dpt3_age_due_max ~ 1,
-                              never_got_dpt==1 ~ 0),
+                              never_got_dpt1==1 ~ 0),
     
-    # calculate  age when first dose was received
+    # calculate age when first dose was received
     dpt_dose_6wks_when = case_when(age_at_dpt1>=dpt1_age_due_min & age_at_dpt1<=dpt1_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt1),
     
     # calculate first age eligible after first dose
@@ -345,7 +355,7 @@ dt <- dt %>%
     
     # calculate whether they got the second dose in the tenth week
     dpt_dose_10wks = case_when(age_at_dpt2>=dpt2_age_due_min & age_at_dpt2<=dpt2_age_due_max & age_in_days>= dpt3_age_due_max ~ 1,
-                               never_got_dpt==1 ~ 0),
+                               never_got_dpt2==1 ~ 0),
     
     # calculate age when second dose was received
     dpt_dose_10wks_when = case_when(age_at_dpt2>=dpt2_age_due_min & age_at_dpt2<=dpt2_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt2),
@@ -357,7 +367,7 @@ dt <- dt %>%
     
     # calculate whether they got the third dose in the 14th week
     dpt_dose_14wks = case_when(age_at_dpt3>=dpt3_age_due_min & age_at_dpt3<=dpt3_age_due_max & age_in_days>= dpt3_age_due_max ~ 1,
-                               never_got_dpt==1 ~ 0),
+                               never_got_dpt3==1 ~ 0),
     
     # calculate age when third dose was received
     dpt_dose_14wks_when = case_when(age_at_dpt3>=dpt3_age_due_min & age_at_dpt3<=dpt3_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt3),
@@ -370,15 +380,14 @@ dt <- dt %>%
     # generate indicator for correct interval
     dpt_within_interval = case_when(
       
+      # kids that did not have all visits during the interval, but had 3 doses with the right spacing
+      tot_num_dpt==3 &first_elig_dpt_after_14wks>=dpt3_age_due_min & first_elig_dpt_after_14wks <=dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~1,
+      
       # kids that have perfect adherence
       dpt_dose_6wks==1 & dpt_dose_10wks==1 & dpt_dose_14wks==1 & age_in_days>=dpt3_age_due_max ~ 1,
       
-      # kids that did not have all visits during the interval, but had 3 doses with the right spacing
-    tot_num_dpt==3 &first_elig_dpt_after_14wks>=dpt3_age_due_min & first_elig_dpt_after_14wks <=dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~1,
-     
-     # otherwise 0
-     TRUE ~ 0
-     ),
+      # kids without perfect adherence 
+      dpt_dose_6wks!=1 & dpt_dose_10wks!=1 & dpt_dose_14wks!=1 ~ 0),
     
     # generate indicator for vaccine 3rd dose too late
     dpt_late = case_when(first_elig_dpt_after_14wks>dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~ 1),
@@ -399,36 +408,11 @@ dt <- dt %>%
     too_few_elig_dpt = case_when(is.na(first_elig_dpt_after_14wks) & tot_num_dpt>0 & age_in_days>=dpt3_age_due_max & has_health_card_bin=="Yes" ~ 1),
 
     # assign days at risk
-  dpt_days_at_risk = case_when(dpt_within_interval==1 ~ 0,
+  dpt_days_at_risk = case_when(never_got_dpt==1 & age_in_days>=dpt3_age_due_max ~ age_in_days - dpt3_age_due_max,
+                               dpt_within_interval==1 ~ 0,
                                dpt_late==1 ~ first_elig_dpt_after_14wks - dpt3_age_due_max,
-                               too_few_elig_dpt==1 ~ age_in_days - dpt3_age_due_max,
-                               never_got_dpt==1 & age_in_days>=dpt3_age_due_max ~ age_in_days - dpt3_age_due_max)
-  
-  )
+                               too_few_elig_dpt==1 ~ age_in_days - dpt3_age_due_max))
 
-# // these should be mutually exclusive: dpt_within_interval, too_few_elig_dpt, never_got_dpt, dpt_late
-table(dt$dpt_within_interval, dt$too_few_elig_dpt, useNA = 'always')
-table(dt$dpt_within_interval, dt$dpt_late, useNA = 'always')
-table(dt$dpt_within_interval, dt$never_got_dpt, useNA = 'always')
-table(dt$dpt_late, dt$never_got_dpt, useNA = 'always')
-table(dt$too_few_elig_dpt, dt$never_got_dpt, useNA = 'always')
-table(dt$too_few_elig_dpt, dt$dpt_late, useNA = 'always')
-
-
-# calculate WHO HAS A MISSED OPPORTUNITY & WHAT IS POTENTIAL COVERAGE?
-
-dt <- dt %>% mutate(
-  
-  # variable that indicates missed opportunities
-  mea1_missed_opportunity = case_when(
-    # default value for missed opportunities
-    age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) ~ 0,
-    
-    # CASE 1: the child never got measles vaccination but had another vaccination visit during or after measles vaccine was due
-    never_got_mea1==1 & age_at_oldest_visit>mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_oldest_visit) ~ 1))
-
-# start_col <- grep("bcg", names(dt))[2]
-# end_col <- grep("hib3", names(dt))[2]
 
 # calculate ages at other vaccines if relevant
 dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
@@ -459,7 +443,6 @@ dt$age_at_hib3 <- time_length(difftime(dt$hib3, dt$dob), "days")
 
 # find out how old child was at the earliest possible visit (using all vaccination dates except measles)
 dt <- dt %>% mutate(no_mea1_mop_age = case_when(
-  never_got_mea1==1 & age_at_bcg   > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg,
   never_got_mea1==1 & age_at_dpt1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt1) & age_at_dpt1 < age_at_bcg ~ age_at_dpt1,
   never_got_mea1==1 & age_at_pol1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol1) & age_at_pol1 < age_at_dpt1 ~ age_at_pol1,
   never_got_mea1==1 & age_at_dpt2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt2) & age_at_dpt2 < age_at_pol1 ~ age_at_dpt2,
@@ -484,13 +467,13 @@ dt <- dt %>% mutate(no_mea1_mop_age = case_when(
   never_got_mea1==1 & age_at_hepb3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb3) & age_at_hepb3 < age_at_hepb2 ~ age_at_hepb3,
   never_got_mea1==1 & age_at_hib1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib1) & age_at_hib1 < age_at_hepb3 ~ age_at_hib1,
   never_got_mea1==1 & age_at_hib2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib2) & age_at_hib2 < age_at_hib1 ~ age_at_hib2,
-  never_got_mea1==1 & age_at_hib3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib3) & age_at_hib3 < age_at_hib2 ~ age_at_hib3))
+  never_got_mea1==1 & age_at_hib3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib3) & age_at_hib3 < age_at_hib2 ~ age_at_hib3,
+  never_got_mea1==1 & age_at_bcg   > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg))
 
 # Case 2: The Child got Mea1 late, but there was another visit for another vaccine in between the mea1 due age and actual age at Mea1
 dt <- dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
   
   # Need to calculate the age at earliest visit between measles1 due age and first measles1 vaccination
-  mea1_late==1 & age_at_bcg > mea1_age_due_min & age_at_bcg < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac)  & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg,
   mea1_late==1 & age_at_dpt1 > mea1_age_due_min & age_at_dpt1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_dpt1 < age_at_bcg & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt1) & age_at_dpt1<age_at_bcg ~ age_at_dpt1,
   mea1_late==1 & age_at_pol1 > mea1_age_due_min & age_at_pol1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pol1 < age_at_dpt1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol1) & age_at_pol1<age_at_dpt1 ~ age_at_pol1,
   mea1_late==1 & age_at_dpt2 > mea1_age_due_min & age_at_dpt2 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_dpt2 < age_at_pol1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt2) & age_at_dpt2<age_at_pol1 ~ age_at_dpt2,
@@ -514,13 +497,30 @@ dt <- dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
   mea1_late==1 & age_at_hepb3 > mea1_age_due_min & age_at_hepb3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hepb3 < age_at_hepb2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb3) & age_at_hepb3<age_at_hepb2 ~ age_at_hepb3,
   mea1_late==1 & age_at_hib1 > mea1_age_due_min & age_at_hib1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hib1 < age_at_hepb3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib1) & age_at_hib1<age_at_hepb3 ~ age_at_hib1,
   mea1_late==1 & age_at_hib2 > mea1_age_due_min & age_at_hib2 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hib2 < age_at_hib1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib2) & age_at_hib2<age_at_hib1 ~ age_at_hib2,
-  mea1_late==1 & age_at_hib3 > mea1_age_due_min & age_at_hib3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hib3 < age_at_hib2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib3) & age_at_hib3<age_at_hib2 ~ age_at_hib3))
+  mea1_late==1 & age_at_hib3 > mea1_age_due_min & age_at_hib3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hib3 < age_at_hib2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib3) & age_at_hib3<age_at_hib2 ~ age_at_hib3,
+  mea1_late==1 & age_at_bcg > mea1_age_due_min & age_at_bcg < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac)  & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_bcg) ~ age_at_bcg))
 
-# replace measles missed opportunity with 1 if they had an earlier visit that they could have attended
+
+# calculate WHO HAS A MISSED OPPORTUNITY & WHAT IS POTENTIAL COVERAGE?
+
 dt <- dt %>% mutate(
-  mea1_missed_opportunity = case_when(
-    !is.na(earliest_visit_btwn_mea1) & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk)~1),
   
+  # variable that indicates missed opportunities
+  mea1_missed_opportunity = case_when(
+    
+    # CASE 1: the child never got measles vaccination but had another vaccination visit during or after measles vaccine was due
+    never_got_mea1==1 & age_at_oldest_visit>mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_oldest_visit) ~ 1,
+    
+    # replace measles missed opportunity with 1 if they had an earlier visit that they could have attended
+    !is.na(earliest_visit_btwn_mea1) & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) ~ 1,
+    
+    # default value for missed opportunities
+    age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) ~ 0
+    
+    ))
+
+
+dt <- dt %>% mutate(
   # we want to know how old the child was when they could have gotten Mea1
   mea1_age_at_mop_vac = case_when(
     !is.na(earliest_visit_btwn_mea1) ~ earliest_visit_btwn_mea1,
@@ -528,7 +528,6 @@ dt <- dt %>% mutate(
 
 # calculate when the child's first vaccination after each dose age was -- the way we do this will account for both DPT and non-DPT vaccinations
 dt <- dt %>% mutate(potential_dpt_6wks = case_when(
-  age_at_bcg >= dpt1_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) ~ age_at_bcg,
   age_at_pol1 >= dpt1_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) ~ age_at_pol1,
   age_at_pol2 >= dpt1_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) ~ age_at_pol2,
   age_at_pol3 >= dpt1_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) ~ age_at_pol3,
@@ -547,10 +546,11 @@ dt <- dt %>% mutate(potential_dpt_6wks = case_when(
   age_at_hepb3 >= dpt1_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) ~ age_at_hepb3,
   age_at_hib1 >= dpt1_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) ~ age_at_hib1,
   age_at_hib2 >= dpt1_age_due_min & age_at_hib2<age_at_hib1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) ~ age_at_hib2,
-  age_at_hib3 >= dpt1_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) ~ age_at_hib3))
+  age_at_hib3 >= dpt1_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) ~ age_at_hib3,
+  age_at_bcg >= dpt1_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) ~ age_at_bcg))
 
 dt <- dt %>% mutate(potential_dpt_10wks = case_when(
-  age_at_bcg >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & (age_at_bcg!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_bcg,
+  
   age_at_pol1 >= dpt2_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & (age_at_pol1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pol1,
   age_at_pol2 >= dpt2_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & (age_at_pol2!=potential_dpt_6wks|is.na(potential_dpt_6wks))~ age_at_pol2,
   age_at_pol3 >= dpt2_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & (age_at_pol3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pol3,
@@ -569,10 +569,10 @@ dt <- dt %>% mutate(potential_dpt_10wks = case_when(
   age_at_hepb3 >= dpt2_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & (age_at_hepb3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hepb3,
   age_at_hib1 >= dpt2_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & (age_at_hib1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib1,
   age_at_hib2 >= dpt2_age_due_min & age_at_hib2<age_at_hib1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) & (age_at_hib2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib2,
-  age_at_hib3 >= dpt2_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & (age_at_hib3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib3))
+  age_at_hib3 >= dpt2_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & (age_at_hib3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib3,
+  age_at_bcg >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & (age_at_bcg!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_bcg))
 
 dt <- dt %>% mutate(potential_dpt_14wks = case_when(
-  age_at_bcg >= dpt3_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & (age_at_bcg!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_bcg,
   age_at_pol1 >= dpt3_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & (age_at_pol1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol1,
   age_at_pol2 >= dpt3_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & (age_at_pol2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol2,
   age_at_pol3 >= dpt3_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & (age_at_pol3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol3,
@@ -591,35 +591,36 @@ dt <- dt %>% mutate(potential_dpt_14wks = case_when(
   age_at_hepb3 >= dpt3_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & (age_at_hepb3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hepb3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hepb3,
   age_at_hib1 >= dpt3_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & (age_at_hib1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hib1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hib1,
   age_at_hib2 >= dpt3_age_due_min & age_at_hib2<age_at_hib1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) & (age_at_hib2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hib2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hib2,
-  age_at_hib3 >= dpt3_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & (age_at_hib3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hib3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hib3))
+  age_at_hib3 >= dpt3_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & (age_at_hib3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hib3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hib3,
+  age_at_bcg >= dpt3_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & (age_at_bcg!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_bcg))
 
 # calculate missed opportunities for DPT vaccines
 dt <- dt %>% mutate(
   
   dpt_missed_opportunity=case_when(
     
-  age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0,
-                                             
-  # Case 1: The child was never vaccinated for DPT, but had at least 3 visits 4 weeks apart during or after the DPT due ages (by dose)  
-  never_got_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
-                                               
-  # Case 2: The child WAS vaccinated for DPT, but did not have 3 doses with correct spacing by age 6 mos 
-  too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
-                                               
-  # Case 3: The chlid was vaccinated for DPT late and had an earlier dose (can this be combined with Case 2?)
-  dpt_late==1 & potential_dpt_14wks<first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="yes" & age_in_days>=dpt3_age_due_max ~ 1),
-              
+    # Case 3: The child was vaccinated for DPT late and had an earlier dose (can this be combined with Case 2?)
+    dpt_late==1 & potential_dpt_14wks<first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="yes" & age_in_days>=dpt3_age_due_max ~ 1,
+  
+    # Case 1: The child was never vaccinated for DPT, but had at least 3 visits 4 weeks apart during or after the DPT due ages (by dose)  
+    never_got_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
+  
+    # Case 2: The child WAS vaccinated for DPT, but did not have 3 doses with correct spacing by age 6 mos 
+    too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
+
+    # default value
+    age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0),
+  
   dpt_age_at_mop_vac = case_when(
+    
+    # Case 3: The child was vaccinated for DPT late and had an earlier dose (can this be combined with Case 2?)
+    dpt_late==1 & potential_dpt_14wks<first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>= dpt3_age_due_max ~ potential_dpt_14wks,
                 
     # Case 1: The child was never vaccinated for DPT, but had at least 3 visits 4 weeks apart during or after the DPT due ages (by dose)  
     never_got_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ potential_dpt_14wks,
     
     # Case 2: The child WAS vaccinated for DPT, but did not have 3 doses with correct spacing by age 6 mos 
-    too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ potential_dpt_14wks,
-    
-    # Case 3: The child was vaccinated for DPT late and had an earlier dose (can this be combined with Case 2?)
-    dpt_late==1 & potential_dpt_14wks<first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>= dpt3_age_due_max ~ potential_dpt_14wks))
-
+    too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ potential_dpt_14wks))
 
 # COMPUTE DAYS AT RISK IF OPPORTUNITY WAS NOT MISSED 
 
@@ -647,23 +648,31 @@ dt <- dt %>% mutate(
     
 dt <- dt %>% mutate(
   dpt_days_at_risk_mop = case_when(
-    # if the child didn't have a missed opportunity then the days of risk stays the same
-    dpt_missed_opportunity==0 ~ dpt_days_at_risk,
-    
     # if they did have a  MO, add enw days of risk
-    dpt_mop_age_minus_max>0 & age_in_days>=dpt3_age_due_max & dpt_missed_opportunity==1 ~ dpt_mop_age_minus_max))
+    dpt_mop_age_minus_max>0 & age_in_days>=dpt3_age_due_max & dpt_missed_opportunity==1 ~ dpt_mop_age_minus_max,
+    
+    # if the child didn't have a missed opportunity then the days of risk stays the same
+    dpt_missed_opportunity==0 ~ dpt_days_at_risk))
 
+##### data checks to make sure variables are not implausible
+# hist(dt$mea1_days_at_risk)
+# hist(dt$dpt_days_at_risk)
+# table(dt$early_mea1, dt$mea1_within_interval, useNA = 'always')
+# table(dt$early_mea1, dt$mea1_late, useNA = 'always')
+# table(dt$mea1_within_interval, dt$mea1_late, useNA = 'always')
+# hist(dt$mea1_days_at_risk_mop)
+# hist(dt$dpt_days_at_risk_mop)
 
-##### drop the following cases because they result from a calculation without an accurate year
-dt <- dt %>% filter(dpt_days_at_risk<200000)
-
-hist(dt$mea1_days_at_risk_mop)
-
-hist(dt$dpt_days_at_risk_mop)
-hist(dt$dpt_days_at_risk)
-
-
-# View(dt %>% select(age_in_days, dpt_days_at_risk_mop, dpt1, dpt2, dpt3, dpt_within_interval, dpt_missed_opportunity, age_at_dpt1, age_at_dpt2, age_at_dpt3, dpt1_age_due_min) %>% filter(dpt_days_at_risk_mop >900))
+# # // these should be mutually exclusive: dpt_within_interval, too_few_elig_dpt, never_got_dpt, dpt_late
+# table(dt$dpt_within_interval, dt$too_few_elig_dpt, useNA = 'always')
+# table(dt$dpt_within_interval, dt$dpt_late, useNA = 'always')
+# table(dt$dpt_within_interval, dt$never_got_dpt, useNA = 'always')
+# table(dt$dpt_late, dt$never_got_dpt, useNA = 'always')
+# table(dt$too_few_elig_dpt, dt$never_got_dpt, useNA = 'always')
+# table(dt$too_few_elig_dpt, dt$dpt_late, useNA = 'always')
+# 
+# 
+# View(dt %>% select(age_in_days, dpt_days_at_risk_mop, dpt1, dpt2, dpt3, dpt_within_interval, dpt_missed_opportunity, age_at_dpt1, age_at_dpt2, age_at_dpt3, dpt1_age_due_min))
 
 # save output
 saveRDS(dt, file=paste0(g_drive, "Data/prepped_data/2d_prepped_dhs_data_for_analysis.RDS"))

@@ -12,7 +12,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   # inFile = file_list$file_name[i]
   # containing_folder = file_list$containing_folder[i]
   # dhs_version = file_list$data_source[i]
-  
+  # 
   # Load data
   if (dhs_version %in% c('dhs7', 'dhs6')){
     dhs_data = read_dta(file=paste0(dir, inFile))
@@ -469,6 +469,49 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   
   # keep only info for children alive at time of interview
   prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
+  
+  # recode impausible dates to NA given that we cannot use them in this coded format
+  if (dhs_version=="dhs7"){
+  prepped_dhs_data <- prepped_dhs_data %>% 
+    mutate(bcg = replace(bcg, bcg>"9000-01-01", NA)) %>%
+    mutate(dpt1 = replace(dpt1, dpt1>"9000-01-01", NA)) %>%
+    mutate(pol1 = replace(pol1, pol1>"9000-01-01", NA)) %>%
+    mutate(dpt2 = replace(dpt2, dpt2>"9000-01-01", NA)) %>%
+    mutate(dpt3 = replace(dpt3, dpt3>"9000-01-01", NA)) %>%
+    mutate(pol2 = replace(pol2, pol2>"9000-01-01", NA)) %>%
+    mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
+    mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
+    mutate(mea2 = replace(mea2, mea2>"9000-01-01", NA)) %>%
+    mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA)) %>%
+    mutate(hepbbirth = replace(hepbbirth, hepbbirth>"9000-01-01", NA)) %>%
+    mutate(pent1 = replace(pent1, pent1>"9000-01-01", NA)) %>%
+    mutate(pent2 = replace(pent2, pent2>"9000-01-01", NA)) %>%
+    mutate(pent3 = replace(pent3, pent3>"9000-01-01", NA)) %>%
+    mutate(pneu1 = replace(pneu1, pneu1>"9000-01-01", NA)) %>%
+    mutate(pneu2 = replace(pneu2, pneu2>"9000-01-01", NA)) %>%
+    mutate(pneu3 = replace(pneu3, pneu3>"9000-01-01", NA)) %>%
+    mutate(rota1 = replace(rota1, rota1>"9000-01-01", NA)) %>%
+    mutate(rota2 = replace(rota2, rota2>"9000-01-01", NA)) %>%
+    mutate(rota3 = replace(rota3, rota3>"9000-01-01", NA)) %>%
+    mutate(poln = replace(poln, poln>"9000-01-01", NA)) %>%
+    mutate(hepb1 = replace(hepb1, hepb1>"9000-01-01", NA)) %>%
+    mutate(hepb2 = replace(hepb2, hepb2>"9000-01-01", NA)) %>%
+    mutate(hepb3 = replace(hepb3, hepb3>"9000-01-01", NA)) %>%
+    mutate(hib1 = replace(hib1, hib1>"9000-01-01", NA)) %>%
+    mutate(hib2 = replace(hib2, hib2>"9000-01-01", NA)) %>%
+    mutate(hib3 = replace(hib3, hib3>"9000-01-01", NA))
+  } else if (dhs_version=="dhs6"){
+    prepped_dhs_data <- prepped_dhs_data %>%
+      mutate(bcg = replace(bcg, bcg>"9000-01-01", NA)) %>%
+      mutate(dpt1 = replace(dpt1, dpt1>"9000-01-01", NA)) %>%
+      mutate(pol1 = replace(pol1, pol1>"9000-01-01", NA)) %>%
+      mutate(pol2 = replace(pol2, pol2>"9000-01-01", NA)) %>%
+      mutate(dpt2 = replace(dpt2, dpt2>"9000-01-01", NA)) %>%
+      mutate(dpt3 = replace(dpt3, dpt3>"9000-01-01", NA)) %>%
+      mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
+      mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
+      mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA))
+  }
   
   ###############################################################
   # subset columns
