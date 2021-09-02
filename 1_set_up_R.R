@@ -49,7 +49,9 @@ aim1_vis <- paste0(visDir, "aim_1/")
 outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
 outputFile2b = paste0(prepped_data_dir, "2b_sdi.RDS")
 outputFile2c = paste0(prepped_data_dir, "2c_disease_trends.RDS")
-outputFile2d = paste0(prepped_data_dir, "2d_dhs_vaccination_data_all_locations.RDS")
+outputFile2d = paste0(prepped_data_dir, "2d_raw_dhs_vaccination_data_all_locations.RDS")
+outputFile2e = paste0(prepped_data_dir, "2e_prepped_dhs_vaccination_data_for_analysiss.RDS")
+
 
 outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
 outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
