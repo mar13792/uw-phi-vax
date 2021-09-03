@@ -474,12 +474,14 @@ dt <- dt %>% mutate(
 # table(dt$dpt_late, dt$never_got_dpt, useNA = 'always')
 # table(dt$too_few_elig_dpt, dt$never_got_dpt, useNA = 'always')
 # table(dt$too_few_elig_dpt, dt$dpt_late, useNA = 'always')
-# 
+
+# make visuals to explor implausible values in the dataset
+
 # 
 # View(dt %>% select(age_in_days, dpt_days_at_risk_mop, dpt1, dpt2, dpt3, dpt_within_interval, dpt_missed_opportunity, age_at_dpt1, age_at_dpt2, age_at_dpt3, dpt1_age_due_min))
 
 # save output
-saveRDS(dt, file=paste0(g_drive, "Data/prepped_data/2d_prepped_dhs_data_for_analysis.RDS"))
+saveRDS(dt, outputFile6a)
 
 # print final statement
-print("Step 2d: Extracting and prepping of dhs vaccination data completed.")
+print("Step 2d: Prepping of dhs vaccination data completed.")

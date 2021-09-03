@@ -27,7 +27,7 @@ library(naniar)
 # important variables
 ###############################
 
-# set shared team G drive dynamically
+# set shared team Google drive dynamically
 if (Sys.info()[1]=='Windows'){
     g_drive = "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/"
     code_dir = "tbd"
@@ -43,20 +43,19 @@ codebook_directory <- paste0(data_dir,"documentation/codebooks/")
 visDir <- paste0(g_drive,"Visualizations/")
 aim1_vis <- paste0(visDir, "aim_1/")
 
-###############################
-# output files
-###############################
+##############################################################
+# output file names that will be created in future scripts
+##############################################################
 outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
 outputFile2b = paste0(prepped_data_dir, "2b_sdi.RDS")
 outputFile2c = paste0(prepped_data_dir, "2c_disease_trends.RDS")
 outputFile2d = paste0(prepped_data_dir, "2d_raw_dhs_vaccination_data_all_locations.RDS")
-outputFile2e = paste0(prepped_data_dir, "2e_prepped_dhs_vaccination_data_for_analysiss.RDS")
-
 
 outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
 outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
 outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
 
+# names of visualizations that will be created in future scripts (maybe consider moving to the actual file script since some of these are archived already)
 outputFile5a = paste0(aim1_vis, "exemplar_countries/1_outliers_low_sdi.PDF")
 outputFile5b = paste0(aim1_vis, "exemplar_countries/2_barplot_low_sdi.PDF")
 outputFile5c = paste0(aim1_vis, "exemplar_countries/3_detailed_table_low_sdi.PDF")
@@ -79,7 +78,8 @@ outputFile5p = paste0(aim1_vis, "exemplar_countries/16_outliers_low_sdi_decade.P
 outputFile5q = paste0(aim1_vis, "exemplar_countries/17_barplot_low_sdi_decade.PDF")
 outputFile5r = paste0(aim1_vis, "exemplar_countries/18_detailed_table_low_sdi_decade.PDF")
 
-outputFile6a = paste0(prepped_data_dir, "6a_dhs_data_for_analyses.RDS")
+outputFile6a = paste0(prepped_data_dir, "6a_prepped_dhs_vaccination_data_for_analysis.RDS")
+# outputFile6a = paste0(prepped_data_dir, "6b_dhs_data_for_analyses.RDS")
 
 ###############################
 # source shared functions
@@ -97,14 +97,15 @@ prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = FALSE
 
-prep_dhs_data = FALSE
+run_extract_dhs_data = TRUE
 
 merge_files = FALSE
-
 
 id_low_sdi = FALSE
 id_med_sdi = FALSE
 id_high_sdi = FALSE
+
+prep_dhs_data = FALSE
 
 ################################
 #
@@ -134,8 +135,8 @@ if(prep_dx_trends == TRUE){
 # ---------------------------------------
 # Prep DHS data
 # ---------------------------------------
-if(prep_dhs_data == TRUE){
-  source('./2d_extract_dhs_data.R')
+if(run_extract_dhs_data == TRUE){
+  source('./2d_run_extract_dhs_data.R')
 }
 
 # ---------------------------------------

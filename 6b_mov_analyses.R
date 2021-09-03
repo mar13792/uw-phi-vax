@@ -1,10 +1,315 @@
 ####################################################
 # 1: Load prepped dataset for analyses
 ####################################################
-data <- readRDS(paste0(g_drive, "Data/prepped_data/2d_prepped_dhs_data_for_analysis.RDS"))
+data <- readRDS(outputFile6a)
 
 # subset data to only Nigeria
 data <- data %>% filter(v000 %in% c("NG6", "NG7"))
+
+###### prep additional variables for tables/graphs #####
+
+###################
+# mother's education
+###################
+
+data$edu <- as.character(data$v106)
+data <- data %>% mutate(edu = recode(edu,
+                                 `0`=0,
+                                 `1`=1,
+                                 `2`= 2,
+                                 `3`=2))
+data$edu <- factor(data$edu,
+                 levels = c(0,1,2),
+                 labels = c("No education", "Primary", "Secondary or higher"))
+
+###################
+# mother's literacy levels
+###################
+data$literate <- as.character(data$v155)
+
+data <- data %>% replace_with_na(replace = list(literate = 9))
+
+data <- data %>% mutate(literate = recode(literate,
+                                      `0`=0,
+                                      `1`=1,
+                                      `2`=1,
+                                      `3`=9,
+                                      `4`=9))
+
+data$literate <- factor(data$literate,
+                      levels = c(0,1),
+                      labels = c("Iliterate", "Literate"))
+
+###################
+# mother's age category
+###################
+
+data$wom_agecat <- data$v012
+
+data <- data %>%
+  mutate(wom_agecat=case_when(
+    wom_agecat %in% 15:19 ~ "1",
+    wom_agecat %in% 20:34 ~ "2",
+    wom_agecat %in% 35:49 ~ "3"))
+
+data$wom_agecat <- factor(data$wom_agecat,
+                        levels = c(1,2,3),
+                        labels = c("15-19", "20-34", "35-49"))
+
+###################
+# parity
+###################
+data$total_children_born <- data$v201 
+
+data <- data %>% 
+  mutate(total_children_born=case_when(
+    total_children_born %in% 1 ~ "1",
+    total_children_born %in% 2:3 ~ "2",
+    total_children_born %in% 4:5 ~ "3",
+    total_children_born %in% 6:20 ~ "4"
+  ))
+
+data$total_children_born <- factor(data$total_children_born,
+                                 levels = c(1,2,3,4),
+                                 labels = c("1 child", "2-3 children", "4-5 children", "6+ children"))
+
+###################
+# marital status
+###################
+data$marital <- as.character(data$v501)
+
+data <- data %>% mutate(marital = recode(marital,
+                                     `0`=1,
+                                     `1`=2,
+                                     `2`=3,
+                                     `3`=4,
+                                     `4`=4,
+                                     `5`=4))
+
+data$marital<- factor(data$marital,
+                    levels = c(1,2,3,4),
+                    labels = c("Single", "Married", "Union", "Divorced, seperated, widowed, or other"))
+
+###################
+# mother's employment
+###################
+data$wom_occ <- data$v717
+
+data <- data %>% replace_with_na(replace = list(wom_occ = 99))
+
+data <- data %>% 
+  mutate(wom_occ=case_when(
+    wom_occ %in% 0 ~ 1,
+    wom_occ %in% 1:97 ~ 2
+  ))
+
+data$wom_occ <- factor(data$wom_occ,
+                     levels = c(1,2),
+                     labels = c("Not employed", "Employed"))
+
+###################
+# assets
+###################
+
+# each survey should have either v190a or v190 for the household assets
+data$assets <- ifelse(!is.na(data$v190a), data$v190a, data$v190)
+
+data$assets <- facotr(data$assets,
+                      levels = c(1,2,3,4,5),
+                      labels = c("Quintile 1", "Quintile 2", "Quintile 3", "Quintile 3", "Quintile 4", "Quintile 5"))
+
+###################
+# average household size
+###################
+data$hhsize <- data$v136
+
+###################
+# urban
+###################
+data$urban <- abs(data$v025-2)
+
+data$urban <-factor(data$urban,
+                  levels = c(0,1),
+                  labels = c("Rural household", "Urban household"))
+
+###################
+# sex of head of household
+###################
+data$female_head <- data$v151
+
+data$female_head <- factor(data$female_head,
+                         levels = c(1,2),
+                         labels = c('Male', 'Female'))
+
+###################
+# asign labels to variable names
+###################
+data$sex_of_child <- factor(data$sex_of_child,
+                          levels=c(1,2),
+                          labels=c("Male", "Female"))
+
+###################
+#kid age category
+###################
+
+data$kid_agecat <- round(time_length(difftime(data$intv_date, data$dob), "years"), digits = 0)
+data$kid_agecat <- factor(data$kid_agecat, 
+                          levels = c(0,1,2,3),
+                          labels = c("0 years", "1 year", "2 years", "3 years"))
+
+# format data structures
+data$mea1_missed_opportunity <-factor(data$mea1_missed_opportunity,
+                                      levels=c(0,1),
+                                      labels=c("No", "Yes"))
+
+##################
+# variable labels
+##################
+
+label(data$sex_of_child) <- "Child's sex"
+label(data$kid_agecat) <- "Child's age (in years)"
+label(data$edu) <- "Mother's education"
+label(data$literate) <- "Literacy"
+label(data$wom_agecat) <- "Mother's age (in years)"
+label(data$total_children_born) <- "Parity"
+label(data$marital) <- "Marital status"
+label(data$wom_occ) <- "Mother's occupation"
+label(data$hhsize) <- "Household size"
+label(data$female_head) <-"Sex of head of household"
+label(data$urban) <-"Urbanicity"
+label(data$mea1_missed_opportunity) <-"Missed measles opportunity"
+label(data$assets) <-"Household assets"
+
+####################################################
+# 2. Explore what variables are associated with a missed opportunity
+####################################################
+
+# this function will automatically add pvalue from chisquare test or t-test to a table
+pvalue <- function(x, ...) {
+  # Construct vectors of data y, and groups (strata) g
+  y <- unlist(x)
+  g <- factor(rep(1:length(x), times=sapply(x, length)))
+  if (is.numeric(y)) {
+    # For numeric variables, perform a standard 2-sample t-test
+    p <- t.test(y ~ g)$p.value
+  } else {
+    # For categorical variables, perform a chi-squared test of independence
+    p <- chisq.test(table(y, g))$p.value
+  }
+  # Format the p-value, using an HTML entity for the less-than sign.
+  # The initial empty string places the output on the line below the variable label.
+  c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
+}
+
+# make two datasets one for each year in Nigeria
+data1 <- data %>% filter(v000=="NG7")
+data2 <- data %>% filter(v000=="NG6")
+
+table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | mea1_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
+table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | mea1_missed_opportunity, data=data2, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
+
+# calculate the chi-square for child's age seperately since children that are too young cannot have a missed opportunity yet
+chidt1 <- data1 %>% filter(kid_agecat!="0 years")
+format.pval(tes1, digits=3, eps=0.001)
+tes1 <- chisq.test(table(chidt1$kid_agecat, chidt1$mea1_missed_opportunity, exclude = "0 years"))$p.value
+
+chidt2 <- data2 %>% filter(kid_agecat!="0 years")
+tes2 <- chisq.test(table(chidt2$kid_agecat, chidt2$mea1_missed_opportunity, exclude = c("0 years", "3 years")))$p.value
+format.pval(tes2, digits=3, eps=0.001)
+
+
+####################################################
+# repeat analysis with DPT vaccines
+###################################################
+
+####################################################
+# 3: Was there an improvement in missed opportunities between the two time points of interest in Nigeria
+# create observed and potential coverage for measles
+####################################################
+
+# keep kids older that the max age of measles1 and keep if kids have a vaccine card
+mdt <- data %>% filter(age_in_days>=mea1_age_due_max,
+                           has_health_card_bin=="Yes")
+
+# Calculate the days at risk for the hazard analysis  -- the first part is the same as non_MOP analysis
+mdt <- mdt %>% mutate(hazard_days_mea1 = case_when(
+  
+  # Replace time at risk for MOP
+  mea1_missed_opportunity==1 & !is.na(mea1_age_at_mop_vac) ~ mea1_age_at_mop_vac - mea1_age_due_min,
+  
+  # For the early group, this is just the total number of days since the start of the MMR interval that the child lived
+  early_mea1==1 ~ mea1_days_at_risk + (mea1_age_due_max-mea1_age_due_min),
+
+  # For the late group - this is the number of days lived from start of the interval to the date of vaccination. Use the already-calculated days at risk to help.
+  mea1_late==1 ~ mea1_days_at_risk + (mea1_age_due_max - mea1_age_due_min),
+
+  # For those who got vaccinated on time, the number of days to vaccination is just the age at vaccination minus the age at start of the interval
+  mea1_within_interval==1 ~ mea1_age_at_counted_vac - mea1_age_due_min,
+
+  # For those who never got a vaccine it is their age minus minimum interval bound,
+  never_got_mea1==1 ~ age_in_days - mea1_age_due_min
+))
+
+# // Look at the results 
+hist(mdt$hazard_days_mea1)
+mean(mdt$hazard_days_mea1)
+
+# * hist hazard_days_mmr 
+# summ hazard_days_mmr, det
+
+# # Now we need a failure indicator -- consider failure to be getting a vaccine. 
+# # Kids who NEVER got measles or kids who got Measles early (and not again in the interval or late) will be censored at our observation days. 
+# # Kids who got the vaccine in the interal or late will have known observation time.
+# 
+mdt <- mdt %>% mutate(gotit = case_when(
+  # known observation time
+  mea1_late==1 | mea1_within_interval==1 | mea1_missed_opportunity==1 ~ 1,
+
+  # censored
+  never_got_mea1==1 | early_mea1==1 ~ 0))
+
+# view results
+table(mdt$gotit)
+
+# specify the hazard
+library(survival)
+library(cmprsk)
+mov.survival <- Surv(time=mdt$hazard_days_mea1, event=mdt$gotit)
+
+# create plot of cumulative incidence of vaccination
+ci_fit <- 
+  cuminc(
+    ftime = mdt$hazard_days_mea1, 
+    fstatus = mdt$gotit,
+    group = mdt$v000
+  )
+
+plot(ci_fit)
+
+ci_fit[["Tests"]]
+
+my.survfit <- survfit(mov.survival  ~ v000, data = mdt)
+plot(my.survfit, xlab="Days of Observation")
+
+# 
+# // Specify the hazard 
+# stset hazard_days_mmr, failure(gotit)    // 14553 observations 
+# // Make graph -- 0 days is 11.5 mos old and 60.8 days is 2 mos (15.2days*4=60.8) later --> 13.5 mos old 
+# // 0 days = start, 11.5 mos
+# // 15.4 days = 12 mos 
+# // 60.8 days = end of interval at which they are elig for on-time MMR 
+# // 12.3*30.4  = 380  = age 2 years
+# // 24.3*30.4  = 744.8  = age 3 years
+# // 1109.6 = 4 years 
+# // 1474.4 = 5 years 
+# sts graph, failure title("Potential number of days to MMR vaccination (N=14553)", size(med)) ci xtitle("Days of potential observation") xlabel(0 60 380 745 1110 1475, labsize(small)) xline(0 60.8) ylabel(,labsize(small) angle(0))
+# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop.png", replace
+# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop.tif", replace
+# sts graph, by(iso) failure title("Potential number of days to MMR vaccination (N=14553)", size(med)) ci xtitle("Days of potential observation") xlabel(0 60 380 745 1110 1475, labsize(small)) xline(0 60.8) ylabel(,labsize(small) angle(0))
+# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop_bycountry.png", replace
+# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop_bycountry.tif", replace
+
+
 
 ####################################################
 # 2: descriptive characteristics of children with and without card
@@ -48,183 +353,8 @@ data <- data %>% filter(v000 %in% c("NG6", "NG7"))
 ####################################################
 # 5. compare missed opportunities- chisquare
 ####################################################
-pvalue <- function(x, ...) {
-  # Construct vectors of data y, and groups (strata) g
-  y <- unlist(x)
-  g <- factor(rep(1:length(x), times=sapply(x, length)))
-  if (is.numeric(y)) {
-    # For numeric variables, perform a standard 2-sample t-test
-    p <- t.test(y ~ g)$p.value
-  } else {
-    # For categorical variables, perform a chi-squared test of independence
-    p <- chisq.test(table(y, g))$p.value
-  }
-  # Format the p-value, using an HTML entity for the less-than sign.
-  # The initial empty string places the output on the line below the variable label.
-  c("", sub("<", "&lt;", format.pval(p, digits=3, eps=0.001)))
-}
 
-###################
-# mother's education
-###################
 
-dt$edu <- as.character(dt$v106)
-dt <- dt %>% mutate(edu = recode(edu,
-                                 `0`=0,
-                                 `1`=1,
-                                 `2`= 2,
-                                 `3`=2))
-dt$edu <- factor(dt$edu,
-                 levels = c(0,1,2),
-                 labels = c("no education", "primary", "secondary or higher"))
-
-###################
-# mother's literacy levels
-###################
-dt$literate <- as.character(dt$v155)
-
-dt <- dt %>% replace_with_na(replace = list(literate = 9))
-
-dt <- dt %>% mutate(literate = recode(literate,
-                                      `0`=0,
-                                      `1`=1,
-                                      `2`=1,
-                                      `3`=9,
-                                      `4`=9))
-
-dt$literate <- factor(dt$literate,
-                      levels = c(0,1),
-                      labels = c("iliterate", "literate"))
-
-###################
-# mother's age category
-###################
-
-dt$wom_agecat <- dt$v012
-
-dt <- dt %>%
-  mutate(wom_agecat=case_when(
-    wom_agecat %in% 15:19 ~ "1",
-    wom_agecat %in% 20:34 ~ "2",
-    wom_agecat %in% 35:49 ~ "3"))
-
-dt$wom_agecat <- factor(dt$wom_agecat,
-                        levels = c(1,2,3),
-                        labels = c("15-19", "20-34", "35-49"))
-
-###################
-# parity
-###################
-dt$total_children_born <- dt$v201 
-
-dt <- dt %>% 
-  mutate(total_children_born=case_when(
-    total_children_born %in% 1 ~ "1",
-    total_children_born %in% 2:3 ~ "2",
-    total_children_born %in% 4:5 ~ "3",
-    total_children_born %in% 6:20 ~ "4"
-  ))
-
-dt$total_children_born <- factor(dt$total_children_born,
-                                 levels = c(1,2,3,4),
-                                 labels = c("1 child", "2-3 children", "4-5 children", "6+ children"))
-
-###################
-# marital status
-###################
-dt$marital <- as.character(dt$v501)
-
-dt <- dt %>% mutate(marital = recode(marital,
-                                     `0`=1,
-                                     `1`=2,
-                                     `2`=3,
-                                     `3`=4,
-                                     `4`=4,
-                                     `5`=4))
-
-dt$marital<- factor(dt$marital,
-                    levels = c(1,2,3,4),
-                    labels = c("single", "married", "union", "divorced, seperated, widowed, or other"))
-
-###################
-# mother's employment
-###################
-dt$wom_occ <- dt$v717
-
-dt <- dt %>% replace_with_na(replace = list(wom_occ = 99))
-
-dt <- dt %>% 
-  mutate(wom_occ=case_when(
-    wom_occ %in% 0 ~ "1",
-    wom_occ %in% 1:97 ~ "2"
-  ))
-
-dt$wom_occ <- factor(dt$wom_occ,
-                     levels = c(1,2),
-                     labels = c("not employed in last 12 months", "employed"))
-
-###################
-# assets
-###################
-
-# each survey should have either v190a or v190 for the household assets
-dt$assets <- ifelse(!is.na(dt$v190a), dt$v190a, dt$v190)
-
-dt$assets <- as.factor(dt$assets)
-
-###################
-# average household size
-###################
-dt$hhsize <- dt$v136
-
-###################
-# urban
-###################
-dt$urban <- abs(dt$v025-2)
-
-dt$urban <-factor(dt$urban,
-                  levels = c(0,1),
-                  labels = c("rural household", "urban household"))
-
-###################
-# sex of head of household
-###################
-dt$female_head <- dt$v151
-
-dt$female_head <- factor(dt$female_head,
-                         levels = c(1,2),
-                         labels = c('male', 'female'))
-
-###################
-# asign labels to variable names
-###################
-dt$sex_of_child <- factor(dt$sex_of_child,
-                          levels=c(1,2),
-                          labels=c("male", "female"))
-
-###################
-#kid age category
-###################
-
-dt$kid_agecat <- round(time_length(difftime(dt$intv_date, dt$dob), "years"), digits = 0)
-dt$kid_agecat <- as.factor(dt$kid_agecat)
-
-# format data structures
-data$mea1_missed_opportunity <-factor(data$mea1_missed_opportunity,
-                                       levels=c(0,1),
-                                       labels=c("No", "Yes"))
-label(data$sex_of_child) <- "Child's sex"
-label(data$edu) <- "Mother's education"
-label(data$wom_occ) <- "Mother's occupation"
-label(data$hhsize) <- "Household size"
-label(data$female_head) <-"Sex of head of household"
-label(data$urban) <-"Household location"
-label(data$mea1_missed_opportunity) <-"Missed measles opportunity"
-
-data1 <- data %>% filter(v000=="NG7")
-table1(~  sex_of_child + edu + wom_occ + hhsize + urban + female_head| mea1_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue))
-
-table1(~  sex_of_child + edu + wom_agecat +  + wom_occ + assets + hhsize + urban + female_head | mea1_missed_opportunity, data=data, overall=F, extra.col=list(`P-value`=pvalue))
 
 
 # create a series of tables   
@@ -242,7 +372,7 @@ table1(~  sex_of_child + edu + wom_agecat +  + wom_occ + assets + hhsize + urban
 
 
 # copy data for Measles analysis
-mdat <- data
+# mdat <- data
 
 # # keep kids that are older than the max age of measles and with vaccination card 
 # mdat <- mdat %>% filter(age_in_days>=mea1_age_due_max,

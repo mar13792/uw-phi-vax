@@ -27,9 +27,9 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
   idVars = c("caseid", "v000", "v005", "v007", "v006", "v016") # id variables for merging
   
   if (dhs_version=="dhs7"){
-  demoVars = c("v012", "v106", "v151", "v155", "v201", "v717", "v501", "v136", "v190", "v191", "v190a", "v191a", "v025") # demographic variables
+  demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v717", "v501", "v136", "v190", "v191", "v190a", "v191a", "v025") # demographic variables
   } else if (dhs_version=="dhs6"){
-    demoVars = c("v012", "v106", "v151", "v155", "v201", "v717", "v501", "v136", "v190", "v191", "v025") # slighlty different demographic variables
+    demoVars = c("v012", "v106", "v151", "v155", "v201", "v716", "v717", "v501", "v136", "v190", "v191", "v025") # slighlty different demographic variables
   }
   
   dobyearVars = names(dhs_data)[grepl('b2_', names(dhs_data))] # child's year of birth
@@ -512,6 +512,49 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version){
       mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
       mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA))
   }
+  
+  # recode impausible dates to NA given that we cannot use them in this coded format--for all vaccination dates that are less than the date of birth
+  # if (dhs_version=="dhs7"){
+  #   prepped_dhs_data <- prepped_dhs_data %>% 
+  #     mutate(bcg = replace(bcg, bcg>"9000-01-01", NA)) %>%
+  #     mutate(dpt1 = replace(dpt1, dpt1>"9000-01-01", NA)) %>%
+  #     mutate(pol1 = replace(pol1, pol1>"9000-01-01", NA)) %>%
+  #     mutate(dpt2 = replace(dpt2, dpt2>"9000-01-01", NA)) %>%
+  #     mutate(dpt3 = replace(dpt3, dpt3>"9000-01-01", NA)) %>%
+  #     mutate(pol2 = replace(pol2, pol2>"9000-01-01", NA)) %>%
+  #     mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
+  #     mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
+  #     mutate(mea2 = replace(mea2, mea2>"9000-01-01", NA)) %>%
+  #     mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA)) %>%
+  #     mutate(hepbbirth = replace(hepbbirth, hepbbirth>"9000-01-01", NA)) %>%
+  #     mutate(pent1 = replace(pent1, pent1>"9000-01-01", NA)) %>%
+  #     mutate(pent2 = replace(pent2, pent2>"9000-01-01", NA)) %>%
+  #     mutate(pent3 = replace(pent3, pent3>"9000-01-01", NA)) %>%
+  #     mutate(pneu1 = replace(pneu1, pneu1>"9000-01-01", NA)) %>%
+  #     mutate(pneu2 = replace(pneu2, pneu2>"9000-01-01", NA)) %>%
+  #     mutate(pneu3 = replace(pneu3, pneu3>"9000-01-01", NA)) %>%
+  #     mutate(rota1 = replace(rota1, rota1>"9000-01-01", NA)) %>%
+  #     mutate(rota2 = replace(rota2, rota2>"9000-01-01", NA)) %>%
+  #     mutate(rota3 = replace(rota3, rota3>"9000-01-01", NA)) %>%
+  #     mutate(poln = replace(poln, poln>"9000-01-01", NA)) %>%
+  #     mutate(hepb1 = replace(hepb1, hepb1>"9000-01-01", NA)) %>%
+  #     mutate(hepb2 = replace(hepb2, hepb2>"9000-01-01", NA)) %>%
+  #     mutate(hepb3 = replace(hepb3, hepb3>"9000-01-01", NA)) %>%
+  #     mutate(hib1 = replace(hib1, hib1>"9000-01-01", NA)) %>%
+  #     mutate(hib2 = replace(hib2, hib2>"9000-01-01", NA)) %>%
+  #     mutate(hib3 = replace(hib3, hib3>"9000-01-01", NA))
+  # } else if (dhs_version=="dhs6"){
+  #   prepped_dhs_data <- prepped_dhs_data %>%
+  #     mutate(bcg = replace(bcg, bcg>"9000-01-01", NA)) %>%
+  #     mutate(dpt1 = replace(dpt1, dpt1>"9000-01-01", NA)) %>%
+  #     mutate(pol1 = replace(pol1, pol1>"9000-01-01", NA)) %>%
+  #     mutate(pol2 = replace(pol2, pol2>"9000-01-01", NA)) %>%
+  #     mutate(dpt2 = replace(dpt2, dpt2>"9000-01-01", NA)) %>%
+  #     mutate(dpt3 = replace(dpt3, dpt3>"9000-01-01", NA)) %>%
+  #     mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
+  #     mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
+  #     mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA))
+  # }
   
   ###############################################################
   # subset columns
