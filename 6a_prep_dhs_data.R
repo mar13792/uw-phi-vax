@@ -476,6 +476,61 @@ dt <- dt %>% mutate(
 # table(dt$too_few_elig_dpt, dt$dpt_late, useNA = 'always')
 
 # make visuals to explor implausible values in the dataset
+# Make histograms
+# organize series and label for graphing
+codebookFile <- paste0(codebook_directory, 'dhs_mov_codebook.xlsx')
+codebook <- as.data.table(read_xlsx(codebookFile))
+dataVariables = unique(codebook[Category=="derived variable" & Class=="numeric" & `Possible Values`=="many possible values"]$Variable)
+# labelTable <- unique(codebook[,.(Variable)])
+
+
+histograms = lapply(dataVariables, function(v){
+ggplot(dt, aes_string(x=v)) + 
+  geom_histogram() +
+    facet_wrap(~v000)
+})
+
+
+# save histograms as a PDF
+outputFile6a2 <- paste0(visDir, "aim_1/missed_opportunities/6a_prepped_dhs_data_histograms.pdf") 
+
+print(paste('Saving:', outputFile6a2)) 
+pdf(outputFile6a2, height=5.5, width=9)
+for(i in seq(length(histograms))) { 
+  print(histograms[[i]])
+}
+dev.off()
+
+# transformed data as seen by the model
+# histograms = lapply(modelVars, function(v) {
+#   l = nodeTable[variable==v]$label
+#   ggplot(data(), aes_string(x=v)) + 
+#     geom_histogram() + 
+#     facet_wrap(~region, scales='free') + 
+#     labs(title=paste('Histograms of', l), y='Frequency', x=l, 
+#          subtitle=paste('Random Sample of', n, 'Health Zones'),
+#          caption='Variables are post-transformation. Transformations may include: 
+# 			cumulative, log, logit and lag.') + 
+#     theme_bw()
+# })
+
+# untransformed data
+# histograms_untr = lapply(modelVars, function(v) {
+#   l = nodeTable[variable==v]$label
+#   for(ext in c('_cumulative','lag_','lead_')) {
+#     if (grepl(ext, v)) v = gsub(ext,'',v) 
+#   }
+#   if (!v %in% names(sample_untr)) v = paste0('value_',v) 
+#   ggplot(sample_untr, aes_string(x=v)) + 
+#     geom_histogram() + 
+#     facet_wrap(~region, scales='free') + 
+#     labs(title=paste('Histograms of', l, '(Without Transformation)'), 
+#          y='Frequency', x=l, 
+#          subtitle=paste('Random Sample of', n, 'Regions'), 
+#          caption='Variables are pre-transformation.') + 
+#     theme_bw()
+# })
+# -------------------------------------------------------------------
 
 # 
 # View(dt %>% select(age_in_days, dpt_days_at_risk_mop, dpt1, dpt2, dpt3, dpt_within_interval, dpt_missed_opportunity, age_at_dpt1, age_at_dpt2, age_at_dpt3, dpt1_age_due_min))

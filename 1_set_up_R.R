@@ -97,7 +97,7 @@ prep_vax_trends = FALSE
 prep_sdi = FALSE
 prep_dx_trends = FALSE
 
-run_extract_dhs_data = TRUE
+run_extract_dhs_data = FALSE
 
 merge_files = FALSE
 
