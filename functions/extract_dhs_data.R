@@ -8,11 +8,11 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   ### TROUBLESHOOTING HELP 
   # Uncomment lines below to run tests
   
-  dir = file_dir
-  inFile = file_list$file_name[i]
-  containing_folder = file_list$containing_folder[i]
-  dhs_version = file_list$data_source[i]
-  loc = file_list$location_name[i]
+  # dir = file_dir
+  # inFile = file_list$file_name[i]
+  # containing_folder = file_list$containing_folder[i]
+  # dhs_version = file_list$data_source[i]
+  # loc = file_list$location_name[i]
   
    
   # Load data
@@ -516,10 +516,24 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   # keep only info for the six most recent births
   prepped_dhs_data <- filter(prepped_dhs_data, child %in% c("1", "2", "3", "4", "5", "6"))
   
+  # remove households without any children in them
+  prepped_dhs_data <- filter(prepped_dhs_data, v201!=0)
+  
+  # not necessary to keep this yet
   # keep only info for children alive at time of interview
-  prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
+  # prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
 
-  # no longer subsetting additional data
+  # drop rows that have NA for key columns--indicating that row is not a actual data point
+  check_na <- prepped_dhs_data %>% filter(is.na(sex_of_child) & is.na(is_child_alive) & is.na(child_resid))
+  check_na_sum <- as.data.table(check_na)
+  check_na_sum <- check_na_sum[,.(caseid, child, sex_of_child, is_child_alive, child_resid, has_health_card)]
+  check_na_sum <- melt(check_na_sum, id.vars = c('caseid', 'child', 'sex_of_child', 'is_child_alive', 'child_resid'), value.name = "has_health_card")
+  check_na_sum[, has_health_card:=as.numeric(has_health_card)]
+  na_budget = check_na_sum[, sum(has_health_card, na.rm = TRUE)]
+  if (na_budget!=0){
+      stop("Some rows with  NA for all key variables still have health cards--review drop conditions before dropping NAs in key variables")
+  }
+  prepped_dhs_data <- prepped_dhs_data %>% filter(!is.na(sex_of_child) & !is.na(is_child_alive) & !is.na(child_resid))
   
   # recode impausible/inconsistent dates to NA given that we cannot use them in this coded format
   # this includes years of birth recorded as 9997 or 9998
@@ -642,20 +656,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
     }
   }
  
-  ################ still being worked out
-  # drop rows that have NA for key columns--might not make sense at this point but keeping just in case
-  # check_na <- prepped_dhs_data[is.na()] <- prepped_dhs_data %>% drop_na(dob, sex_of_child)
-  # 
-  # #Remove rows where first 4 variables (module, intervention, activity, and cost category) are NA, checking that their sum is 0 for key variables first. 
-  # check_na_sum = gf_data[is.na(module) & is.na(intervention) & is.na(activity_description) & is.na(cost_category)]
-  # check_na_sum = melt(check_na_sum, id.vars = c('module', 'intervention', 'activity_description', 'cost_category'), value.name = "budget")
-  # check_na_sum[, budget:=as.numeric(budget)]
-  # na_budget = check_na_sum[, sum(budget, na.rm = TRUE)]
-  # if (na_budget!=0){
-  #   stop("Budgeted line items have NA for all key variables - review drop conditions before dropping NAs in module and intervention")
-  # }
-  # gf_data = gf_data[!(is.na(module) & is.na(intervention) & is.na(activity_description) & is.na(cost_category))]
-  # 
+
   ###############################################################
   # subset columns
   ###############################################################
