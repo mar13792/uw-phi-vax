@@ -14,7 +14,6 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   dhs_version = file_list$data_source[i]
   loc = file_list$location_name[i]
   
-   
   # Load data
   if (dhs_version %in% c('dhs7', 'dhs6')){
     dhs_data = read_dta(file=paste0(dir, inFile))
@@ -56,15 +55,14 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   if (dhs_version=="dhs7"){
     vaxcardVars = names(dhs_data)[grepl('h1a', names(dhs_data))] # indicates whether child had vaccine card
     vaxcarddateVars = names(dhs_data)[grepl('h2_|h3_|h4_|h5_|h6_|h7_|h8_|h9_|h9a_|h0_|h50_|h51_|h52_|h53_|h54_|h55_|h56_|h57_|h58_|h59_|h60_|h61_|h62_|h63_|h64_|h65_|h66_', names(dhs_data))]
-    vaxyearVars = names(dhs_data)[grepl('h.*y_', names(dhs_data)) & !grepl('h12|h32|h33|h37h40', names(dhs_data))] # year vaccines given
+    vaxyearVars = names(dhs_data)[grepl('h.*y_', names(dhs_data)) & !grepl('h12|h32|h33|h37|h40', names(dhs_data))] # year vaccines given
     vaxmonthVars = names(dhs_data)[grepl('h.*m_', names(dhs_data)) & !grepl('h12|h15|h31|h32|h33|h36|h37|h40|h80', names(dhs_data))] # months vaccine given
-    vaxdayVars = names(dhs_data)[grepl('h.*d_', names(dhs_data)) & !grepl('h40|h12|h32|h33|h37', names(dhs_data))] # day vaccine given
+    vaxdayVars = names(dhs_data)[grepl('h.*d_', names(dhs_data)) & !grepl('h12|h15|h31|h32|h33|h36|h37|h40|h80', names(dhs_data))] # day vaccine given
   } else if (dhs_version=="dhs6"){
     vaxcardVars = names(dhs_data[grepl('h1_', names(dhs_data))])
     
     if (loc=="Nigeria"){
       vaxcarddateVars = names(dhs_data)[grepl('h2_|h3_|h4_|h5_|h6_|h7_|h8_|h9_|h0_|shb1_|shb2_|shb3_|syf_', names(dhs_data))] # indicator for whether date is recorded
-      
       vaxyearVars = names(dhs_data)[grepl('h2y_|h3y_|h4y_|h5y_|h6y_|h7y_|h8y_|h9y_|h0y_|shb1y_|shb2y_|shb3y_|syfy_', names(dhs_data))] # year vaccines given
       vaxmonthVars = names(dhs_data)[grepl('h2m_|h3m_|h4m_|h5m_|h6m_|h7m_|h8m_|h9m_|h0m_|shb1m_|shb2m_|shb3m_|syfm_', names(dhs_data))] # months vaccine given
       vaxdayVars = names(dhs_data)[grepl('h2d_|h3d_|h4d_|h5d_|h6d_|h7d_|h8d_|h9d_|h0d_|shb1d_|shb2d_|shb3d_|syfd_', names(dhs_data))] # day vaccine given
@@ -76,8 +74,6 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
     }
   }
 
-
-  
   ######################
   # dob year variable
   ######################
@@ -488,7 +484,6 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                      `05`="5",
                                      `06`="6"))
   
-  
   # merge into new dataset called prepped_dhs_data
   prepped_dhs_data <- dt1 %>% full_join(dt2, by = mergeCols) %>%
     full_join(dt3, by = mergeCols)
@@ -507,8 +502,6 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
     mutate(intv_date := make_date(month=v006, day=v016, year=v007)) %>%
     mutate(dob := make_date(month=birth_month, day=birth_day, year=birth_year))
   
-
-  
   ###############################################################
   # subset rows
   ###############################################################
@@ -519,9 +512,8 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   # remove households without any children in them
   prepped_dhs_data <- filter(prepped_dhs_data, v201!=0)
   
-  # not necessary to keep this yet
   # keep only info for children alive at time of interview
-  # prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
+  prepped_dhs_data <- filter(prepped_dhs_data, is_child_alive==1)
 
   # drop rows that have NA for key columns--indicating that row is not a actual data point
   check_na <- prepped_dhs_data %>% filter(is.na(sex_of_child) & is.na(is_child_alive) & is.na(child_resid))
@@ -534,8 +526,14 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
       stop("Some rows with  NA for all key variables still have health cards--review drop conditions before dropping NAs in key variables")
   }
   prepped_dhs_data <- prepped_dhs_data %>% filter(!is.na(sex_of_child) & !is.na(is_child_alive) & !is.na(child_resid))
-  
-  # recode impausible/inconsistent dates to NA given that we cannot use them in this coded format
+
+  # calculate the child's age in days
+  prepped_dhs_data$age_in_days <- time_length(difftime(prepped_dhs_data$intv_date, prepped_dhs_data$dob), "days")
+    
+  # filter out children older than three--children older than three do not have vaccination data
+  prepped_dhs_data <- filter(prepped_dhs_data, age_in_days<=1095)
+
+# recode impausible/inconsistent dates to NA given that we cannot use them in this coded format
   # this includes years of birth recorded as 9997 or 9998
   if (dhs_version=="dhs7"){
   prepped_dhs_data <- prepped_dhs_data %>% 
@@ -578,10 +576,10 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
         mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
         mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
         mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA)) %>%
-        mutate(hepb1 = replace(hepb1, pol0>"9000-01-01", NA)) %>%
-        mutate(hepb2 = replace(hepb2, pol0>"9000-01-01", NA)) %>%
-        mutate(hepb3 = replace(hepb3, pol0>"9000-01-01", NA)) %>%
-        mutate(yelfev = replace(yelfev, pol0>"9000-01-01", NA))
+        mutate(hepb1 = replace(hepb1, hepb1>"9000-01-01", NA)) %>%
+        mutate(hepb2 = replace(hepb2, hepb2>"9000-01-01", NA)) %>%
+        mutate(hepb3 = replace(hepb3, hepb3>"9000-01-01", NA)) %>%
+        mutate(yelfev = replace(yelfev, yelfev>"9000-01-01", NA))
     } else {
       prepped_dhs_data <- prepped_dhs_data %>%
         mutate(bcg = replace(bcg, bcg>"9000-01-01", NA)) %>%
@@ -599,83 +597,80 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   # recode vaccine dates listed as before the date of birth to the date of birth to account for our middle-of-month assumption
   if (dhs_version=="dhs7"){
     prepped_dhs_data <- prepped_dhs_data %>% 
-      mutate(bcg = replace(bcg, bcg<dob, dob)) %>%
-      mutate(dpt1 = replace(dpt1, dpt1<dob, dob)) %>%
-      mutate(pol1 = replace(pol1, pol1<dob, dob)) %>%
-      mutate(dpt2 = replace(dpt2, dpt2<dob, dob)) %>%
-      mutate(dpt3 = replace(dpt3, dpt3<dob, dob)) %>%
-      mutate(pol2 = replace(pol2, pol2<dob, dob)) %>%
-      mutate(pol3 = replace(pol3, pol3<dob, dob)) %>%
-      mutate(mea1 = replace(mea1, mea1<dob, dob)) %>%
-      mutate(mea2 = replace(mea2, mea2<dob, dob)) %>%
-      mutate(pol0 = replace(pol0, pol0<dob, dob)) %>%
-      mutate(hepbbirth = replace(hepbbirth, hepbbirth<dob, dob)) %>%
-      mutate(pent1 = replace(pent1, pent1<dob, dob)) %>%
-      mutate(pent2 = replace(pent2, pent2<dob, dob)) %>%
-      mutate(pent3 = replace(pent3, pent3<dob, dob)) %>%
-      mutate(pneu1 = replace(pneu1, pneu1<dob, dob)) %>%
-      mutate(pneu2 = replace(pneu2, pneu2<dob, dob)) %>%
-      mutate(pneu3 = replace(pneu3, pneu3<dob, dob)) %>%
-      mutate(rota1 = replace(rota1, rota1<dob, dob)) %>%
-      mutate(rota2 = replace(rota2, rota2<dob, dob)) %>%
-      mutate(rota3 = replace(rota3, rota3<dob, dob)) %>%
-      mutate(poln = replace(poln, poln<dob, dob)) %>%
-      mutate(hepb1 = replace(hepb1, hepb1<dob, dob)) %>%
-      mutate(hepb2 = replace(hepb2, hepb2<dob, dob)) %>%
-      mutate(hepb3 = replace(hepb3, hepb3<dob, dob)) %>%
-      mutate(hib1 = replace(hib1, hib1<dob, dob)) %>%
-      mutate(hib2 = replace(hib2, hib2<dob, dob)) %>%
-      mutate(hib3 = replace(hib3, hib3<dob, dob))
+      mutate(bcg = replace(bcg, bcg<dob & !is.na(bcg), dob)) %>%
+      mutate(dpt1 = replace(dpt1, dpt1<dob & !is.na(dpt1), dob)) %>%
+      mutate(pol1 = replace(pol1, pol1<dob & !is.na(pol1), dob)) %>%
+      mutate(dpt2 = replace(dpt2, dpt2<dob & !is.na(dpt2), dob)) %>%
+      mutate(dpt3 = replace(dpt3, dpt3<dob & !is.na(dpt3), dob)) %>%
+      mutate(pol2 = replace(pol2, pol2<dob & !is.na(pol2), dob)) %>%
+      mutate(pol3 = replace(pol3, pol3<dob & !is.na(pol3), dob)) %>%
+      mutate(mea1 = replace(mea1, mea1<dob & !is.na(mea1), dob)) %>%
+      mutate(mea2 = replace(mea2, mea2<dob & !is.na(mea2), dob)) %>%
+      mutate(pol0 = replace(pol0, pol0<dob & !is.na(pol0), dob)) %>%
+      mutate(hepbbirth = replace(hepbbirth, hepbbirth<dob & !is.na(hepbbirth), dob)) %>%
+      mutate(pent1 = replace(pent1, pent1<dob & !is.na(pent1), dob)) %>%
+      mutate(pent2 = replace(pent2, pent2<dob & !is.na(pent2), dob)) %>%
+      mutate(pent3 = replace(pent3, pent3<dob & !is.na(pent3), dob)) %>%
+      mutate(pneu1 = replace(pneu1, pneu1<dob & !is.na(pneu1), dob)) %>%
+      mutate(pneu2 = replace(pneu2, pneu2<dob & !is.na(pneu2), dob)) %>%
+      mutate(pneu3 = replace(pneu3, pneu3<dob & !is.na(pneu3), dob)) %>%
+      mutate(rota1 = replace(rota1, rota1<dob & !is.na(rota1), dob)) %>%
+      mutate(rota2 = replace(rota2, rota2<dob & !is.na(rota2), dob)) %>%
+      mutate(rota3 = replace(rota3, rota3<dob & !is.na(rota3), dob)) %>%
+      mutate(poln = replace(poln, poln<dob & !is.na(poln), dob)) %>%
+      mutate(hepb1 = replace(hepb1, hepb1<dob & !is.na(hepb1), dob)) %>%
+      mutate(hepb2 = replace(hepb2, hepb2<dob & !is.na(hepb2), dob)) %>%
+      mutate(hepb3 = replace(hepb3, hepb3<dob & !is.na(hepb3), dob)) %>%
+      mutate(hib1 = replace(hib1, hib1<dob & !is.na(hib1), dob)) %>%
+      mutate(hib2 = replace(hib2, hib2<dob & !is.na(hib2), dob)) %>%
+      mutate(hib3 = replace(hib3, hib3<dob & !is.na(hib3), dob))
   } else if (dhs_version=="dhs6"){
     if (loc=="Nigeria"){
       prepped_dhs_data <- prepped_dhs_data %>%
-        mutate(bcg = replace(bcg, bcg<dob, dob)) %>%
-        mutate(dpt1 = replace(dpt1, dpt1<dob, dob)) %>%
-        mutate(pol1 = replace(pol1, pol1<dob, dob)) %>%
-        mutate(pol2 = replace(pol2, pol2<dob, dob)) %>%
-        mutate(dpt2 = replace(dpt2, dpt2<dob, dob)) %>%
-        mutate(dpt3 = replace(dpt3, dpt3<dob, dob)) %>%
-        mutate(pol3 = replace(pol3, pol3<dob, dob)) %>%
-        mutate(mea1 = replace(mea1, mea1<dob, dob)) %>%
-        mutate(pol0 = replace(pol0, pol0<dob, dob)) %>%
-        mutate(hepb1 = replace(hepb1, pol0<dob, dob)) %>%
-        mutate(hepb2 = replace(hepb2, pol0<dob, dob)) %>%
-        mutate(hepb3 = replace(hepb3, pol0<dob, dob)) %>%
-        mutate(yelfev = replace(yelfev, pol0<dob, dob))
+        mutate(bcg = replace(bcg, bcg<dob & !is.na(bcg), dob)) %>%
+        mutate(dpt1 = replace(dpt1, dpt1<dob & !is.na(dpt1), dob)) %>%
+        mutate(pol1 = replace(pol1, pol1<dob & !is.na(pol1), dob)) %>%
+        mutate(pol2 = replace(pol2, pol2<dob & !is.na(pol2), dob)) %>%
+        mutate(dpt2 = replace(dpt2, dpt2<dob & !is.na(dpt2), dob)) %>%
+        mutate(dpt3 = replace(dpt3, dpt3<dob & !is.na(dpt3), dob)) %>%
+        mutate(pol3 = replace(pol3, pol3<dob & !is.na(pol3), dob)) %>%
+        mutate(mea1 = replace(mea1, mea1<dob & !is.na(mea1), dob)) %>%
+        mutate(pol0 = replace(pol0, pol0<dob & !is.na(pol0), dob)) %>%
+        mutate(hepb1 = replace(hepb1, hepb1<dob & !is.na(hepb1), dob)) %>%
+        mutate(hepb2 = replace(hepb2, hepb2<dob & !is.na(hepb2), dob)) %>%
+        mutate(hepb3 = replace(hepb3, hepb3<dob & !is.na(hepb3), dob)) %>%
+        mutate(yelfev = replace(yelfev, yelfev<dob & !is.na(yelfev), dob))
     } else {
       prepped_dhs_data <- prepped_dhs_data %>%
-        mutate(bcg = replace(bcg, bcg<dob, dob)) %>%
-        mutate(dpt1 = replace(dpt1, dpt1<dob, dob)) %>%
-        mutate(pol1 = replace(pol1, pol1<dob, dob)) %>%
-        mutate(pol2 = replace(pol2, pol2<dob, dob)) %>%
-        mutate(dpt2 = replace(dpt2, dpt2<dob, dob)) %>%
-        mutate(dpt3 = replace(dpt3, dpt3<dob, dob)) %>%
-        mutate(pol3 = replace(pol3, pol3<dob, dob)) %>%
-        mutate(mea1 = replace(mea1, mea1<dob, dob)) %>%
-        mutate(pol0 = replace(pol0, pol0<dob, dob))
+        mutate(bcg = replace(bcg, bcg<dob & !is.na(bcg), dob)) %>%
+        mutate(dpt1 = replace(dpt1, dpt1<dob & !is.na(dpt1), dob)) %>%
+        mutate(pol1 = replace(pol1, pol1<dob & !is.na(pol1), dob)) %>%
+        mutate(pol2 = replace(pol2, pol2<dob & !is.na(pol2), dob)) %>%
+        mutate(dpt2 = replace(dpt2, dpt2<dob & !is.na(dpt2), dob)) %>%
+        mutate(dpt3 = replace(dpt3, dpt3<dob & !is.na(dpt3), dob)) %>%
+        mutate(pol3 = replace(pol3, pol3<dob & !is.na(pol3), dob)) %>%
+        mutate(mea1 = replace(mea1, mea1<dob & !is.na(mea1), dob)) %>%
+        mutate(pol0 = replace(pol0, pol0<dob & !is.na(pol0), dob))
     }
   }
  
-
   ###############################################################
   # subset columns
   ###############################################################
   # remove unnecessary columns
   if (dhs_version=="dhs7"){
     prepped_dhs_data <- prepped_dhs_data %>%
-      select(-c(v007, v006, v016, h12, h32, h37, h15, h36, h40, 
-                h80, h31, birth_day, birth_year, birth_month))
+      select(-c(v007, v006, v016, 
+                birth_day, birth_year, birth_month))
   } else if (dhs_version=="dhs6"){
     prepped_dhs_data <- prepped_dhs_data %>%
       select(-c(v007, v006, v016, h12, h32, h33, h37, h15, h36, h40,
                 h31, birth_day, birth_year, birth_month))
   }
-
   
   # reorder columns to put demographic variables first
   prepped_dhs_data <- prepped_dhs_data %>% relocate(intv_date, .after = v025) %>%
     relocate(dob, .after = child)
-  
   
   #Check column names, and that you have at least some valid data for the file.
   if (nrow(prepped_dhs_data)==0){
