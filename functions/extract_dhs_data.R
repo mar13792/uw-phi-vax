@@ -8,11 +8,11 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   ### TROUBLESHOOTING HELP 
   # Uncomment lines below to run tests
   
-  # dir = file_dir
-  # inFile = file_list$file_name[i]
-  # containing_folder = file_list$containing_folder[i]
-  # dhs_version = file_list$data_source[i]
-  # loc = file_list$location_name[i]
+  dir = file_dir
+  inFile = file_list$file_name[i]
+  containing_folder = file_list$containing_folder[i]
+  dhs_version = file_list$data_source[i]
+  loc = file_list$location_name[i]
   
    
   # Load data
@@ -55,10 +55,10 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   if (dhs_version=="dhs7"){
     vaxcardVars = names(dhs_data)[grepl('h1a', names(dhs_data))] # indicates whether child had vaccine card
-    vaxcarddateVars = names(dhs_data)[grepl('h2_|h3_|h4_|h5_|h6_|h7_|h8_|h9_|h9a_|h0_|h50_|h51_|h54_|h55_|h56_|h57_|h58_|h59_|h60_|h61_|h62_|h63_|h64_|h65_|h66_', names(dhs_data))]
-    vaxyearVars = names(dhs_data)[grepl('h.*y_', names(dhs_data))] # year vaccines given
-    vaxmonthVars = names(dhs_data)[grepl('h.*m_', names(dhs_data))] # months vaccine given
-    vaxdayVars = names(dhs_data)[grepl('h.*d_', names(dhs_data))] # day vaccine given
+    vaxcarddateVars = names(dhs_data)[grepl('h2_|h3_|h4_|h5_|h6_|h7_|h8_|h9_|h9a_|h0_|h50_|h51_|h52_|h53_|h54_|h55_|h56_|h57_|h58_|h59_|h60_|h61_|h62_|h63_|h64_|h65_|h66_', names(dhs_data))]
+    vaxyearVars = names(dhs_data)[grepl('h.*y_', names(dhs_data)) & !grepl('h12|h32|h33|h37h40', names(dhs_data))] # year vaccines given
+    vaxmonthVars = names(dhs_data)[grepl('h.*m_', names(dhs_data)) & !grepl('h12|h15|h31|h32|h33|h36|h37|h40|h80', names(dhs_data))] # months vaccine given
+    vaxdayVars = names(dhs_data)[grepl('h.*d_', names(dhs_data)) & !grepl('h40|h12|h32|h33|h37', names(dhs_data))] # day vaccine given
   } else if (dhs_version=="dhs6"){
     vaxcardVars = names(dhs_data[grepl('h1_', names(dhs_data))])
     
