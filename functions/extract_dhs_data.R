@@ -8,11 +8,11 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   ### TROUBLESHOOTING HELP 
   # Uncomment lines below to run tests
   
-  dir = file_dir
-  inFile = file_list$file_name[i]
-  containing_folder = file_list$containing_folder[i]
-  dhs_version = file_list$data_source[i]
-  loc = file_list$location_name[i]
+  # dir = file_dir
+  # inFile = file_list$file_name[i]
+  # containing_folder = file_list$containing_folder[i]
+  # dhs_version = file_list$data_source[i]
+  # loc = file_list$location_name[i]
   
   # Load data
   if (dhs_version %in% c('dhs7', 'dhs6')){
@@ -594,66 +594,90 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
     }
   }
   
-  # recode vaccine dates listed as before the date of birth to the date of birth to account for our middle-of-month assumption
+  # recode vaccine dates listed as before the date of birth to the date of birth to account for our middle-of-month assumption for DHS6
   if (dhs_version=="dhs7"){
     prepped_dhs_data <- prepped_dhs_data %>% 
-      mutate(bcg = replace(bcg, bcg<dob & !is.na(bcg), dob)) %>%
-      mutate(dpt1 = replace(dpt1, dpt1<dob & !is.na(dpt1), dob)) %>%
-      mutate(pol1 = replace(pol1, pol1<dob & !is.na(pol1), dob)) %>%
-      mutate(dpt2 = replace(dpt2, dpt2<dob & !is.na(dpt2), dob)) %>%
-      mutate(dpt3 = replace(dpt3, dpt3<dob & !is.na(dpt3), dob)) %>%
-      mutate(pol2 = replace(pol2, pol2<dob & !is.na(pol2), dob)) %>%
-      mutate(pol3 = replace(pol3, pol3<dob & !is.na(pol3), dob)) %>%
-      mutate(mea1 = replace(mea1, mea1<dob & !is.na(mea1), dob)) %>%
-      mutate(mea2 = replace(mea2, mea2<dob & !is.na(mea2), dob)) %>%
-      mutate(pol0 = replace(pol0, pol0<dob & !is.na(pol0), dob)) %>%
-      mutate(hepbbirth = replace(hepbbirth, hepbbirth<dob & !is.na(hepbbirth), dob)) %>%
-      mutate(pent1 = replace(pent1, pent1<dob & !is.na(pent1), dob)) %>%
-      mutate(pent2 = replace(pent2, pent2<dob & !is.na(pent2), dob)) %>%
-      mutate(pent3 = replace(pent3, pent3<dob & !is.na(pent3), dob)) %>%
-      mutate(pneu1 = replace(pneu1, pneu1<dob & !is.na(pneu1), dob)) %>%
-      mutate(pneu2 = replace(pneu2, pneu2<dob & !is.na(pneu2), dob)) %>%
-      mutate(pneu3 = replace(pneu3, pneu3<dob & !is.na(pneu3), dob)) %>%
-      mutate(rota1 = replace(rota1, rota1<dob & !is.na(rota1), dob)) %>%
-      mutate(rota2 = replace(rota2, rota2<dob & !is.na(rota2), dob)) %>%
-      mutate(rota3 = replace(rota3, rota3<dob & !is.na(rota3), dob)) %>%
-      mutate(poln = replace(poln, poln<dob & !is.na(poln), dob)) %>%
-      mutate(hepb1 = replace(hepb1, hepb1<dob & !is.na(hepb1), dob)) %>%
-      mutate(hepb2 = replace(hepb2, hepb2<dob & !is.na(hepb2), dob)) %>%
-      mutate(hepb3 = replace(hepb3, hepb3<dob & !is.na(hepb3), dob)) %>%
-      mutate(hib1 = replace(hib1, hib1<dob & !is.na(hib1), dob)) %>%
-      mutate(hib2 = replace(hib2, hib2<dob & !is.na(hib2), dob)) %>%
-      mutate(hib3 = replace(hib3, hib3<dob & !is.na(hib3), dob))
+      mutate(bcg = replace(bcg, bcg<dob, NA)) %>%
+      mutate(dpt1 = replace(dpt1, dpt1<dob, NA)) %>%
+      mutate(pol1 = replace(pol1, pol1<dob, NA)) %>%
+      mutate(dpt2 = replace(dpt2, dpt2<dob, NA)) %>%
+      mutate(dpt3 = replace(dpt3, dpt3<dob, NA)) %>%
+      mutate(pol2 = replace(pol2, pol2<dob, NA)) %>%
+      mutate(pol3 = replace(pol3, pol3<dob, NA)) %>%
+      mutate(mea1 = replace(mea1, mea1<dob, NA)) %>%
+      mutate(mea2 = replace(mea2, mea2<dob, NA)) %>%
+      mutate(pol0 = replace(pol0, pol0<dob, NA)) %>%
+      mutate(hepbbirth = replace(hepbbirth, hepbbirth<dob, NA)) %>%
+      mutate(pent1 = replace(pent1, pent1<dob, NA)) %>%
+      mutate(pent2 = replace(pent2, pent2<dob, NA)) %>%
+      mutate(pent3 = replace(pent3, pent3<dob, NA)) %>%
+      mutate(pneu1 = replace(pneu1, pneu1<dob, NA)) %>%
+      mutate(pneu2 = replace(pneu2, pneu2<dob, NA)) %>%
+      mutate(pneu3 = replace(pneu3, pneu3<dob, NA)) %>%
+      mutate(rota1 = replace(rota1, rota1<dob, NA)) %>%
+      mutate(rota2 = replace(rota2, rota2<dob, NA)) %>%
+      mutate(rota3 = replace(rota3, rota3<dob, NA)) %>%
+      mutate(poln = replace(poln, poln<dob, NA)) %>%
+      mutate(hepb1 = replace(hepb1, hepb1<dob, NA)) %>%
+      mutate(hepb2 = replace(hepb2, hepb2<dob, NA)) %>%
+      mutate(hepb3 = replace(hepb3, hepb3<dob, NA)) %>%
+      mutate(hib1 = replace(hib1, hib1<dob, NA)) %>%
+      mutate(hib2 = replace(hib2, hib2<dob, NA)) %>%
+      mutate(hib3 = replace(hib3, hib3<dob, NA))
   } else if (dhs_version=="dhs6"){
     if (loc=="Nigeria"){
       prepped_dhs_data <- prepped_dhs_data %>%
-        mutate(bcg = replace(bcg, bcg<dob & !is.na(bcg), dob)) %>%
-        mutate(dpt1 = replace(dpt1, dpt1<dob & !is.na(dpt1), dob)) %>%
-        mutate(pol1 = replace(pol1, pol1<dob & !is.na(pol1), dob)) %>%
-        mutate(pol2 = replace(pol2, pol2<dob & !is.na(pol2), dob)) %>%
-        mutate(dpt2 = replace(dpt2, dpt2<dob & !is.na(dpt2), dob)) %>%
-        mutate(dpt3 = replace(dpt3, dpt3<dob & !is.na(dpt3), dob)) %>%
-        mutate(pol3 = replace(pol3, pol3<dob & !is.na(pol3), dob)) %>%
-        mutate(mea1 = replace(mea1, mea1<dob & !is.na(mea1), dob)) %>%
-        mutate(pol0 = replace(pol0, pol0<dob & !is.na(pol0), dob)) %>%
-        mutate(hepb1 = replace(hepb1, hepb1<dob & !is.na(hepb1), dob)) %>%
-        mutate(hepb2 = replace(hepb2, hepb2<dob & !is.na(hepb2), dob)) %>%
-        mutate(hepb3 = replace(hepb3, hepb3<dob & !is.na(hepb3), dob)) %>%
-        mutate(yelfev = replace(yelfev, yelfev<dob & !is.na(yelfev), dob))
+        mutate(
+          bcg = case_when(bcg<dob & !is.na(bcg) ~ dob,
+                          TRUE ~ bcg),
+          dpt1 = case_when(dpt1<dob & !is.na(dpt1) ~ dob,
+                           TRUE ~ dpt1),
+          dpt2 = case_when(dpt2<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ dpt2),
+          dpt3 = case_when(dpt3<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ dpt3),
+          pol0 = case_when(pol0<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol0),
+          pol1 = case_when(pol1<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol1),
+          pol2 = case_when(pol2<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol2),
+          pol3 = case_when(pol3<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol3),
+          mea1 = case_when(mea1<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ mea1),
+          hepb1 = case_when(hepb1<dob & !is.na(bcg) ~ dob,
+                            TRUE ~ hepb1),
+          hepb2 = case_when(hepb2<dob & !is.na(bcg) ~ dob,
+                            TRUE ~ hepb2),
+          hepb3 = case_when(hepb3<dob & !is.na(bcg) ~ dob,
+                            TRUE ~ hepb3),
+          yelfev = case_when(yelfev<dob & !is.na(yelfev) ~ dob,
+                             TRUE ~ yelfev))
     } else {
       prepped_dhs_data <- prepped_dhs_data %>%
-        mutate(bcg = replace(bcg, bcg<dob & !is.na(bcg), dob)) %>%
-        mutate(dpt1 = replace(dpt1, dpt1<dob & !is.na(dpt1), dob)) %>%
-        mutate(pol1 = replace(pol1, pol1<dob & !is.na(pol1), dob)) %>%
-        mutate(pol2 = replace(pol2, pol2<dob & !is.na(pol2), dob)) %>%
-        mutate(dpt2 = replace(dpt2, dpt2<dob & !is.na(dpt2), dob)) %>%
-        mutate(dpt3 = replace(dpt3, dpt3<dob & !is.na(dpt3), dob)) %>%
-        mutate(pol3 = replace(pol3, pol3<dob & !is.na(pol3), dob)) %>%
-        mutate(mea1 = replace(mea1, mea1<dob & !is.na(mea1), dob)) %>%
-        mutate(pol0 = replace(pol0, pol0<dob & !is.na(pol0), dob))
+        mutate(
+          bcg = case_when(bcg<dob & !is.na(bcg) ~ dob,
+                          TRUE ~ bcg),
+          dpt1 = case_when(dpt1<dob & !is.na(dpt1) ~ dob,
+                           TRUE ~ dpt1),
+          dpt2 = case_when(dpt2<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ dpt2),
+          dpt3 = case_when(dpt3<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ dpt3),
+          pol0 = case_when(pol0<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol0),
+          pol1 = case_when(pol1<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol1),
+          pol2 = case_when(pol2<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol2),
+          pol3 = case_when(pol3<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ pol3),
+          mea1 = case_when(mea1<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ mea1))
     }
   }
- 
+  
   ###############################################################
   # subset columns
   ###############################################################
@@ -664,8 +688,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                 birth_day, birth_year, birth_month))
   } else if (dhs_version=="dhs6"){
     prepped_dhs_data <- prepped_dhs_data %>%
-      select(-c(v007, v006, v016, h12, h32, h33, h37, h15, h36, h40,
-                h31, birth_day, birth_year, birth_month))
+      select(-c(v007, v006, v016, birth_day, birth_year, birth_month))
   }
   
   # reorder columns to put demographic variables first

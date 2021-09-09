@@ -114,9 +114,9 @@ data$wom_occ <- factor(data$wom_occ,
 # each survey should have either v190a or v190 for the household assets
 data$assets <- ifelse(!is.na(data$v190a), data$v190a, data$v190)
 
-data$assets <- facotr(data$assets,
+data$assets <- factor(data$assets,
                       levels = c(1,2,3,4,5),
-                      labels = c("Quintile 1", "Quintile 2", "Quintile 3", "Quintile 3", "Quintile 4", "Quintile 5"))
+                      labels = c("Quintile 1", "Quintile 2", "Quintile 3","Quintile 4", "Quintile 5"))
 
 ###################
 # average household size
@@ -209,12 +209,10 @@ table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_childr
 table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | mea1_missed_opportunity, data=data2, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
 
 # calculate the chi-square for child's age seperately since children that are too young cannot have a missed opportunity yet
-chidt1 <- data1 %>% filter(kid_agecat!="0 years")
+tes1 <- chisq.test(table(data1$kid_agecat, data1$mea1_missed_opportunity, exclude = "0 years"))$p.value
 format.pval(tes1, digits=3, eps=0.001)
-tes1 <- chisq.test(table(chidt1$kid_agecat, chidt1$mea1_missed_opportunity, exclude = "0 years"))$p.value
 
-chidt2 <- data2 %>% filter(kid_agecat!="0 years")
-tes2 <- chisq.test(table(chidt2$kid_agecat, chidt2$mea1_missed_opportunity, exclude = c("0 years", "3 years")))$p.value
+tes2 <- chisq.test(table(data2$kid_agecat, data2$mea1_missed_opportunity, exclude = c("0 years")))$p.value
 format.pval(tes2, digits=3, eps=0.001)
 
 
@@ -252,6 +250,7 @@ mdt <- mdt %>% mutate(hazard_days_mea1 = case_when(
 
 # // Look at the results 
 hist(mdt$hazard_days_mea1)
+boxplot(mdt$hazard_days_mea1 ~ mdt$v000)
 mean(mdt$hazard_days_mea1)
 
 # * hist hazard_days_mmr 
@@ -291,24 +290,9 @@ ci_fit[["Tests"]]
 my.survfit <- survfit(mov.survival  ~ v000, data = mdt)
 plot(my.survfit, xlab="Days of Observation")
 
-# 
-# // Specify the hazard 
-# stset hazard_days_mmr, failure(gotit)    // 14553 observations 
-# // Make graph -- 0 days is 11.5 mos old and 60.8 days is 2 mos (15.2days*4=60.8) later --> 13.5 mos old 
-# // 0 days = start, 11.5 mos
-# // 15.4 days = 12 mos 
-# // 60.8 days = end of interval at which they are elig for on-time MMR 
-# // 12.3*30.4  = 380  = age 2 years
-# // 24.3*30.4  = 744.8  = age 3 years
-# // 1109.6 = 4 years 
-# // 1474.4 = 5 years 
-# sts graph, failure title("Potential number of days to MMR vaccination (N=14553)", size(med)) ci xtitle("Days of potential observation") xlabel(0 60 380 745 1110 1475, labsize(small)) xline(0 60.8) ylabel(,labsize(small) angle(0))
-# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop.png", replace
-# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop.tif", replace
-# sts graph, by(iso) failure title("Potential number of days to MMR vaccination (N=14553)", size(med)) ci xtitle("Days of potential observation") xlabel(0 60 380 745 1110 1475, labsize(small)) xline(0 60.8) ylabel(,labsize(small) angle(0))
-# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop_bycountry.png", replace
-# *graph export "J:\Project\IDB\9. Analysis\Immunization\figures\hz_mmr_mop_bycountry.tif", replace
+# make curve of potential coverage if missed opportunities were addressed
 
+# repeat analyses for DPT1
 
 
 ####################################################
