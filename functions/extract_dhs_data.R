@@ -324,7 +324,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                        `h8`="pol3",
                                        `h9`="mea1",
                                        `h9a`="mea2",
-                                       `h0`="pol0",
+                                       `h0`="polbirth",
                                        `h50`="hepbbirth",
                                        `h51`="pent1",
                                        `h52`="pent2",
@@ -335,7 +335,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                        `h57`="rota1",
                                        `h58`="rota2",
                                        `h59`="rota3",
-                                       `h60`="poln",
+                                       `h60`="ipv",
                                        `h61`="hepb1",
                                        `h62`="hepb2",
                                        `h63`="hepb3",
@@ -354,7 +354,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                            `h7`="dpt3",
                                            `h8`="pol3",
                                            `h9`="mea1",
-                                           `h0`="pol0",
+                                           `h0`="polbirth",
                                            `shb1`="hepb1",
                                            `shb2`="hepb2",
                                            `shb3`="hepb3",
@@ -369,7 +369,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                            `h7`="dpt3",
                                            `h8`="pol3",
                                            `h9`="mea1",
-                                           `h0`="pol0"))      
+                                           `h0`="polbirth"))      
     }
   }
   
@@ -413,7 +413,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                        `h8`="pol3",
                                        `h9`="mea1",
                                        `h9a`="mea2",
-                                       `h0`="pol0",
+                                       `h0`="polbirth",
                                        `h50`="hepbbirth",
                                        `h51`="pent1",
                                        `h52`="pent2",
@@ -424,7 +424,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                        `h57`="rota1",
                                        `h58`="rota2",
                                        `h59`="rota3",
-                                       `h60`="poln",
+                                       `h60`="ipv",
                                        `h61`="hepb1",
                                        `h62`="hepb2",
                                        `h63`="hepb3",
@@ -442,7 +442,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                            `h7`="dpt3",
                                            `h8`="pol3",
                                            `h9`="mea1",
-                                           `h0`="pol0",
+                                           `h0`="polbirth",
                                            `shb1`="hepb1",
                                            `shb2`="hepb2",
                                            `shb3`="hepb3",
@@ -457,7 +457,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                                          `h7`="dpt3",
                                          `h8`="pol3",
                                          `h9`="mea1",
-                                         `h0`="pol0"))
+                                         `h0`="polbirth"))
       }
   }
   
@@ -546,7 +546,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
     mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
     mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
     mutate(mea2 = replace(mea2, mea2>"9000-01-01", NA)) %>%
-    mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA)) %>%
+    mutate(polbirth = replace(polbirth, polbirth>"9000-01-01", NA)) %>%
     mutate(hepbbirth = replace(hepbbirth, hepbbirth>"9000-01-01", NA)) %>%
     mutate(pent1 = replace(pent1, pent1>"9000-01-01", NA)) %>%
     mutate(pent2 = replace(pent2, pent2>"9000-01-01", NA)) %>%
@@ -557,7 +557,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
     mutate(rota1 = replace(rota1, rota1>"9000-01-01", NA)) %>%
     mutate(rota2 = replace(rota2, rota2>"9000-01-01", NA)) %>%
     mutate(rota3 = replace(rota3, rota3>"9000-01-01", NA)) %>%
-    mutate(poln = replace(poln, poln>"9000-01-01", NA)) %>%
+    mutate(ipv = replace(ipv, ipv>"9000-01-01", NA)) %>%
     mutate(hepb1 = replace(hepb1, hepb1>"9000-01-01", NA)) %>%
     mutate(hepb2 = replace(hepb2, hepb2>"9000-01-01", NA)) %>%
     mutate(hepb3 = replace(hepb3, hepb3>"9000-01-01", NA)) %>%
@@ -575,7 +575,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
         mutate(dpt3 = replace(dpt3, dpt3>"9000-01-01", NA)) %>%
         mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
         mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
-        mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA)) %>%
+        mutate(polbirth = replace(polbirth, polbirth>"9000-01-01", NA)) %>%
         mutate(hepb1 = replace(hepb1, hepb1>"9000-01-01", NA)) %>%
         mutate(hepb2 = replace(hepb2, hepb2>"9000-01-01", NA)) %>%
         mutate(hepb3 = replace(hepb3, hepb3>"9000-01-01", NA)) %>%
@@ -590,7 +590,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
         mutate(dpt3 = replace(dpt3, dpt3>"9000-01-01", NA)) %>%
         mutate(pol3 = replace(pol3, pol3>"9000-01-01", NA)) %>%
         mutate(mea1 = replace(mea1, mea1>"9000-01-01", NA)) %>%
-        mutate(pol0 = replace(pol0, pol0>"9000-01-01", NA))
+        mutate(polbirth = replace(polbirth, polbirth>"9000-01-01", NA))
     }
   }
   
@@ -606,7 +606,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
       mutate(pol3 = replace(pol3, pol3<dob, NA)) %>%
       mutate(mea1 = replace(mea1, mea1<dob, NA)) %>%
       mutate(mea2 = replace(mea2, mea2<dob, NA)) %>%
-      mutate(pol0 = replace(pol0, pol0<dob, NA)) %>%
+      mutate(polbirth = replace(polbirth, polbirth<dob, NA)) %>%
       mutate(hepbbirth = replace(hepbbirth, hepbbirth<dob, NA)) %>%
       mutate(pent1 = replace(pent1, pent1<dob, NA)) %>%
       mutate(pent2 = replace(pent2, pent2<dob, NA)) %>%
@@ -617,7 +617,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
       mutate(rota1 = replace(rota1, rota1<dob, NA)) %>%
       mutate(rota2 = replace(rota2, rota2<dob, NA)) %>%
       mutate(rota3 = replace(rota3, rota3<dob, NA)) %>%
-      mutate(poln = replace(poln, poln<dob, NA)) %>%
+      mutate(ipv = replace(ipv, ipv<dob, NA)) %>%
       mutate(hepb1 = replace(hepb1, hepb1<dob, NA)) %>%
       mutate(hepb2 = replace(hepb2, hepb2<dob, NA)) %>%
       mutate(hepb3 = replace(hepb3, hepb3<dob, NA)) %>%
@@ -636,8 +636,8 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                            TRUE ~ dpt2),
           dpt3 = case_when(dpt3<dob & !is.na(bcg) ~ dob,
                            TRUE ~ dpt3),
-          pol0 = case_when(pol0<dob & !is.na(bcg) ~ dob,
-                           TRUE ~ pol0),
+          polbirth = case_when(polbirth<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ polbirth),
           pol1 = case_when(pol1<dob & !is.na(bcg) ~ dob,
                            TRUE ~ pol1),
           pol2 = case_when(pol2<dob & !is.na(bcg) ~ dob,
@@ -665,8 +665,8 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                            TRUE ~ dpt2),
           dpt3 = case_when(dpt3<dob & !is.na(bcg) ~ dob,
                            TRUE ~ dpt3),
-          pol0 = case_when(pol0<dob & !is.na(bcg) ~ dob,
-                           TRUE ~ pol0),
+          polbirth = case_when(polbirth<dob & !is.na(bcg) ~ dob,
+                           TRUE ~ polbirth),
           pol1 = case_when(pol1<dob & !is.na(bcg) ~ dob,
                            TRUE ~ pol1),
           pol2 = case_when(pol2<dob & !is.na(bcg) ~ dob,

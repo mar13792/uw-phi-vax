@@ -22,6 +22,9 @@ library(dplyr)
 library(tidyverse)
 library(lubridate)
 library(naniar)
+library(survival)
+library(cmprsk)
+library(survminer)
 
 ###############################
 # important variables

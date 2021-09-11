@@ -61,7 +61,7 @@ dt$age_at_dpt2 <- time_length(difftime(dt$dpt2, dt$dob), "days")
 dt$age_at_dpt3 <- time_length(difftime(dt$dpt3, dt$dob), "days")
 
 # variable indicating when the oldest vaccination date took place
-dt <- dt %>% mutate(oldest_visit = pmax(bcg, dpt1, pol1, dpt2, pol2, dpt3, pent1, pent2, pent3, pneu1, pneu2, pneu3, rota1, rota2, rota3, poln, hepb1, hepb2, hepb3, hib1, hib2, hib3, yelfev,
+dt <- dt %>% mutate(oldest_visit = pmax(bcg, dpt1, pol1, dpt2, pol2, dpt3, pent1, pent2, pent3, pneu1, pneu2, pneu3, rota1, rota2, rota3, ipv, hepb1, hepb2, hepb3, hib1, hib2, hib3, yelfev,
                                         na.rm=TRUE))
 
 # calculate the age at the oldest visit
@@ -227,7 +227,8 @@ dt$age_at_pol2 <- time_length(difftime(dt$pol2, dt$dob), "days")
 dt$age_at_dpt3 <- time_length(difftime(dt$dpt3, dt$dob), "days")
 dt$age_at_pol3 <- time_length(difftime(dt$pol3, dt$dob), "days")
 dt$age_at_mea2 <- time_length(difftime(dt$mea2, dt$dob), "days")
-dt$age_at_pol0 <- time_length(difftime(dt$pol0, dt$dob), "days")
+dt$age_at_polbirth <- time_length(difftime(dt$polbirth, dt$dob), "days")
+dt$age_at_hepbbirth <- time_length(difftime(dt$hepbbirth, dt$dob), "days")
 dt$age_at_pent1 <- time_length(difftime(dt$pent1, dt$dob), "days")
 dt$age_at_pent2 <- time_length(difftime(dt$pent2, dt$dob), "days")
 dt$age_at_pent3 <- time_length(difftime(dt$pent3, dt$dob), "days")
@@ -237,7 +238,7 @@ dt$age_at_pneu3 <- time_length(difftime(dt$pneu3, dt$dob), "days")
 dt$age_at_rota1 <- time_length(difftime(dt$rota1, dt$dob), "days")
 dt$age_at_rota2 <- time_length(difftime(dt$rota2, dt$dob), "days")
 dt$age_at_rota3 <- time_length(difftime(dt$rota3, dt$dob), "days")
-dt$age_at_poln <- time_length(difftime(dt$poln, dt$dob), "days")
+dt$age_at_ipv <- time_length(difftime(dt$ipv, dt$dob), "days")
 dt$age_at_hepb1 <- time_length(difftime(dt$hepb1, dt$dob), "days")
 dt$age_at_hepb2 <- time_length(difftime(dt$hepb2, dt$dob), "days")
 dt$age_at_hepb3 <- time_length(difftime(dt$hepb3, dt$dob), "days")
@@ -255,8 +256,8 @@ dt <- dt %>% mutate(no_mea1_mop_age = case_when(
   never_got_mea1==1 & age_at_dpt3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt3) & age_at_dpt3 < age_at_pol2 ~ age_at_dpt3,
   never_got_mea1==1 & age_at_pol3  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol3) & age_at_pol3 < age_at_dpt3 ~ age_at_pol3,
   never_got_mea1==1 & age_at_mea2  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_mea2) & age_at_mea2 < age_at_pol3 ~ age_at_mea2,
-  never_got_mea1==1 & age_at_pol0  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol0) & age_at_pol0 < age_at_mea2 ~ age_at_pol0,
-  never_got_mea1==1 & age_at_pent1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent1) & age_at_pent1 < age_at_pol0 ~ age_at_pent1,
+  never_got_mea1==1 & age_at_polbirth  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_polbirth) & age_at_polbirth < age_at_mea2 ~ age_at_polbirth,
+  never_got_mea1==1 & age_at_pent1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent1) & age_at_pent1 < age_at_polbirth ~ age_at_pent1,
   never_got_mea1==1 & age_at_pent2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent2) & age_at_pent2 < age_at_pent1 ~ age_at_pent2,
   never_got_mea1==1 & age_at_pent3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent3) & age_at_pent3 < age_at_pent2 ~ age_at_pent3,
   never_got_mea1==1 & age_at_pneu1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pneu1) & age_at_pneu1 < age_at_pent3 ~ age_at_pneu1,
@@ -265,9 +266,9 @@ dt <- dt %>% mutate(no_mea1_mop_age = case_when(
   never_got_mea1==1 & age_at_rota1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota1) & age_at_rota1 < age_at_pneu3 ~ age_at_rota1,
   never_got_mea1==1 & age_at_rota2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota2) & age_at_rota2 < age_at_rota1 ~ age_at_rota2,
   never_got_mea1==1 & age_at_rota3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota3) & age_at_rota3 < age_at_rota2 ~ age_at_rota3,
-  never_got_mea1==1 & age_at_poln  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_poln) & age_at_poln < age_at_rota3 ~ age_at_poln,
-  never_got_mea1==1 & age_at_hepb1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1 < age_at_poln ~ age_at_hepb1,
-  never_got_mea1==1 & age_at_hepb1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1 < age_at_poln ~ age_at_hepb1,
+  never_got_mea1==1 & age_at_ipv  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_ipv) & age_at_ipv < age_at_rota3 ~ age_at_ipv,
+  never_got_mea1==1 & age_at_hepb1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1 < age_at_ipv ~ age_at_hepb1,
+  never_got_mea1==1 & age_at_hepb1 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1 < age_at_ipv ~ age_at_hepb1,
   never_got_mea1==1 & age_at_hepb2 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb2) & age_at_hepb2 < age_at_hepb1 ~ age_at_hepb2,
   never_got_mea1==1 & age_at_hepb3 > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb3) & age_at_hepb3 < age_at_hepb2 ~ age_at_hepb3,
   never_got_mea1==1 & age_at_hib1  > mea1_age_due_min & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib1) & age_at_hib1 < age_at_hepb3 ~ age_at_hib1,
@@ -287,8 +288,8 @@ dt <- dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
   mea1_late==1 & age_at_dpt3 > mea1_age_due_min & age_at_dpt3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_dpt3 < age_at_pol2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_dpt3) & age_at_dpt3<age_at_pol2 ~ age_at_dpt3,
   mea1_late==1 & age_at_pol3 > mea1_age_due_min & age_at_pol3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pol3 < age_at_dpt3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol3) & age_at_pol3<age_at_dpt3 ~ age_at_pol3,
   mea1_late==1 & age_at_mea2 > mea1_age_due_min & age_at_mea2 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_mea2 < age_at_pol3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_mea2) & age_at_mea2<age_at_pol3 ~ age_at_mea2,
-  mea1_late==1 & age_at_pol0 > mea1_age_due_min & age_at_pol0 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pol0 < age_at_mea2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pol0) & age_at_pol0<age_at_mea2 ~ age_at_pol0,
-  mea1_late==1 & age_at_pent1 > mea1_age_due_min & age_at_pent1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pent1 < age_at_pol0 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent1) & age_at_pent1<age_at_pol0 ~ age_at_pent1,
+  mea1_late==1 & age_at_polbirth > mea1_age_due_min & age_at_polbirth < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_polbirth < age_at_mea2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_polbirth) & age_at_polbirth<age_at_mea2 ~ age_at_polbirth,
+  mea1_late==1 & age_at_pent1 > mea1_age_due_min & age_at_pent1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pent1 < age_at_polbirth & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent1) & age_at_pent1<age_at_polbirth ~ age_at_pent1,
   mea1_late==1 & age_at_pent2 > mea1_age_due_min & age_at_pent2 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pent2 < age_at_pent1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent2) & age_at_pent2<age_at_pent1 ~ age_at_pent2,
   mea1_late==1 & age_at_pent3 > mea1_age_due_min & age_at_pent3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pent3 < age_at_pent2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pent3) & age_at_pent3<age_at_pent2 ~ age_at_pent3,
   mea1_late==1 & age_at_pneu1 > mea1_age_due_min & age_at_pneu1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_pneu1 < age_at_pent3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_pneu1) & age_at_pneu1<age_at_pent3 ~ age_at_pneu1,
@@ -297,8 +298,8 @@ dt <- dt %>% mutate(earliest_visit_btwn_mea1 = case_when(
   mea1_late==1 & age_at_rota1 > mea1_age_due_min & age_at_rota1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_rota1 < age_at_pneu3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota1) & age_at_rota1<age_at_pneu3 ~ age_at_rota1,
   mea1_late==1 & age_at_rota2 > mea1_age_due_min & age_at_rota2 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_rota2 < age_at_rota1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota2) & age_at_rota2<age_at_rota1 ~ age_at_rota2,
   mea1_late==1 & age_at_rota3 > mea1_age_due_min & age_at_rota3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_rota3 < age_at_rota2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_rota3) & age_at_rota3<age_at_rota2 ~ age_at_rota3,
-  mea1_late==1 & age_at_poln > mea1_age_due_min & age_at_poln < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_poln < age_at_rota3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_poln) & age_at_poln<age_at_rota3 ~ age_at_poln,
-  mea1_late==1 & age_at_hepb1 > mea1_age_due_min & age_at_hepb1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hepb1 < age_at_poln & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1<age_at_poln ~ age_at_hepb1,
+  mea1_late==1 & age_at_ipv > mea1_age_due_min & age_at_ipv < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_ipv < age_at_rota3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_ipv) & age_at_ipv<age_at_rota3 ~ age_at_ipv,
+  mea1_late==1 & age_at_hepb1 > mea1_age_due_min & age_at_hepb1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hepb1 < age_at_ipv & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb1) & age_at_hepb1<age_at_ipv ~ age_at_hepb1,
   mea1_late==1 & age_at_hepb2 > mea1_age_due_min & age_at_hepb2 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hepb2 < age_at_hepb1 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb2) & age_at_hepb2<age_at_hepb1 ~ age_at_hepb2,
   mea1_late==1 & age_at_hepb3 > mea1_age_due_min & age_at_hepb3 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hepb3 < age_at_hepb2 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hepb3) & age_at_hepb3<age_at_hepb2 ~ age_at_hepb3,
   mea1_late==1 & age_at_hib1 > mea1_age_due_min & age_at_hib1 < mea1_age_at_counted_vac & !is.na(mea1_age_at_counted_vac) & age_at_hib1 < age_at_hepb3 & age_in_days>=mea1_age_due_max & !is.na(mea1_days_at_risk) & !is.na(age_at_hib1) & age_at_hib1<age_at_hepb3 ~ age_at_hib1,
@@ -333,69 +334,266 @@ dt <- dt %>% mutate(
     !is.na(earliest_visit_btwn_mea1) ~ earliest_visit_btwn_mea1,
     is.na(earliest_visit_btwn_mea1) ~ no_mea1_mop_age))
 
-# calculate when the child's first vaccination after each dose age was -- the way we do this will account for both DPT and non-DPT vaccinations
+# create tibble of age at vaccinations
+# see this website with potential trick to solve this issues?
+# https://stackoverflow.com/questions/18189185/finding-the-index-of-the-minimum-value-which-is-larger-than-a-threshold-in-r
+
+incol<- test[,4] # select the column to search
+outcol <- 2 # select the element of the found row you want to get
+threshold <- 5
+df[ rev(order(incol>threshold))[1] ,outcol]
+
+# i just want the first value that is within the dpt1 range
+# test <- dt %>% select(
+#   caseid, child, # other id variables like mother's date of birth variables
+#   age_at_bcg, age_at_hepbbirth, age_at_polbirth, age_at_dpt1, age_at_pneu1, age_at_rota1, age_at_hepb1, age_at_hib1
+# )
+# 
+# rf <- rowwise(test, caseid, child)
+# 
+# rf %>% mutate(potential_6wks_new = case_when(
+#   
+# ))
+
+# order vector according to 
+
+# calculate when the child's first vaccination after each dose age was -- the way we do this will account for both DPT and non-DPT vaccinations, consider vaccinations in order when they should be given
+dt <- dt %>% mutate(potential_dpt_6wks = case_when(
+  
+  # vaccines delivered at birth
+  !is.na(age_at_bcg)       & age_at_bcg >= dpt1_age_due_min       & age_in_days>=dpt3_age_due_max  ~ age_at_bcg,
+  !is.na(age_at_hepbbirth) & age_at_hepbbirth >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max  ~ age_at_hepbbirth,
+  !is.na(age_at_polbirth)  & age_at_polbirth >= dpt1_age_due_min  & age_in_days>=dpt3_age_due_max  ~ age_at_polbirth,
+  
+  # vaccines typically delivered at 6 weeks (dpt, pol1, pneu1, rota1, hepb1, hib1)
+  !is.na(age_at_dpt1)      & age_at_dpt1>= dpt1_age_due_min       & age_in_days>=dpt3_age_due_max  ~ age_at_dpt1,
+  !is.na(age_at_pol1)      & age_at_pol1 >= dpt1_age_due_min      & age_in_days>=dpt3_age_due_max ~ age_at_pol1,
+  !is.na(age_at_pneu1)     & age_at_pneu1 >= dpt1_age_due_min     & age_in_days>=dpt3_age_due_max ~ age_at_pneu1,
+  !is.na(age_at_rota1)     & age_at_rota1 >= dpt1_age_due_min     & age_in_days>=dpt3_age_due_max ~ age_at_rota1,
+  !is.na(age_at_hepb1)     & age_at_hepb1  >= dpt1_age_due_min    & age_in_days>=dpt3_age_due_max ~ age_at_hepb1,
+  !is.na(age_at_hib1)      & age_at_hib1 >= dpt1_age_due_min      & age_in_days>=dpt3_age_due_max  ~ age_at_hib1
+  
+))
+  
+  # vaccines typically delivered at 10 weeks (dpt, pol, pneu, hepb, hib)
+  !is.na(age_at_dpt2)      & age_at_dpt2>=dpt1_age_due_min       & age_in_days>=dpt3_age_due_max   & age_at_dpt2 <  ~ age_at_dpt2,
+  !is.na(age_at_pol2)      & age_at_pol2>=dpt1_age_due_min       & age_in_days>=dpt3_age_due_max   & age_at_pol2 <  ~ age_at_pol2,
+  !is.na(age_at_pneu2)     & age_at_pneu2>=dpt1_age_due_min      & age_in_days>=dpt3_age_due_max   & age_at_pneu2 < 'next_var' ~ age_at_pneu2,
+  !is.na(age_at_hepb)      & age_at_hepb>=dpt1_age_due_min       & age_in_days>=dpt3_age_due_max   & age_at_hepb < 'next_var' ~ age_at_hepb,
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+  !is.na('new_var')        & 'new_var'>=dpt1_age_due_min         & age_in_days>=dpt3_age_due_max   & 'new_var' < 'next_var' ~ 'new_var',
+))
+
+View(dt %>% select(age_in_days, dpt3_age_due_max, potential_dpt_6wks, age_at_bcg, age_at_hepbbirth, age_at_polbirth, age_at_dpt1, age_at_pol1, age_at_pneu1, age_at_rota1, age_at_hepb1, age_at_hepb1, age_at_hib1) %>% 
+  filter(age_in_days>=dpt3_age_due_max))
+  
+  is.na(age_at_dpt2) & age_at_dpt3 >=dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_dpt3) ~ age_at_dpt3,
+  is.na(age_at_dpt3) & age_at_ipv >=dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_ipv) ~ age_at_ipv,
+  is.na(age_at_ipv) & age_at_polbirth >=dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_ipv) ~ age_at_polbirth,
+  is.na(age_at_polbirth) & age_at_pol1 >=dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_pol1) ~ age_at_pol1,
+  is.na(age_at_pol1) & age_at_pol2 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_pol2) ~ age_at_pol2,
+  is.na(age_at_pol2) & age_at_pol3 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_pol3) ~ age_at_pol3,
+  is.na(age_at_pol3) & age_at_pneu1 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_pneu1) ~ age_at_pneu1,
+  is.na(age_at_pneu1) & age_at_pneu2 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_pneu2) ~ age_at_pneu2,
+  is.na(age_at_pneu2) & age_at_pneu3 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_pneu3) ~ age_at_pneu3,
+  is.na(age_at_pneu3) & age_at_mea1 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_mea1) ~ age_at_mea1,
+  is.na(age_at_mea1) & age_at_mea2 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_mea2) ~ age_at_mea2,
+  is.na(age_at_mea2) & age_at_rota1 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_rota1) ~ age_at_rota1,
+  is.na(age_at_rota1) & age_at_rota2 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_rota2) ~ age_at_rota2,
+  is.na(age_at_rota2) & age_at_rota3 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_rota3) ~ age_at_rota3,
+  is.na(age_at_rota3) & age_at_hepb1 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_hepb1) ~ age_at_hepb1,
+  is.na(age_at_hepb1) & age_at_hepb2 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_hepb2) ~ age_at_hepb2,
+  is.na(age_at_hepb2) & age_at_hepb3 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_hepb3) ~ age_at_hepb3,
+  is.na(age_at_hepb3) & age_at_hib1 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_hib1) ~ age_at_hib1,
+  is.na(age_at_hib1) & age_at_hib2 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_hib2) ~ age_at_hib2,
+  is.na(age_at_hib2) & age_at_hib3 >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_hib3) ~ age_at_hib3,
+  is.na(age_at_hib3) & age_at_yelfev >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_yelfev) ~ age_at_yelfev,
+  is.na(age_at_yelfev) & age_at_bcg >= dpt1_age_due_min & age_in_days>=dpt3_age_due_max & !is.na(age_at_bcg) ~ age_at_bcg
+))
+
+
 dt <- dt %>% mutate(potential_dpt_6wks = case_when(
   age_at_pol1 >= dpt1_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) ~ age_at_pol1,
   age_at_pol2 >= dpt1_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) ~ age_at_pol2,
   age_at_pol3 >= dpt1_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) ~ age_at_pol3,
   age_at_mea1 >= dpt1_age_due_min & age_at_mea1<age_at_pol3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea1) ~ age_at_mea1,
-  age_at_pol0 >= dpt1_age_due_min & age_at_pol0<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol0) ~ age_at_pol0,
-  age_at_pneu1 >= dpt1_age_due_min & age_at_pneu1<age_at_pol0 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) ~ age_at_pneu1,
+  age_at_polbirth >= dpt1_age_due_min & age_at_polbirth<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_polbirth) ~ age_at_polbirth,
+  age_at_pneu1 >= dpt1_age_due_min & age_at_pneu1<age_at_polbirth & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) ~ age_at_pneu1,
   age_at_pneu2 >= dpt1_age_due_min & age_at_pneu2<age_at_pneu1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu2) ~ age_at_pneu2,
   age_at_mea2 >= dpt1_age_due_min & age_at_mea2<age_at_pneu2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea2) ~ age_at_mea2,
   age_at_pneu3 >= dpt1_age_due_min & age_at_pneu3<age_at_mea2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu3) ~ age_at_pneu3,
   age_at_rota1 >= dpt1_age_due_min & age_at_rota1<age_at_pneu3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota1) ~ age_at_rota1,
   age_at_rota2 >= dpt1_age_due_min & age_at_rota2<age_at_rota1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota2) ~ age_at_rota2,
   age_at_rota3 >= dpt1_age_due_min & age_at_rota3<age_at_rota2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota3) ~ age_at_rota3,
-  age_at_poln >= dpt1_age_due_min & age_at_poln<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_poln) ~ age_at_poln,
-  age_at_hepb1 >= dpt1_age_due_min & age_at_hepb1<age_at_poln & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) ~ age_at_hepb1,
+  age_at_ipv >= dpt1_age_due_min & age_at_ipv<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_ipv) ~ age_at_ipv,
+  age_at_hepb1 >= dpt1_age_due_min & age_at_hepb1<age_at_ipv & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) ~ age_at_hepb1,
   age_at_hepb2 >= dpt1_age_due_min & age_at_hepb2<age_at_hepb1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb2) ~ age_at_hepb2,
   age_at_hepb3 >= dpt1_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) ~ age_at_hepb3,
   age_at_hib1 >= dpt1_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) ~ age_at_hib1,
   age_at_hib2 >= dpt1_age_due_min & age_at_hib2<age_at_hib1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) ~ age_at_hib2,
   age_at_hib3 >= dpt1_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) ~ age_at_hib3,
-  age_at_yelfev >= dpt1_age_due_min & age_at_yelfev<age_at_hib3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) ~ age_at_yelfev,
-  age_at_bcg >= dpt1_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) ~ age_at_bcg))
+  age_at_dpt1 >= dpt1_age_due_min & age_at_dpt1<age_at_hib3 & age_in_days>=dpt3_age_due_max & !is.na(age_at_dpt1) ~ age_at_dpt1,
+  age_at_dpt2 >= dpt1_age_due_min & age_at_dpt2<age_at_dpt1 & age_in_days>=dpt3_age_due_max & !is.na(age_at_dpt2) ~ age_at_dpt2,
+  age_at_dpt3 >= dpt1_age_due_min & age_at_dpt3<age_at_dpt2 & age_in_days>=dpt3_age_due_max & !is.na(age_at_dpt3) ~ age_at_dpt3,
+  age_at_yelfev >= dpt1_age_due_min & age_at_yelfev<age_at_dpt3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) ~ age_at_yelfev,
+  age_at_bcg >= dpt1_age_due_min & age_at_bcg<age_at_yelfev & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) ~ age_at_bcg))
+
 
 dt <- dt %>% mutate(potential_dpt_10wks = case_when(
-  
+  age_at_pol1 >= dpt2_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & age_at_pol1!=potential_dpt_6wks ~ age_at_pol1,
+  age_at_pol2 >= dpt2_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & age_at_pol2!=potential_dpt_6wks ~ age_at_pol2,
+  age_at_pol3 >= dpt2_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & age_at_pol3!=potential_dpt_6wks ~ age_at_pol3,
+  age_at_mea1 >= dpt2_age_due_min & age_at_mea1<age_at_pol3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea1) & age_at_mea1!=potential_dpt_6wks ~ age_at_mea1,
+  age_at_polbirth >= dpt2_age_due_min & age_at_polbirth<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_polbirth) & age_at_polbirth!=potential_dpt_6wks ~ age_at_polbirth,
+  age_at_pneu1 >= dpt2_age_due_min & age_at_pneu1<age_at_polbirth & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & age_at_pneu1!=potential_dpt_6wks ~ age_at_pneu1,
+  age_at_pneu2 >= dpt2_age_due_min & age_at_pneu2<age_at_pneu1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu2) & age_at_pneu2!=potential_dpt_6wks ~ age_at_pneu2,
+  age_at_mea2 >= dpt2_age_due_min & age_at_mea2<age_at_pneu2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea2) & age_at_mea2!=potential_dpt_6wks ~ age_at_mea2,
+  age_at_pneu3 >= dpt2_age_due_min & age_at_pneu3<age_at_mea2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu3) & age_at_pneu3!=potential_dpt_6wks ~ age_at_pneu3,
+  age_at_rota1 >= dpt2_age_due_min & age_at_rota1<age_at_pneu3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota1) & age_at_rota1!=potential_dpt_6wks ~ age_at_rota1,
+  age_at_rota2 >= dpt2_age_due_min & age_at_rota2<age_at_rota1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota2) & age_at_rota2!=potential_dpt_6wks ~ age_at_rota2,
+  age_at_rota3 >= dpt2_age_due_min & age_at_rota3<age_at_rota2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota3) & age_at_rota3!=potential_dpt_6wks ~ age_at_rota3,
+  age_at_ipv >= dpt2_age_due_min & age_at_ipv<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_ipv) & age_at_ipv!=potential_dpt_6wks ~ age_at_ipv,
+  age_at_hepb1 >= dpt2_age_due_min & age_at_hepb1<age_at_ipv & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & age_at_hepb1!=potential_dpt_6wks ~ age_at_hepb1,
+  age_at_hepb2 >= dpt2_age_due_min & age_at_hepb2<age_at_hepb1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb2) & age_at_hepb2!=potential_dpt_6wks ~ age_at_hepb2,
+  age_at_hepb3 >= dpt2_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & age_at_hepb3!=potential_dpt_6wks ~ age_at_hepb3,
+  age_at_hib1 >= dpt2_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & age_at_hib1!=potential_dpt_6wks ~ age_at_hib1,
+  age_at_hib2 >= dpt2_age_due_min & age_at_hib2<age_at_hib1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) & age_at_hib2!=potential_dpt_6wks ~ age_at_hib2,
+  age_at_hib3 >= dpt2_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & age_at_hib3!=potential_dpt_6wks ~ age_at_hib3,
+  age_at_dpt1 >= dpt2_age_due_min & age_at_dpt1<age_at_hib3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt1) & age_at_dpt1!=potential_dpt_6wks ~ age_at_dpt1,
+  age_at_dpt2 >= dpt2_age_due_min & age_at_dpt2<age_at_dpt1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt2) & age_at_dpt2!=potential_dpt_6wks ~ age_at_dpt2,
+  age_at_dpt3 >= dpt3_age_due_min & age_at_dpt3<age_at_dpt2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt3) & age_at_dpt3!=potential_dpt_6wks ~ age_at_dpt3,
+  age_at_yelfev >= dpt2_age_due_min & age_at_yelfev<age_at_dpt3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) & age_at_yelfev!=potential_dpt_6wks ~ age_at_yelfev,
+  age_at_bcg >= dpt2_age_due_min & age_at_bcg<age_at_yelfev & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & age_at_bcg!=potential_dpt_6wks ~ age_at_bcg))
+
+# second version
+dt <- dt %>% mutate(potential_dpt_10wks = case_when(
   age_at_pol1 >= dpt2_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & (age_at_pol1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pol1,
   age_at_pol2 >= dpt2_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & (age_at_pol2!=potential_dpt_6wks|is.na(potential_dpt_6wks))~ age_at_pol2,
   age_at_pol3 >= dpt2_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & (age_at_pol3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pol3,
   age_at_mea1 >= dpt2_age_due_min & age_at_mea1<age_at_pol3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea1) & (age_at_mea1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_mea1,
-  age_at_pol0 >= dpt2_age_due_min & age_at_pol0<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol0) & (age_at_pol0!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pol0,
-  age_at_pneu1 >= dpt2_age_due_min & age_at_pneu1<age_at_pol0 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & (age_at_pneu1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pneu1,
+  age_at_polbirth >= dpt2_age_due_min & age_at_polbirth<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_polbirth) & (age_at_polbirth!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_polbirth,
+  age_at_pneu1 >= dpt2_age_due_min & age_at_pneu1<age_at_polbirth & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & (age_at_pneu1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pneu1,
   age_at_pneu2 >= dpt2_age_due_min & age_at_pneu2<age_at_pneu1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu2) & (age_at_pneu2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pneu2,
   age_at_mea2 >= dpt2_age_due_min & age_at_mea2<age_at_pneu2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea2) & (age_at_mea2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_mea2,
   age_at_pneu3 >= dpt2_age_due_min & age_at_pneu3<age_at_mea2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu3) & (age_at_pneu3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_pneu3,
   age_at_rota1 >= dpt2_age_due_min & age_at_rota1<age_at_pneu3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota1) & (age_at_rota1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_rota1,
   age_at_rota2 >= dpt2_age_due_min & age_at_rota2<age_at_rota1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota2) & (age_at_rota2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_rota2,
   age_at_rota3 >= dpt2_age_due_min & age_at_rota3<age_at_rota2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota3) & (age_at_rota3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_rota3,
-  age_at_poln >= dpt2_age_due_min & age_at_poln<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_poln) & (age_at_poln!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_poln,
-  age_at_hepb1 >= dpt2_age_due_min & age_at_hepb1<age_at_poln & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & (age_at_hepb1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hepb1,
+  age_at_ipv >= dpt2_age_due_min & age_at_ipv<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_ipv) & (age_at_ipv!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_ipv,
+  age_at_hepb1 >= dpt2_age_due_min & age_at_hepb1<age_at_ipv & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & (age_at_hepb1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hepb1,
   age_at_hepb2 >= dpt2_age_due_min & age_at_hepb2<age_at_hepb1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb2) & (age_at_hepb2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hepb2,
   age_at_hepb3 >= dpt2_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & (age_at_hepb3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hepb3,
   age_at_hib1 >= dpt2_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & (age_at_hib1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib1,
   age_at_hib2 >= dpt2_age_due_min & age_at_hib2<age_at_hib1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) & (age_at_hib2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib2,
   age_at_hib3 >= dpt2_age_due_min & age_at_hib3<age_at_hib2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & (age_at_hib3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_hib3,
-  age_at_yelfev >= dpt2_age_due_min & age_at_yelfev<age_at_hib3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) & (age_at_yelfev!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_yelfev,
-  age_at_bcg >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & (age_at_bcg!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_bcg))
+  age_at_dpt1 >= dpt2_age_due_min & age_at_dpt1<age_at_hib3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt1) & (age_at_dpt1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_dpt1,
+  age_at_dpt2 >= dpt2_age_due_min & age_at_dpt2<age_at_dpt1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt2) & (age_at_dpt2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_dpt2,
+  age_at_dpt3 >= dpt3_age_due_min & age_at_dpt3<age_at_dpt2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt3) & (age_at_dpt3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_dpt3,
+  age_at_yelfev >= dpt2_age_due_min & age_at_yelfev<age_at_dpt3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) & (age_at_yelfev!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_yelfev,
+  age_at_bcg >= dpt2_age_due_min & age_at_bcg<age_at_yelfev & age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & (age_at_bcg!=potential_dpt_6wks|is.na(potential_dpt_6wks)) ~ age_at_bcg))
+
+# third version
+dt <- dt %>% mutate(potential_dpt_10wks = case_when(
+  age_at_pol1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & age_at_pol1!=potential_dpt_6wks ~ age_at_pol1,
+  age_at_pol2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & age_at_pol2!=potential_dpt_6wks ~ age_at_pol2,
+  age_at_pol3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & age_at_pol3!=potential_dpt_6wks ~ age_at_pol3,
+  age_at_mea1 >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea1) & age_at_mea1!=potential_dpt_6wks ~ age_at_mea1,
+  age_at_polbirth >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_polbirth) & age_at_polbirth!=potential_dpt_6wks ~ age_at_polbirth,
+  age_at_pneu1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & age_at_pneu1!=potential_dpt_6wks ~ age_at_pneu1,
+  age_at_pneu2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu2) & age_at_pneu2!=potential_dpt_6wks ~ age_at_pneu2,
+  age_at_mea2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_mea2) & age_at_mea2!=potential_dpt_6wks ~ age_at_mea2,
+  age_at_pneu3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu3) & age_at_pneu3!=potential_dpt_6wks ~ age_at_pneu3,
+  age_at_rota1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_rota1) & age_at_rota1!=potential_dpt_6wks ~ age_at_rota1,
+  age_at_rota2 >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota2) & age_at_rota2!=potential_dpt_6wks ~ age_at_rota2,
+  age_at_rota3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_rota3) & age_at_rota3!=potential_dpt_6wks ~ age_at_rota3,
+  age_at_ipv >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_ipv) & age_at_ipv!=potential_dpt_6wks ~ age_at_ipv,
+  age_at_hepb1 >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & age_at_hepb1!=potential_dpt_6wks ~ age_at_hepb1,
+  age_at_hepb2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb2) & age_at_hepb2!=potential_dpt_6wks ~ age_at_hepb2,
+  age_at_hepb3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & age_at_hepb3!=potential_dpt_6wks ~ age_at_hepb3,
+  age_at_hib1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & age_at_hib1!=potential_dpt_6wks ~ age_at_hib1,
+  age_at_hib2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) & age_at_hib2!=potential_dpt_6wks ~ age_at_hib2,
+  age_at_hib3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & age_at_hib3!=potential_dpt_6wks ~ age_at_hib3,
+  age_at_dpt1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt1) & age_at_dpt1!=potential_dpt_6wks ~ age_at_dpt1,
+  age_at_dpt2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt2) & age_at_dpt2!=potential_dpt_6wks ~ age_at_dpt2,
+  age_at_dpt3 >= dpt3_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt3) & age_at_dpt3!=potential_dpt_6wks ~ age_at_dpt3,
+  age_at_yelfev >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) & age_at_yelfev!=potential_dpt_6wks ~ age_at_yelfev,
+  age_at_bcg >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & age_at_bcg!=potential_dpt_6wks ~ age_at_bcg))
+
+# fourth version
+# third version
+dt <- dt %>% mutate(potential_dpt_10wks = case_when(
+  age_at_pol1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & age_at_pol1>potential_dpt_6wks ~ age_at_pol1,
+  age_at_pol2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & age_at_pol2>potential_dpt_6wks ~ age_at_pol2,
+  age_at_pol3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & age_at_pol3>potential_dpt_6wks ~ age_at_pol3,
+  age_at_mea1 >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea1) & age_at_mea1>potential_dpt_6wks ~ age_at_mea1,
+  age_at_polbirth >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_polbirth) & age_at_polbirth>potential_dpt_6wks ~ age_at_polbirth,
+  age_at_pneu1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & age_at_pneu1>potential_dpt_6wks ~ age_at_pneu1,
+  age_at_pneu2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu2) & age_at_pneu2>potential_dpt_6wks ~ age_at_pneu2,
+  age_at_mea2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_mea2) & age_at_mea2>potential_dpt_6wks ~ age_at_mea2,
+  age_at_pneu3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu3) & age_at_pneu3>potential_dpt_6wks ~ age_at_pneu3,
+  age_at_rota1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_rota1) & age_at_rota1>potential_dpt_6wks ~ age_at_rota1,
+  age_at_rota2 >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota2) & age_at_rota2>potential_dpt_6wks ~ age_at_rota2,
+  age_at_rota3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_rota3) & age_at_rota3>potential_dpt_6wks ~ age_at_rota3,
+  age_at_ipv >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_ipv) & age_at_ipv>potential_dpt_6wks ~ age_at_ipv,
+  age_at_hepb1 >= dpt2_age_due_min & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & age_at_hepb1>potential_dpt_6wks ~ age_at_hepb1,
+  age_at_hepb2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb2) & age_at_hepb2>potential_dpt_6wks ~ age_at_hepb2,
+  age_at_hepb3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & age_at_hepb3>potential_dpt_6wks ~ age_at_hepb3,
+  age_at_hib1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & age_at_hib1>potential_dpt_6wks ~ age_at_hib1,
+  age_at_hib2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hib2) & age_at_hib2>potential_dpt_6wks ~ age_at_hib2,
+  age_at_hib3 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_hib3) & age_at_hib3>potential_dpt_6wks ~ age_at_hib3,
+  age_at_dpt1 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt1) & age_at_dpt1>potential_dpt_6wks ~ age_at_dpt1,
+  age_at_dpt2 >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt2) & age_at_dpt2>potential_dpt_6wks ~ age_at_dpt2,
+  age_at_dpt3 >= dpt3_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_dpt3) & age_at_dpt3>potential_dpt_6wks ~ age_at_dpt3,
+  age_at_yelfev >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_yelfev) & age_at_yelfev>potential_dpt_6wks ~ age_at_yelfev,
+  age_at_bcg >= dpt2_age_due_min &  age_in_days>= dpt3_age_due_max & !is.na(age_at_bcg) & age_at_bcg>potential_dpt_6wks ~ age_at_bcg))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 dt <- dt %>% mutate(potential_dpt_14wks = case_when(
   age_at_pol1 >= dpt3_age_due_min & age_at_pol1<age_at_bcg & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol1) & (age_at_pol1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol1,
   age_at_pol2 >= dpt3_age_due_min & age_at_pol2<age_at_pol1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol2) & (age_at_pol2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol2,
   age_at_pol3 >= dpt3_age_due_min & age_at_pol3<age_at_pol2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol3) & (age_at_pol3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol3,
   age_at_mea1 >= dpt3_age_due_min & age_at_mea1<age_at_pol3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea1) & (age_at_mea1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_mea1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_mea1,
-  age_at_pol0 >= dpt3_age_due_min & age_at_pol0<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pol0) & (age_at_pol0!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pol0!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pol0,
-  age_at_pneu1 >= dpt3_age_due_min & age_at_pneu1<age_at_pol0 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & (age_at_pneu1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pneu1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pneu1,
+  age_at_polbirth >= dpt3_age_due_min & age_at_polbirth<age_at_mea1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_polbirth) & (age_at_polbirth!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_polbirth!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_polbirth,
+  age_at_pneu1 >= dpt3_age_due_min & age_at_pneu1<age_at_polbirth & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu1) & (age_at_pneu1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pneu1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pneu1,
   age_at_pneu2 >= dpt3_age_due_min & age_at_pneu2<age_at_pneu1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu2) & (age_at_pneu2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pneu2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pneu2,
   age_at_mea2 >= dpt3_age_due_min & age_at_mea2<age_at_pneu2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_mea2) & (age_at_mea2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_mea2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_mea2,
   age_at_pneu3 >= dpt3_age_due_min & age_at_pneu3<age_at_mea2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_pneu3) & (age_at_pneu3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_pneu3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_pneu3,
   age_at_rota1 >= dpt3_age_due_min & age_at_rota1<age_at_pneu3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota1) & (age_at_rota1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_rota1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_rota1,
   age_at_rota2 >= dpt3_age_due_min & age_at_rota2<age_at_rota1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota2) & (age_at_rota2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_rota2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_rota2,
   age_at_rota3 >= dpt3_age_due_min & age_at_rota3<age_at_rota2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_rota3) & (age_at_rota3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_rota3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_rota3,
-  age_at_poln >= dpt3_age_due_min & age_at_poln<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_poln) & (age_at_poln!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_poln!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_poln,
-  age_at_hepb1 >= dpt3_age_due_min & age_at_hepb1<age_at_poln & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & (age_at_hepb1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hepb1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hepb1,
+  age_at_ipv >= dpt3_age_due_min & age_at_ipv<age_at_rota3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_ipv) & (age_at_ipv!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_ipv!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_ipv,
+  age_at_hepb1 >= dpt3_age_due_min & age_at_hepb1<age_at_ipv & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb1) & (age_at_hepb1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hepb1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hepb1,
   age_at_hepb2 >= dpt3_age_due_min & age_at_hepb2<age_at_hepb1 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb2) & (age_at_hepb2!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hepb2!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hepb2,
   age_at_hepb3 >= dpt3_age_due_min & age_at_hepb3<age_at_hepb2 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hepb3) & (age_at_hepb3!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hepb3!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hepb3,
   age_at_hib1 >= dpt3_age_due_min & age_at_hib1<age_at_hepb3 & age_in_days>= dpt3_age_due_max & !is.na(age_at_hib1) & (age_at_hib1!=potential_dpt_6wks|is.na(potential_dpt_6wks)) & (age_at_hib1!=potential_dpt_10wks|is.na(potential_dpt_10wks)) ~ age_at_hib1,
@@ -410,7 +608,7 @@ dt <- dt %>% mutate(
   dpt_missed_opportunity=case_when(
     
     # Case 3: The child was vaccinated for DPT late and had an earlier dose (can this be combined with Case 2?)
-    dpt_late==1 & potential_dpt_14wks<first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="yes" & age_in_days>=dpt3_age_due_max ~ 1,
+    dpt_late==1 & potential_dpt_14wks < first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
     
     # Case 1: The child was never vaccinated for DPT, but had at least 3 visits 4 weeks apart during or after the DPT due ages (by dose)  
     never_got_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
@@ -419,12 +617,13 @@ dt <- dt %>% mutate(
     too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
     
     # default value
-    age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0),
+    # age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0
+    ),
   
   dpt_age_at_mop_vac = case_when(
     
     # Case 3: The child was vaccinated for DPT late and had an earlier dose (can this be combined with Case 2?)
-    dpt_late==1 & potential_dpt_14wks<first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>= dpt3_age_due_max ~ potential_dpt_14wks,
+    dpt_late==1 & potential_dpt_14wks < first_elig_dpt_after_14wks & !is.na(first_elig_dpt_after_14wks) & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>= dpt3_age_due_max ~ potential_dpt_14wks,
     
     # Case 1: The child was never vaccinated for DPT, but had at least 3 visits 4 weeks apart during or after the DPT due ages (by dose)  
     never_got_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ potential_dpt_14wks,
