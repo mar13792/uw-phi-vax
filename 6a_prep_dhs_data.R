@@ -360,7 +360,7 @@ dt <- dt %>% mutate(
     too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ 1,
     
     # default value
-    # age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0
+    age_in_days>=dpt3_age_due_max & !is.na(dpt_days_at_risk) ~ 0
     ),
   
   dpt_age_at_mop_vac = case_when(

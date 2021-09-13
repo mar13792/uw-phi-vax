@@ -173,6 +173,12 @@ data$strata <- factor(data$strata,
                       levels = c("NG7", "NG6"),
                       labels=c("2018", "2013"))
 
+###################
+# DPT missed opportunity
+###################
+data$dpt_missed_opportunity <-factor(data$dpt_missed_opportunity,
+                                      levels=c(0,1),
+                                      labels=c("No", "Yes"))
 
 ##################
 # variable labels
@@ -191,7 +197,26 @@ label(data$female_head) <-"Sex of head of household"
 label(data$urban) <-"Urbanicity"
 label(data$mea1_missed_opportunity) <-"Missed measles opportunity"
 label(data$assets) <-"Household assets"
-label(data$srata) <- "DHS version"
+label(data$strata) <- "DHS version"
+
+####################################################
+# Part Ib. Coverage cascade
+####################################################
+# calculate the number of children in sample
+dt <- as.data.table(data)
+dt[, .(.N), by = .(v000)]
+# 
+# # calculate how many children has a vaccination card
+dt[has_health_card_bin == "Yes",.(total_with_card= .N), by = strata]
+# 
+# # calculate how many children were covered by each vaccine according to recall and card
+# data[mea1_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
+# 
+# # calculate how many children received mea1 according to health card only
+dt[has_health_card_bin == "Yes" & !is.na(age_at_mea1),.(received_mea= .N), by = strata]
+dt[has_health_card_bin == "Yes" & !is.na(age_at_dpt1),.(received_dpt= .N), by = strata]
+
+# calculate the totals for DPT vaccines
 
 ####################################################
 # Part II
@@ -216,8 +241,8 @@ pvalue <- function(x, ...) {
 }
 
 # make two datasets one for each year in Nigeria
-data1 <- data %>% filter(v000=="NG7")
-data2 <- data %>% filter(v000=="NG6")
+data1 <- data %>% filter(v000=="NG7") # 2018
+data2 <- data %>% filter(v000=="NG6") # 2013
 
 table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | mea1_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
 table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | mea1_missed_opportunity, data=data2, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
@@ -233,6 +258,8 @@ format.pval(tes2, digits=3, eps=0.001)
 # repeat descriptive analysis with DPT vaccine
 ###################################################
 
+table1( ~ sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
+table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data2, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
 
 ####################################################
 # Part III.
@@ -248,11 +275,11 @@ format.pval(tes2, digits=3, eps=0.001)
 #### Observed
 ####################################################
 # keep kids that are older than the max age of measles and with vaccination card
-omdt <- data %>% filter(age_in_days>=mea1_age_due_max,
+obsmea1dat <- data %>% filter(age_in_days>=mea1_age_due_max,
                             has_health_card_bin=="Yes")
 
 # calculate hazard days
-omdt <- omdt %>% mutate(hazard_days_mea1 = case_when(
+obsmea1dat <- obsmea1dat %>% mutate(hazard_days_mea1 = case_when(
   # For the early group, this is just the total number of days since the start of the MMR interval that the child lived
   early_mea1==1 ~ mea1_days_at_risk + (mea1_age_due_max - mea1_age_due_min),
 
@@ -269,7 +296,7 @@ omdt <- omdt %>% mutate(hazard_days_mea1 = case_when(
 # Now we need a failure indicator -- consider failure to be getting a vaccine.
 # Kids who NEVER got measles or kids who got Measles early (and not again in the interval or late) will be censored at our observation days.
 # Kids who got the vaccine in the interal or late will have known observation time.
-omdt <- omdt %>% mutate(gotit = case_when(
+obsmea1dat <- obsmea1dat %>% mutate(gotit = case_when(
 
   # censored
   never_got_mea1==1 | early_mea1==1 ~ 0,
@@ -282,14 +309,15 @@ omdt <- omdt %>% mutate(gotit = case_when(
 # Survival curve
 
 # create survival object using observed data
-observed.mea1 <- Surv(time=omdt$hazard_days_mea1, event=omdt$gotit)
+observed.mea1 <- Surv(time=obsmea1dat$hazard_days_mea1, event=obsmea1dat$gotit)
 
 # use survfit function to create survival curves based on a formula
-f0 <- survfit(observed.mea1 ~ strata, data = omdt)
+f0 <- survfit(observed.mea1 ~ strata, data = obsmea1dat)
 
 # Plot Survival Curves
 ggsurvplot(
   fit=f0,
+  data=obsmea1dat,
   xlab="Days of observation",
   ylab="",
   title="Observed number of days to measles vaccination",
@@ -298,14 +326,15 @@ ggsurvplot(
   censor=FALSE,
   legend = "bottom", 
   legend.title = "Year of Nigeria DHS",
-  ylim = c(0,1)
+  ylim = c(0,1),
+  ggtheme=theme_linedraw()
   )
 
 # find the median survival time
 f0
 
 # statistical test to see if there was a difference in survival time according to year
-sd <- survdiff(observed.mea1 ~ strata, data = omdt)
+sd <- survdiff(observed.mea1 ~ strata, data = obsmea1dat)
 sd
 
 ####################################################
@@ -313,11 +342,11 @@ sd
 ####################################################
 
 # keep kids older that the max age of measles1 and keep if kids have a vaccine card
-pmdt <- data %>% filter(age_in_days>=mea1_age_due_max,
+potmea1dat <- data %>% filter(age_in_days>=mea1_age_due_max,
                         has_health_card_bin=="Yes")
 
 # Calculate the days at risk for the hazard analysis  -- the first part is the same as non_MOP analysis
-pmdt <- pmdt %>% mutate(hazard_days_mea1 = case_when(
+potmea1dat <- potmea1dat %>% mutate(hazard_days_mea1 = case_when(
   
   # Replace time at risk for MOP
   mea1_missed_opportunity=="Yes" & !is.na(mea1_age_at_mop_vac) ~ mea1_age_at_mop_vac - mea1_age_due_min,
@@ -339,7 +368,7 @@ pmdt <- pmdt %>% mutate(hazard_days_mea1 = case_when(
 # # Kids who NEVER got measles or kids who got Measles early (and not again in the interval or late) will be censored at our observation days. 
 # # Kids who got the vaccine in the interal or late will have known observation time.
 
-pmdt <- pmdt %>% mutate(gotit = case_when(
+potmea1dat <- potmea1dat %>% mutate(gotit = case_when(
   # known observation time
   mea1_late==1 | mea1_within_interval==1 | mea1_missed_opportunity=="Yes" ~ 1,
   
@@ -347,11 +376,11 @@ pmdt <- pmdt %>% mutate(gotit = case_when(
   never_got_mea1==1 | early_mea1==1 ~ 0))
 
 # use survfit function to create survival curves based on a formula
-f1 <- survfit(Surv(time = hazard_days_mea1, event=gotit) ~ strata, data = pmdt)
+f1 <- survfit(Surv(time = hazard_days_mea1, event=gotit) ~ strata, data = potmea1dat)
 
 ggsurvplot(
   fit=f1,
-  data=mdt,
+  data=potmea1dat,
   xlab="Days of observation",
   ylab="",
   title="Potential number of days to measles vaccination",
@@ -360,7 +389,8 @@ ggsurvplot(
   censor=FALSE,
   legend = "bottom", 
   legend.title = "Year of Nigeria DHS",
-  ylim = c(0,1)
+  ylim = c(0,1),
+  ggtheme=theme_linedraw()
   )
 
 ####################################################
@@ -371,11 +401,11 @@ ggsurvplot(
 #### Observed
 ####################################################
 
-oddt <- data %>% filter(age_in_days>=dpt3_age_due_max, 
+obsdptdat <- data %>% filter(age_in_days>=dpt3_age_due_max, 
                        has_health_card_bin=="Yes")
 
 # Calculate the days at risk for the hazard analysis
-oddt <- oddt %>% mutate(hazard_days_dpt = case_when(
+obsdptdat <- obsdptdat %>% mutate(hazard_days_dpt = case_when(
   # For the group with insufficient # of dpt, this is just the total number of days since the start of the interval
   too_few_elig_dpt==1 ~ dpt_days_at_risk + (dpt3_age_due_max - dpt3_age_due_min),
   
@@ -390,7 +420,7 @@ oddt <- oddt %>% mutate(hazard_days_dpt = case_when(
 ))
 
 # create a failure indicator
-oddt <- oddt %>% mutate(gotit = case_when(
+obsdptdat <- obsdptdat %>% mutate(gotit = case_when(
   # for those that never got dpt or kids who got dpt early and not again in the interval or late
   never_got_dpt==1 | too_few_elig_dpt==1 ~ 0,
   dpt_late==1 | dpt_within_interval==1 ~ 1
@@ -400,14 +430,15 @@ oddt <- oddt %>% mutate(gotit = case_when(
 # Survival curve
 
 # create survival object using observed data
-observed.dpt <- Surv(time=oddt$hazard_days_dpt, event=oddt$gotit)
+observed.dpt <- Surv(time=obsdptdat$hazard_days_dpt, event=obsdptdat$gotit)
 
 # use survfit function to create survival curves based on a formula
-f2 <- survfit(observed.dpt ~ strata, data = oddt)
+f2 <- survfit(observed.dpt ~ strata, data = obsdptdat)
 
 # Plot Survival Curves
 ggsurvplot(
   fit=f2,
+  data = obsdptdat,
   xlab="Days of observation",
   ylab="",
   title="Observed number of days to DPT vaccination",
@@ -416,14 +447,15 @@ ggsurvplot(
   censor=FALSE,
   legend = "bottom", 
   legend.title = "Year of Nigeria DHS",
-  ylim = c(0,1)
+  ylim = c(0,1),
+  ggtheme=theme_linedraw()
 )
 
 # find the median survival time
 f2
 
 # statistical test to see if there was a difference in survival time according to year
-sd2 <- survdiff(observed.dpt ~ strata, data = oddt)
+sd2 <- survdiff(observed.dpt ~ strata, data = obsdptdat)
 sd2
 
 ####################################################
@@ -431,13 +463,13 @@ sd2
 ####################################################
 
 # keep kids older that the max age of dpt3 and keep if kids have a vaccine card
-pddt <- data %>% filter(age_in_days>=dpt3_age_due_max,
+potdptdat <- data %>% filter(age_in_days>=dpt3_age_due_max,
                         has_health_card_bin=="Yes")
 
 # Calculate the days at risk for the hazard analysis  -- the first part is the same as non_MOP analysis
-pddt <- pddt %>% mutate(hazard_days_dpt = case_when(
+potdptdat <- potdptdat %>% mutate(hazard_days_dpt = case_when(
   # for those with a missed opportunity, replace days at risk
-  dpt_missed_opportunity==1 & !is.na(dpt_age_at_mop_vac) ~ dpt_age_at_mop_vac - dpt3_age_due_min,
+  dpt_missed_opportunity=="Yes" & !is.na(dpt_age_at_mop_vac) ~ dpt_age_at_mop_vac - dpt3_age_due_min,
   
   # For the group with insufficient # of dpt, this is just the total number of days since the start of the interval
   too_few_elig_dpt==1 ~ dpt_days_at_risk + (dpt3_age_due_max - dpt3_age_due_min),
@@ -454,24 +486,24 @@ pddt <- pddt %>% mutate(hazard_days_dpt = case_when(
 
 # # Now we need a failure indicator -- consider failure to be getting a vaccine. 
 # # Kids who NEVER got measles or kids who got Measles early (and not again in the interval or late) will be censored at our observation days. 
-# # Kids who got the vaccine in the interal or late will have known observation time.
+# # Kids who got the vaccine in the interval or late will have known observation time.
 
-pddt <- pddt %>% mutate(gotit = case_when(
+potdptdat <- potdptdat %>% mutate(gotit = case_when(
   # known observation time
-  dpt_late==1 | dpt_within_interval==1 | dpt_missed_opportunity==1 ~ 1,
+  dpt_late==1 | dpt_within_interval==1 | dpt_missed_opportunity=="Yes" ~ 1,
   
   # censored
   never_got_dpt==1 | too_few_elig_dpt==1 ~ 0))
 
 # create survival object using observed data
-potential.dpt <- Surv(time=pddt$hazard_days_dpt, event=pddt$gotit)
+potential.dpt <- Surv(time=potdptdat$hazard_days_dpt, event=potdptdat$gotit)
 
 # use survfit function to create survival curves based on a formula
-f4 <- survfit(potential.dpt ~ pddt$strata)
+f3 <- survfit(potential.dpt ~ strata, data = potdptdat)
 
 ggsurvplot(
-  fit=f4,
-  data=pddt,
+  fit=f3,
+  data=potdptdat,
   xlab="Days of observation",
   ylab="",
   title="Potential number of days to dpt vaccination",
@@ -480,15 +512,16 @@ ggsurvplot(
   censor=FALSE,
   legend = "bottom", 
   legend.title = "Year of Nigeria DHS",
-  ylim = c(0,1)
+  ylim = c(0,1),
+  ggtheme=theme_linedraw()
 )
 
 # find the median survival time
-f4
+f3
 
 # statistical test to see if there was a difference in survival time according to year
-sd3 <- survdiff(potential.dpt ~ strata, data = oddt)
-sd2
+sd3 <- survdiff(potential.dpt ~ strata, data = potdptdat)
+sd3
 
 
 
