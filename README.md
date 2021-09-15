@@ -11,24 +11,24 @@ Last updated by Francisco Rios Casas (frc2@uw.edu) on September 14, 2021
   
 
 ## Files included in this repo
-  *"1_set_up_R.R"
+  * "1_set_up_R.R"
   
-  *"2a_prep_vaccination_trend_data.R"
+  * "2a_prep_vaccination_trend_data.R"
   
-  *"2b_prep_sdi_data.R"
+  * "2b_prep_sdi_data.R"
   
-  *"2c_prep_disease_data.R"
+  * "2c_prep_disease_data.R"
   
-  *"2d_run_extract_dhs_data.R"
+  * "2d_run_extract_dhs_data.R"
   
-  *"3_merge_data.R"
+  * "3_merge_data.R"
   
-  *"4_visualizations_aim1.R"
+  * "4_visualizations_aim1.R"
   
-  *"5a_id_countries_low_sdi.R"
+  * "5a_id_countries_low_sdi.R"
   
-  *"6a_prep_dhs_data.R"
+  * "6a_prep_dhs_data.R"
   
-  *"6b_mov_analyses.R"
+  * "6b_mov_analyses.R"
 
 ## 
