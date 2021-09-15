@@ -11,7 +11,8 @@ Last updated by Francisco Rios Casas (frc2@uw.edu) on September 14, 2021
   
 
 ## Files included in this repo
-  * "1_set_up_R.R"
+  
+### "1_set_up_R.R"
   
   * "2a_prep_vaccination_trend_data.R"
   
