@@ -6,6 +6,15 @@
 data = readRDS(outputFile3)
 
 ##### ##### ##### #####
+# save names of files to be created in this script
+##### ##### ##### #####
+outputFile5k = paste0(aim1_vis, "exemplar_countries/11_outliers_high_sdi.PDF")
+outputFile5l = paste0(aim1_vis, "exemplar_countries/12_barplot_high_sdi.PDF")
+outputFile5m = paste0(aim1_vis, "exemplar_countries/13_detailed_table_high_sdi.PDF")
+outputFile5n = paste0(aim1_vis, "exemplar_countries/14_timeseries_plots_improvement_high_sdi.PDF")
+outputFile5o = paste0(aim1_vis, "exemplar_countries/15_timeseries_plots_missing_data_high_sdi.PDF")
+
+##### ##### ##### #####
 # data prep
 ##### ##### ##### #####
 

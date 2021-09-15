@@ -1,9 +1,16 @@
 # Author: Francisco Rios 
-# Purpose: calculate observed percent change for medium-SDI countries
+# Purpose: calculate observed percent change for low-SDI countries for a ten-year period
 # Date: Last modified August 3, 2021
 
 # load data
 data = readRDS(outputFile3)
+
+##### ##### ##### #####
+# save names of files to be created in this script
+##### ##### ##### #####
+outputFile5p = paste0(aim1_vis, "exemplar_countries/16_outliers_low_sdi_decade.PDF")
+outputFile5q = paste0(aim1_vis, "exemplar_countries/17_barplot_low_sdi_decade.PDF")
+outputFile5r = paste0(aim1_vis, "exemplar_countries/18_detailed_table_low_sdi_decade.PDF")
 
 ##### ##### ##### #####
 # data prep
