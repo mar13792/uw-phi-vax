@@ -4,19 +4,23 @@ Repository to store code used in the Vaccine Improvement Project at the UW Popul
 Last updated by Francisco Rios Casas (frc2@uw.edu) on September 14, 2021
 
 ## Folders included in this repo
-  *"archive":
+  * "archive":
    This folder contains files that are no longer used or not part of the main data prep or analysis process.
-  *"functions":
+  * "functions":
    This folder contains functions that are called in other scripts to extract or prep data.
   
 
 ## Files included in this repo
   
-### "1_set_up_R.R"
+ * "1_set_up_R.R": 
+ 
+ file lists important packages, filepaths, functions, and necessary packages to prep data 
   
-  * "2a_prep_vaccination_trend_data.R"
+ * "2a_prep_vaccination_trend_data.R":
+ 
+ 
   
-  * "2b_prep_sdi_data.R"
+ * "2b_prep_sdi_data.R"
   
   * "2c_prep_disease_data.R"
   

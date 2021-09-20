@@ -406,6 +406,27 @@ dt <- dt %>% mutate(
     # if the child didn't have a missed opportunity then the days of risk stays the same
     dpt_missed_opportunity==0 ~ dpt_days_at_risk))
 
+# Calculate dpt missed opportunities for each individual dpt vaccine (1-3)
+dt <- dt %>% mutate(
+  dpt1_missed_opportunity = case_when(
+    # Case 1: the child did not receive the first vaccine but had another vaccine date in that early range
+    is.na(age_at_dpt1) & !is.na(potential_dpt_6wks) & age_in_days>=dpt1_age_due_max & has_health_card_bin=="Yes" ~ 1,
+    
+    # the child did not receive the first dose but had another visit 
+    # # default value for missed opportunity
+    # is.na(age_at_dpt1) & !is.na(potential_dpt_6wks) & age+
+  ),
+  
+  dpt2_missed_opportunity = case_when(
+    # the child did not receive the second vaccine but had another vaccine visit during that range
+    is.na(age_at_dpt2) & !is.na(potential_dpt_10wks) & age_in_days>=dpt2_age_due_max & has_health_card_bin=="Yes" ~ 1
+    
+  ),
+  dpt3_missed_opportunity = case_when(
+    # the child did not receive the third vaccine does but hat another visit during that range
+    is.na(age_at_dpt3) & !is.na(potential_dpt_14wks) & age_in_days>=dpt3_age_due_max & has_health_card_bin=="Yes" ~ 1
+  )
+)
 
 # make visuals to explore implausible values in the dataset
 # Make histograms

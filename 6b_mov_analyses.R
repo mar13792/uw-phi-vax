@@ -199,22 +199,7 @@ label(data$mea1_missed_opportunity) <-"Missed measles opportunity"
 label(data$assets) <-"Household assets"
 label(data$strata) <- "DHS version"
 
-####################################################
-# Part Ib. Coverage cascade
-####################################################
-# calculate the number of children in sample
-dt <- as.data.table(data)
-dt[, .(.N), by = .(v000)]
-# 
-# # calculate how many children has a vaccination card
-dt[has_health_card_bin == "Yes",.(total_with_card= .N), by = strata]
-# 
-# # calculate how many children were covered by each vaccine according to recall and card
-# data[mea1_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
-# 
-# # calculate how many children received mea1 according to health card only
-dt[has_health_card_bin == "Yes" & !is.na(age_at_mea1),.(received_mea= .N), by = strata]
-dt[has_health_card_bin == "Yes" & !is.na(age_at_dpt1),.(received_dpt= .N), by = strata]
+
 
 # calculate the totals for DPT vaccines
 
@@ -523,13 +508,198 @@ f3
 sd3 <- survdiff(potential.dpt ~ strata, data = potdptdat)
 sd3
 
+###### Create results table
+dt <- as.data.table(data)
+dt[, .(.N), by = .(v000)]
 
+####################################################
+# Part IV. Coverage cascade
+####################################################
 
-# create a survival model to see if hazard differs in year and controlling for other variables
-# coxph(Surv(hazard_days_mea1, gotit) ~ strata, data=mdt)
-# coxph(Surv(hazard_days_mea1, gotit) ~ strata + edu + literate + kid_agecat + total_children_born + assets + urban, data=mdt)
+# subset only to those with a vaccination card
+dtnew <- dt[has_health_card_bin=="Yes"]
 
-# # plot curves showing difference according to year of data
-# # use survfit function to create survival curves based on a formula
-# f0b <- survfit(Surv(time = hazard_days_mea1, event=gotit) ~ strata, data = omdt)
+################
+# Measles
+################
+# calculate how many children has a vaccination card
+dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+
+# # calculate how many children received mea1 according to health card only
+dt2 <- dtnew[!is.na(age_at_mea1),.(received_vaccine= .N), by = strata]
+
+# calculate how many children did not receive the measles vaccine
+dt3 <- dtnew[is.na(age_at_mea1), .(no_vaccine=.N), by=strata]
+
+# calculate how many children that were not vaccinated had a missed opportunity
+dt4 <- dtnew[is.na(age_at_mea1) & mea1_missed_opportunity=="Yes", .(mop=.N), by=strata]
+
+# merge datatables together
+mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
+
+# add vaccine indicator
+mea1_dt[,vaccine:="mea1"]
+
+###################
+# DPT All
+###################
+# calculate how many children has a vaccination card
+dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+
+# calculate how many children received all dpt vaccines
+dt2 <- dtnew[tot_num_dpt==3,. (received_vaccine=.N), by=strata]
+
+# calculate how many children did not receive all dpt doses
+dt3 <- dtnew[tot_num_dpt<3,. (no_vaccine=.N), by=strata]
+
+# calculate how many of the children that did not receive all dpt doses have a dpt missed opportunity
+dt4 <- dtnew[tot_num_dpt<3 & dpt_missed_opportunity=="Yes",. (mop=.N), by=strata]
+
+# merge dataset
+dpt_all_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
+
+# add vaccine indicator
+dpt_all_dt[,vaccine:="dpt_all"]
+
+###################
+# DPT 1
+###################
+
+# calculate how many children have a vaccination card
+dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+
+# calculate how many children received the dpt1 dose
+dt2 <- dtnew[!is.na(age_at_dpt1),. (received_vaccine=.N), by=strata]
+
+# calculate how many children did not receive dpt1 dose
+dt3 <- dtnew[is.na(age_at_dpt1),. (no_vaccine=.N), by=strata]
+
+# calculate how many of the children that did not receive dpt1 dose have a dpt1 missed opportunity
+dt4 <- dtnew[is.na(age_at_dpt1) & dpt1_missed_opportunity==1,. (mop=.N), by=strata]
+
+# merge data sets together
+dpt1_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
+
+# add vaccine indicator
+dpt1_dt[,vaccine:="dpt1"]
+
+###################
+# DPT 2
+###################
+
+# # calculate how many children have a vaccination card
+dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+
+# # calculate how many children received dpt2
+dt2 <- dtnew[!is.na(age_at_dpt2),. (received_vaccine=.N), by=strata]
+
+# calculate how many children did not receive dpt2 dose
+dt3 <- dtnew[is.na(age_at_dpt2),. (no_vaccine=.N), by=strata]
+
+# calculate how many of the children that did not receive dpt2 dose have a dpt2 missed opportunity
+dt4 <- dtnew[is.na(age_at_dpt2) & dpt2_missed_opportunity==1,. (mop=.N), by=strata]
+
+# merge dataset
+dpt2_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
+
+# add vaccine indicator
+dpt2_dt[,vaccine:="dpt2"]
+
+###################
+# DPT 3
+###################
+
+# # calculate how many children have a vaccination card
+dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+
+# # calculate how many children received dpt3
+dt2 <- dtnew[!is.na(age_at_dpt3),. (received_vaccine=.N), by=strata]
+
+# calculate how many children did not receive dpt3 dose
+dt3 <- dtnew[is.na(age_at_dpt3),. (no_vaccine=.N), by=strata]
+
+# calculate how many of the children that did not receive dpt3 dose have a dpt3 missed opportunity
+dt4 <- dtnew[is.na(age_at_dpt3) & dpt3_missed_opportunity==1,. (mop=.N), by=strata]
+
+# merge dataset
+dpt3_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
+
+# add vaccine indicator
+dpt3_dt[,vaccine:="dpt3"]
+
+# merge all vaccine data together
+all_vax_data <- rbind(mea1_dt, dpt_all_dt, dpt1_dt, dpt2_dt, dpt3_dt)
+
+# calculate vaccination coverage
+all_vax_data[,vac_coverage:=round((received_vaccine/total_with_card)*100, 1)]
+
+# calculate percent of children with a missed opportunity
+all_vax_data[,percent_with_mop:=round((mop/no_vaccine)*100, 1)]
+
+# # calculate coverage if no missed opportunity
+all_vax_data[,potential_coverage_with_no_mop:=round((mop+received_vaccine)/total_with_card*100, 1)]
+
+# view results
+View(all_vax_data)
+
+setcolorder(all_vax_data, 
+            c("strata", "total_with_card", "vaccine", "received_vaccine", "no_vaccine", 
+              "vac_coverage", "mop", "percent_with_mop", "potential_coverage_with_no_mop"))
+
+write.csv(all_vax_data, file=paste0(g_drive, "Results/missed_opportunities/mop_vaccine_table.csv"))
+# # calculate how many children has a vaccination card
+# dt1 <- dtnew[has_health_card_bin=="Yes",.(total_with_card= .N), by = strata]
+# 
+# # calculate how many children received all dpt vaccines
+# dt2 <- dtnew[has_health_card_bin=="Yes" & tot_num_dpt==3,. (received_all_dpt=.N), by=strata]
+# 
+# # calculate how many children did not receive all dpt doses
+# dt3 <- dtnew[has_health_card_bin=="Yes" & tot_num_dpt<3,. (not_received_all_dpt=.N), by=strata]
+# 
+# # calculate how many of the children that did not receive all dpt doses have a dpt missed opportunity
+# dt4 <- dtnew[has_health_card_bin=="Yes" & tot_num_dpt<3 & dpt_missed_opportunity=="Yes",. (dpt_mop=.N), by=strata]
+# 
+# # calculate vaccination coverage
+# dpt_all_dtnew[,dpt_all_coverage:=round((received_all_dpt/total_with_card)*100, 1)]
+# # calculate coverage if missed opportunity
+# dpt_all_dtnew[,potential_coverage_with_no_mop:=round((dpt_mop+received_all_dpt)/total_with_card*100, 1)]
+
+# dpt_all_dt
+# 
+# # calculate vaccination coverage
+# dpt_all_dtnew[,dpt_all_coverage:=round((received_all_dpt/total_with_card)*100, 1)]
+# # calculate coverage if missed opportunity
+# dpt_all_dtnew[,potential_coverage_with_no_mop:=round((dpt_mop+received_all_dpt)/total_with_card*100, 1)]
+
+# # calculate dpt1 vaccination coverage
+# dpt1_dtnew[,dpt1_coverage:=round((received_dpt1/total_with_card)*100, 1)]
+# 
+# # calculate percent of children with a missed opportunity
+# dpt1_dtnew[,children_with_mop:=round((dpt3_mop))]
+# 
+# # calculate dpt1 coverage if missed opportunity
+# dpt1_dtnew[,potential_coverage_with_no_mop:=round((dpt1_mop+received_dpt1)/total_with_card*100, 1)]
+
+# dpt1_dt
+
+# # calculate dpt2 vaccination coverage
+# dpt2_dtnew[,dpt2_coverage:=round((received_dpt2/total_with_card)*100, 1)]
+# 
+# # calculate dpt2 coverage if missed opportunity
+# dpt2_dtnew[,potential_coverage_with_no_mop:=round((dpt2_mop+received_dpt2)/total_with_card*100, 1)]
+# 
+# # calculate dpt3 vaccination coverage
+# dpt3_dtnew[,dpt3_coverage:=round((received_dpt3/total_with_card)*100, 1)]
+# 
+# # calculate dpt3 coverage if missed opportunity
+# dpt3_dtnew[,potential_coverage_with_no_mop:=round((dpt3_mop+received_dpt3)/total_with_card*100, 1)]
+
+# dtnew[has_health_card_bin=="Yes" & dpt_missed_opportunity=="Yes", .(mea1_mop=)]
+# 
+# calculate how many children had a missed opportunity
+# dtnew[mea1_missed_opportunity=="Yes", .(mea_mop=.N), by=strata]
+# dtnew[has_health_card_bin == "Yes" & !is.na(age_at_dpt1),.(received_dpt= .N), by = strata]
+
+# # calculate how many children were covered by each vaccine according to recall and card
+# data[mea1_date_recorded%in%c(1,2,3),.(received_mea1= .N), by = v000]
 # 
