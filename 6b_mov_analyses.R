@@ -9,10 +9,7 @@ data <- data %>% filter(v000 %in% c("NG6", "NG7"))
 
 ###### prep additional variables for tables/graphs #####
 
-###################
-# mother's education
-###################
-
+#################### mother's education ###################
 data$edu <- as.character(data$v106)
 data <- data %>% mutate(edu = recode(edu,
                                  `0`=0,
@@ -23,9 +20,7 @@ data$edu <- factor(data$edu,
                  levels = c(0,1,2),
                  labels = c("No education", "Primary", "Secondary or higher"))
 
-###################
-# mother's literacy levels
-###################
+################### # mother's literacy levels ###################
 data$literate <- as.character(data$v155)
 
 data <- data %>% replace_with_na(replace = list(literate = 9))
@@ -41,10 +36,7 @@ data$literate <- factor(data$literate,
                       levels = c(0,1),
                       labels = c("Iliterate", "Literate"))
 
-###################
-# mother's age category
-###################
-
+#################### mother's age category ###################
 data$wom_agecat <- data$v012
 
 data <- data %>%
@@ -57,9 +49,7 @@ data$wom_agecat <- factor(data$wom_agecat,
                         levels = c(1,2,3),
                         labels = c("15-19", "20-34", "35-49"))
 
-###################
-# parity
-###################
+#################### parity ###################
 data$total_children_born <- data$v201 
 
 data <- data %>% 
@@ -74,9 +64,7 @@ data$total_children_born <- factor(data$total_children_born,
                                  levels = c(1,2,3,4),
                                  labels = c("1 child", "2-3 children", "4-5 children", "6+ children"))
 
-###################
-# marital status
-###################
+#################### marital status ###################
 data$marital <- as.character(data$v501)
 
 data <- data %>% mutate(marital = recode(marital,
@@ -91,9 +79,7 @@ data$marital<- factor(data$marital,
                     levels = c(1,2,3,4),
                     labels = c("Single", "Married", "Union", "Divorced, seperated, widowed, or other"))
 
-###################
-# mother's employment
-###################
+#################### mother's employment ###################
 data$wom_occ <- data$v717
 
 data <- data %>% replace_with_na(replace = list(wom_occ = 99))
@@ -108,10 +94,7 @@ data$wom_occ <- factor(data$wom_occ,
                      levels = c(1,2),
                      labels = c("Not employed", "Employed"))
 
-###################
-# assets
-###################
-
+#################### assets ###################
 # each survey should have either v190a or v190 for the household assets
 data$assets <- ifelse(!is.na(data$v190a), data$v190a, data$v190)
 
@@ -119,40 +102,29 @@ data$assets <- factor(data$assets,
                       levels = c(1,2,3,4,5),
                       labels = c("Quintile 1", "Quintile 2", "Quintile 3","Quintile 4", "Quintile 5"))
 
-###################
-# average household size
-###################
+################### # average household size ###################
 data$hhsize <- data$v136
 
-###################
-# urban
-###################
+################### # urban ###################
 data$urban <- abs(data$v025-2)
 
 data$urban <-factor(data$urban,
                   levels = c(0,1),
                   labels = c("Rural household", "Urban household"))
 
-###################
-# sex of head of household
-###################
+################### # sex of head of household ###################
 data$female_head <- data$v151
 
 data$female_head <- factor(data$female_head,
                          levels = c(1,2),
                          labels = c('Male', 'Female'))
 
-###################
-# asign labels to variable names
-###################
+#################### assign labels to variable names ###################
 data$sex_of_child <- factor(data$sex_of_child,
                           levels=c(1,2),
                           labels=c("Male", "Female"))
 
-###################
-#kid age category
-###################
-
+####################kid age category ###################
 data$kid_agecat <- round(time_length(difftime(data$intv_date, data$dob), "years"), digits = 0)
 data$kid_agecat <- factor(data$kid_agecat, 
                           levels = c(0,1,2,3),
@@ -163,9 +135,7 @@ data$mea1_missed_opportunity <-factor(data$mea1_missed_opportunity,
                                       levels=c(0,1),
                                       labels=c("No", "Yes"))
 
-###################
-# Year of data
-###################
+#################### Year of data ###################
 data$strata <- data$v000
 
 # format the data structure
@@ -173,17 +143,12 @@ data$strata <- factor(data$strata,
                       levels = c("NG7", "NG6"),
                       labels=c("2018", "2013"))
 
-###################
-# DPT missed opportunity
-###################
+#################### DPT missed opportunity ###################
 data$dpt_missed_opportunity <-factor(data$dpt_missed_opportunity,
                                       levels=c(0,1),
                                       labels=c("No", "Yes"))
 
-##################
-# variable labels
-##################
-
+################### variable labels ##################
 label(data$sex_of_child) <- "Child's sex"
 label(data$kid_agecat) <- "Child's age (in years)"
 label(data$edu) <- "Mother's education"
@@ -203,10 +168,7 @@ label(data$strata) <- "DHS version"
 
 # calculate the totals for DPT vaccines
 
-####################################################
-# Part II
-# Explore what variables are associated with a missed opportunity
-####################################################
+############## Part II: Explore what variables are associated with a missed opportunity ######
 
 # this function will automatically add pvalue from chisquare test or t-test to a table
 pvalue <- function(x, ...) {
@@ -239,26 +201,19 @@ format.pval(tes1, digits=3, eps=0.001)
 tes2 <- chisq.test(table(data2$kid_agecat, data2$mea1_missed_opportunity, exclude = c("0 years")))$p.value
 format.pval(tes2, digits=3, eps=0.001)
 
-####################################################
-# repeat descriptive analysis with DPT vaccine
-###################################################
+##### repeat descriptive analysis with DPT vaccine #####
 
 table1( ~ sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
 table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data2, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
 
-####################################################
-# Part III.
-# Compare days to vaccination (observed and potential coverage) 
+
+###### Part III: Compare days to vaccination (observed and potential coverage) #####
 # Comparing DHS data from 2013 and 2018
-####################################################
 
-####################################################
-##### 1. Measles
-####################################################
+##### 1. Measles #####
 
-####################################################
-#### Observed
-####################################################
+######### Observed ########
+
 # keep kids that are older than the max age of measles and with vaccination card
 obsmea1dat <- data %>% filter(age_in_days>=mea1_age_due_max,
                             has_health_card_bin=="Yes")
@@ -290,8 +245,7 @@ obsmea1dat <- obsmea1dat %>% mutate(gotit = case_when(
   mea1_late==1 | mea1_within_interval ~ 1,
 ))
 
-####################################################
-# Survival curve
+######### Survival curve #########
 
 # create survival object using observed data
 observed.mea1 <- Surv(time=obsmea1dat$hazard_days_mea1, event=obsmea1dat$gotit)
@@ -312,7 +266,9 @@ ggsurvplot(
   legend = "bottom", 
   legend.title = "Year of Nigeria DHS",
   ylim = c(0,1),
-  ggtheme=theme_linedraw()
+  ggtheme=theme_linedraw(), 
+  risk.table = TRUE,
+  xlim=c(0,836.6)
   )
 
 # find the median survival time
@@ -322,9 +278,7 @@ f0
 sd <- survdiff(observed.mea1 ~ strata, data = obsmea1dat)
 sd
 
-####################################################
-#### Potential coverage
-####################################################
+##### Potential coverage #####
 
 # keep kids older that the max age of measles1 and keep if kids have a vaccine card
 potmea1dat <- data %>% filter(age_in_days>=mea1_age_due_max,
@@ -378,13 +332,10 @@ ggsurvplot(
   ggtheme=theme_linedraw()
   )
 
-####################################################
-##### 2. DPT
-####################################################
 
-####################################################
-#### Observed
-####################################################
+########## 2. DPT ########## 
+
+######### Observed ##########
 
 obsdptdat <- data %>% filter(age_in_days>=dpt3_age_due_max, 
                        has_health_card_bin=="Yes")
@@ -517,7 +468,7 @@ dt[, .(.N), by = .(v000)]
 ####################################################
 
 # subset only to those with a vaccination card
-dtnew <- dt[has_health_card_bin=="Yes"]
+dtnew <- dt[has_health_card_bin=="Yes" & age_in_days>=mea1_age_due_max]
 
 ################
 # Measles
@@ -526,13 +477,37 @@ dtnew <- dt[has_health_card_bin=="Yes"]
 dt1 <- dtnew[,.(total_with_card= .N), by = strata]
 
 # # calculate how many children received mea1 according to health card only
-dt2 <- dtnew[!is.na(age_at_mea1),.(received_vaccine= .N), by = strata]
+dt2 <- dtnew[mea1_within_interval==1 & mea1_late==1,.(received_vaccine= .N), by = strata]
 
 # calculate how many children did not receive the measles vaccine
-dt3 <- dtnew[is.na(age_at_mea1), .(no_vaccine=.N), by=strata]
+dt3 <- dtnew[never_got_mea1==1 & mea1_late==1, .(no_vaccine=.N), by=strata]
 
 # calculate how many children that were not vaccinated had a missed opportunity
-dt4 <- dtnew[is.na(age_at_mea1) & mea1_missed_opportunity=="Yes", .(mop=.N), by=strata]
+dt4 <- dtnew[never_got_mea1==1 & mea1_late==1 & mea1_missed_opportunity=="Yes", .(mop=.N), by=strata]
+
+# # calculate how many children has a vaccination card
+# dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+# 
+# # # calculate how many children received mea1 according to health card only
+# dt2 <- dtnew[age_at_mea1>=mea1_age_due_min,.(received_vaccine= .N), by = strata]
+# 
+# # calculate how many children did not receive the measles vaccine
+# dt3 <- dtnew[is.na(age_at_mea1) | age_at_mea1<mea1_age_due_min, .(no_vaccine=.N), by=strata]
+# 
+# # calculate how many children that were not vaccinated had a missed opportunity
+# dt4 <- dtnew[is.na(age_at_mea1) | age_at_mea1<mea1_age_due_min & mea1_missed_opportunity=="Yes", .(mop=.N), by=strata]
+
+# # calculate how many children has a vaccination card
+# dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+# 
+# # # calculate how many children received mea1 according to health card only
+# dt2 <- dtnew[!is.na(age_at_mea1),.(received_vaccine= .N), by = strata]
+# 
+# # calculate how many children did not receive the measles vaccine
+# dt3 <- dtnew[is.na(age_at_mea1), .(no_vaccine=.N), by=strata]
+# 
+# # calculate how many children that were not vaccinated had a missed opportunity
+# dt4 <- dtnew[is.na(age_at_mea1) & mea1_missed_opportunity=="Yes", .(mop=.N), by=strata]
 
 # merge datatables together
 mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
@@ -543,17 +518,19 @@ mea1_dt[,vaccine:="mea1"]
 ###################
 # DPT All
 ###################
+dtnew2 <- dt[has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max]
+
 # calculate how many children has a vaccination card
-dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+dt1 <- dtnew2[,.(total_with_card= .N), by = strata]
 
 # calculate how many children received all dpt vaccines
-dt2 <- dtnew[tot_num_dpt==3,. (received_vaccine=.N), by=strata]
+dt2 <- dtnew2[tot_num_dpt==3,. (received_vaccine=.N), by=strata]
 
 # calculate how many children did not receive all dpt doses
-dt3 <- dtnew[tot_num_dpt<3,. (no_vaccine=.N), by=strata]
+dt3 <- dtnew2[tot_num_dpt<3,. (no_vaccine=.N), by=strata]
 
 # calculate how many of the children that did not receive all dpt doses have a dpt missed opportunity
-dt4 <- dtnew[tot_num_dpt<3 & dpt_missed_opportunity=="Yes",. (mop=.N), by=strata]
+dt4 <- dtnew2[tot_num_dpt<3 & dpt_missed_opportunity=="Yes",. (mop=.N), by=strata]
 
 # merge dataset
 dpt_all_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
@@ -565,17 +542,19 @@ dpt_all_dt[,vaccine:="dpt_all"]
 # DPT 1
 ###################
 
+dtnew3 <- dt[has_health_card_bin=="Yes" & age_in_days>=dpt1_age_due_max]
+
 # calculate how many children have a vaccination card
-dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+dt1 <- dtnew3[,.(total_with_card= .N), by = strata]
 
 # calculate how many children received the dpt1 dose
-dt2 <- dtnew[!is.na(age_at_dpt1),. (received_vaccine=.N), by=strata]
+dt2 <- dtnew3[!is.na(age_at_dpt1),. (received_vaccine=.N), by=strata]
 
 # calculate how many children did not receive dpt1 dose
-dt3 <- dtnew[is.na(age_at_dpt1),. (no_vaccine=.N), by=strata]
+dt3 <- dtnew3[is.na(age_at_dpt1),. (no_vaccine=.N), by=strata]
 
 # calculate how many of the children that did not receive dpt1 dose have a dpt1 missed opportunity
-dt4 <- dtnew[is.na(age_at_dpt1) & dpt1_missed_opportunity==1,. (mop=.N), by=strata]
+dt4 <- dtnew3[is.na(age_at_dpt1) & dpt1_missed_opportunity==1,. (mop=.N), by=strata]
 
 # merge data sets together
 dpt1_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
@@ -587,17 +566,19 @@ dpt1_dt[,vaccine:="dpt1"]
 # DPT 2
 ###################
 
+dtnew4 <- dt[has_health_card_bin=="Yes" & age_in_days>=dpt2_age_due_max]
+
 # # calculate how many children have a vaccination card
-dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+dt1 <- dtnew4[,.(total_with_card= .N), by = strata]
 
 # # calculate how many children received dpt2
-dt2 <- dtnew[!is.na(age_at_dpt2),. (received_vaccine=.N), by=strata]
+dt2 <- dtnew4[!is.na(age_at_dpt2),. (received_vaccine=.N), by=strata]
 
 # calculate how many children did not receive dpt2 dose
-dt3 <- dtnew[is.na(age_at_dpt2),. (no_vaccine=.N), by=strata]
+dt3 <- dtnew4[is.na(age_at_dpt2),. (no_vaccine=.N), by=strata]
 
 # calculate how many of the children that did not receive dpt2 dose have a dpt2 missed opportunity
-dt4 <- dtnew[is.na(age_at_dpt2) & dpt2_missed_opportunity==1,. (mop=.N), by=strata]
+dt4 <- dtnew4[is.na(age_at_dpt2) & dpt2_missed_opportunity==1,. (mop=.N), by=strata]
 
 # merge dataset
 dpt2_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
@@ -609,17 +590,19 @@ dpt2_dt[,vaccine:="dpt2"]
 # DPT 3
 ###################
 
+dtnew5 <- dt[has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max]
+
 # # calculate how many children have a vaccination card
-dt1 <- dtnew[,.(total_with_card= .N), by = strata]
+dt1 <- dtnew5[,.(total_with_card= .N), by = strata]
 
 # # calculate how many children received dpt3
-dt2 <- dtnew[!is.na(age_at_dpt3),. (received_vaccine=.N), by=strata]
+dt2 <- dtnew5[!is.na(age_at_dpt3),. (received_vaccine=.N), by=strata]
 
 # calculate how many children did not receive dpt3 dose
-dt3 <- dtnew[is.na(age_at_dpt3),. (no_vaccine=.N), by=strata]
+dt3 <- dtnew5[is.na(age_at_dpt3),. (no_vaccine=.N), by=strata]
 
 # calculate how many of the children that did not receive dpt3 dose have a dpt3 missed opportunity
-dt4 <- dtnew[is.na(age_at_dpt3) & dpt3_missed_opportunity==1,. (mop=.N), by=strata]
+dt4 <- dtnew5[is.na(age_at_dpt3) & dpt3_missed_opportunity==1,. (mop=.N), by=strata]
 
 # merge dataset
 dpt3_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
