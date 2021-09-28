@@ -43,6 +43,7 @@ setwd(code_dir)
 data_dir <- paste0(g_drive,"Data/")
 prepped_data_dir <- paste0(data_dir,"prepped_data/")
 codebook_directory <- paste0(data_dir,"documentation/codebooks/")
+resDir <- paste0(g_drive, "Results/")
 visDir <- paste0(g_drive,"Visualizations/")
 aim1_vis <- paste0(visDir, "aim_1/")
 
@@ -62,11 +63,11 @@ outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
 outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
 
 # names of visualizations to identify high-performing countries
-outputFile5a = paste0(aim1_vis, "exemplar_countries/1_outliers_low_sdi.PDF")
-outputFile5b = paste0(aim1_vis, "exemplar_countries/2_barplot_low_sdi.PDF")
-outputFile5c = paste0(aim1_vis, "exemplar_countries/3_detailed_table_low_sdi.PDF")
-outputFile5d = paste0(aim1_vis, "exemplar_countries/4_timeseries_plots_improvement_low_sdi.PDF")
-outputFile5e = paste0(aim1_vis, "exemplar_countries/5_timeseries_plots_missing_data_low_sdi.PDF")
+outputFile5a = paste0(aim1_vis, "high_performing_locs/1_outliers_low_sdi.PDF")
+outputFile5b = paste0(aim1_vis, "high_performing_locs/2_barplot_low_sdi.PDF")
+outputFile5c = paste0(aim1_vis, "high_performing_locs/3_detailed_table_low_sdi.PDF")
+outputFile5d = paste0(aim1_vis, "high_performing_locs/4_timeseries_plots_improvement_low_sdi.PDF")
+outputFile5e = paste0(aim1_vis, "high_performing_locs/5_timeseries_plots_missing_data_low_sdi.PDF")
 
 # name of cleaned and reformatted DHS data 
 outputFile6a = paste0(prepped_data_dir, "6a_prepped_dhs_vaccination_data_for_analysis.RDS")

@@ -5,7 +5,7 @@
 ####### read in vaccine trend data
 
 # Read in list of files to prep
-file_list <- data.table(read_excel(paste0(data_dir, "data_file_list.xlsx")))
+file_list <- data.table(read_excel(paste0(data_dir, "list_of_data_used.xlsx")))
 
 # subset files to latest vaccine trends data
 file_list <- file_list[data_type=="vaccination_trends" & disease=="all" & gbd_cycle=="2020"]

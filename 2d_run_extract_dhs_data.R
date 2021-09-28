@@ -4,7 +4,7 @@
 # DATE: Last updated September 2 2021
 
 # Read in list of files to prep
-file_list <- data.table(read_excel(paste0(data_dir, "data_file_list.xlsx")))
+file_list <- data.table(read_excel(paste0(data_dir, "list_of_data_used.xlsx")))
 
 # subset files to dhs data (and only Nigeria data for now)
 file_list <- file_list[data_source%in%c("dhs6", "dhs7") & location_name=="Nigeria",.(file_name, data_type, data_source, year, containing_folder, location_name)]

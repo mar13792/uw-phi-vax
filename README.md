@@ -28,9 +28,9 @@ Last updated by Francisco Rios Casas (frc2@uw.edu) on September 20, 2021
 ## Files included in the "Functions" folder:
    This folder contains functions that are called in other scripts to extract or prep data.
    
-   * "extract_dhs_data.R": extracts relevant DHS data according to year and location of the DHS survey. References data_file_list. 
-   * "prep_dx_trend_data.R": extracts vaccine-preventable disease data.  References data_file_list. 
-   * "prep_vax_trend_data.R": extracts vaccination coverage  data. References data_file_list. 
+   * "extract_dhs_data.R": extracts relevant DHS data according to year and location of the DHS survey. References list_of_data_used. 
+   * "prep_dx_trend_data.R": extracts vaccine-preventable disease data.  References list_of_data_used. 
+   * "prep_vax_trend_data.R": extracts vaccination coverage  data. References list_of_data_used. 
    * "strip_chars.R": removes special characters from datasets to faciliate merge, such as among location names. 
 
 ## Files included in the "Archive" folder:

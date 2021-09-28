@@ -657,4 +657,4 @@ setcolorder(all_vax_data,
             c("strata", "total_with_card", "vaccine", "received_vaccine", "no_vaccine", 
               "vac_coverage", "mop", "percent_with_mop", "potential_coverage_with_no_mop"))
 
-write.csv(all_vax_data, file=paste0(g_drive, "Results/missed_opportunities/mop_vaccine_table.csv"))
+write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table.csv"))
