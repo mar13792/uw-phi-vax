@@ -4,7 +4,7 @@
 # 2d_prep_dhs_data_for_analysis
 
 # Load data -----
-dt <- readRDS(outputFile2d)
+dt <- as_tibble(readRDS(outputFile2d))
 
 # =====
 # Define variables necessary for risk analysis: -----
@@ -461,49 +461,49 @@ dt <- dt %>% mutate(
 # Prep variables for plotting -----
 
 # Factor mother's education -----
-data$edu <- as.character(data$v106)
-data <- data %>% mutate(edu = recode(edu,
+dt$edu <- as.character(dt$v106)
+dt <- dt %>% mutate(edu = recode(edu,
                                      `0`=0,
                                      `1`=1,
                                      `2`= 2,
                                      `3`=2))
-data$edu <- factor(data$edu,
+dt$edu <- factor(dt$edu,
                    levels = c(0,1,2),
                    labels = c("No education", "Primary", "Secondary or higher"))
 
 # Factor mother's literacy levels ----
-data$literate <- as.character(data$v155)
+dt$literate <- as.character(dt$v155)
 
-data <- data %>% replace_with_na(replace = list(literate = 9))
+dt <- dt %>% replace_with_na(replace = list(literate = 9))
 
-data <- data %>% mutate(literate = recode(literate,
+dt <- dt %>% mutate(literate = recode(literate,
                                           `0`=0,
                                           `1`=1,
                                           `2`=1,
                                           `3`=9,
                                           `4`=9))
 
-data$literate <- factor(data$literate,
+dt$literate <- factor(dt$literate,
                         levels = c(0,1),
                         labels = c("Iliterate", "Literate"))
 
 # Factor mother's age -----
-data$wom_agecat <- data$v012
+dt$wom_agecat <- dt$v012
 
-data <- data %>%
+dt <- dt %>%
   mutate(wom_agecat=case_when(
     wom_agecat %in% 15:19 ~ "1",
     wom_agecat %in% 20:34 ~ "2",
     wom_agecat %in% 35:49 ~ "3"))
 
-data$wom_agecat <- factor(data$wom_agecat,
+dt$wom_agecat <- factor(dt$wom_agecat,
                           levels = c(1,2,3),
                           labels = c("15-19", "20-34", "35-49"))
 
 # Factor parity -----
-data$total_children_born <- data$v201 
+dt$total_children_born <- dt$v201 
 
-data <- data %>% 
+dt <- dt %>% 
   mutate(total_children_born=case_when(
     total_children_born %in% 1 ~ "1",
     total_children_born %in% 2:3 ~ "2",
@@ -511,14 +511,14 @@ data <- data %>%
     total_children_born %in% 6:20 ~ "4"
   ))
 
-data$total_children_born <- factor(data$total_children_born,
+dt$total_children_born <- factor(dt$total_children_born,
                                    levels = c(1,2,3,4),
                                    labels = c("1 child", "2-3 children", "4-5 children", "6+ children"))
 
 # Factor marital status -----
-data$marital <- as.character(data$v501)
+dt$marital <- as.character(dt$v501)
 
-data <- data %>% mutate(marital = recode(marital,
+dt <- dt %>% mutate(marital = recode(marital,
                                          `0`=1,
                                          `1`=2,
                                          `2`=3,
@@ -526,93 +526,93 @@ data <- data %>% mutate(marital = recode(marital,
                                          `4`=4,
                                          `5`=4))
 
-data$marital<- factor(data$marital,
+dt$marital<- factor(dt$marital,
                       levels = c(1,2,3,4),
                       labels = c("Single", "Married", "Union", "Divorced, seperated, widowed, or other"))
 
 # Factor mother's occupation -----
-data$wom_occ <- data$v717
+dt$wom_occ <- dt$v717
 
-data <- data %>% replace_with_na(replace = list(wom_occ = 99))
+dt <- dt %>% replace_with_na(replace = list(wom_occ = 99))
 
-data <- data %>% 
+dt <- dt %>% 
   mutate(wom_occ=case_when(
     wom_occ %in% 0 ~ 1,
     wom_occ %in% 1:97 ~ 2
   ))
 
-data$wom_occ <- factor(data$wom_occ,
+dt$wom_occ <- factor(dt$wom_occ,
                        levels = c(1,2),
                        labels = c("Not employed", "Employed"))
 
 # Factor household assets -----
 # each survey should have either v190a or v190 for the household assets
-data$assets <- ifelse(!is.na(data$v190a), data$v190a, data$v190)
+dt$assets <- ifelse(!is.na(dt$v190a), dt$v190a, dt$v190)
 
-data$assets <- factor(data$assets,
+dt$assets <- factor(dt$assets,
                       levels = c(1,2,3,4,5),
                       labels = c("Quintile 1", "Quintile 2", "Quintile 3","Quintile 4", "Quintile 5"))
 
 # Rename variable for household size -----
-data$hhsize <- data$v136
+dt$hhsize <- dt$v136
 
 # Factor urban/rural household -----
-data$urban <- abs(data$v025-2)
+dt$urban <- abs(dt$v025-2)
 
-data$urban <-factor(data$urban,
+dt$urban <-factor(dt$urban,
                     levels = c(0,1),
                     labels = c("Rural household", "Urban household"))
 
 # Factor sex of head of household -----
-data$female_head <- data$v151
+dt$female_head <- dt$v151
 
-data$female_head <- factor(data$female_head,
+dt$female_head <- factor(dt$female_head,
                            levels = c(1,2),
                            labels = c('Male', 'Female'))
 
 # Factor sex of child -----
-data$sex_of_child <- factor(data$sex_of_child,
+dt$sex_of_child <- factor(dt$sex_of_child,
                             levels=c(1,2),
                             labels=c("Male", "Female"))
 
 # Factors kid's age -----
-data$kid_agecat <- round(time_length(difftime(data$intv_date, data$dob), "years"), digits = 0)
-data$kid_agecat <- factor(data$kid_agecat, 
+dt$kid_agecat <- round(time_length(difftime(dt$intv_date, dt$dob), "years"), digits = 0)
+dt$kid_agecat <- factor(dt$kid_agecat, 
                           levels = c(0,1,2,3),
                           labels = c("0 years", "1 year", "2 years", "3 years"))
 
 # Format measles missed opportunity variable -----
-data$mea1_missed_opportunity <-factor(data$mea1_missed_opportunity,
+dt$mea1_missed_opportunity <-factor(dt$mea1_missed_opportunity,
                                       levels=c(0,1),
                                       labels=c("No", "Yes"))
 
 # Factor year and location of DHS survey -----
-data$strata <- data$v000
+dt$strata <- dt$v000
 
-data$strata <- factor(data$strata, 
+dt$strata <- factor(dt$strata, 
                       levels = c("NG7", "NG6"),
                       labels=c("2018", "2013"))
 
 # Factor DPT missed opportunity-----
-data$dpt_missed_opportunity <-factor(data$dpt_missed_opportunity,
+dt$dpt_missed_opportunity <-factor(dt$dpt_missed_opportunity,
                                      levels=c(0,1),
                                      labels=c("No", "Yes"))
 
 # Label newly created variables -----
-label(data$sex_of_child) <- "Child's sex"
-label(data$kid_agecat) <- "Child's age (in years)"
-label(data$edu) <- "Mother's education"
-label(data$literate) <- "Literacy"
-label(data$wom_agecat) <- "Mother's age (in years)"
-label(data$total_children_born) <- "Parity"
-label(data$marital) <- "Marital status"
-label(data$wom_occ) <- "Mother's occupation"
-label(data$hhsize) <- "Household size"
-label(data$female_head) <-"Sex of head of household"
-label(data$urban) <-"Urbanicity"
-label(data$mea1_missed_opportunity) <-"Missed measles opportunity"
-label(data$assets) <-"Household assets"
-label(data$strata) <- "DHS version"
+label(dt$sex_of_child) <- "Child's sex"
+label(dt$kid_agecat) <- "Child's age (in years)"
+label(dt$edu) <- "Mother's education"
+label(dt$literate) <- "Literacy"
+label(dt$wom_agecat) <- "Mother's age (in years)"
+label(dt$total_children_born) <- "Parity"
+label(dt$marital) <- "Marital status"
+label(dt$wom_occ) <- "Mother's occupation"
+label(dt$hhsize) <- "Household size"
+label(dt$female_head) <-"Sex of head of household"
+label(dt$urban) <-"Urbanicity"
+label(dt$mea1_missed_opportunity) <-"Missed measles opportunity"
+label(dt$assets) <-"Household assets"
+label(dt$strata) <- "DHS version"
 
 # Make visuals to explore the data -----
 

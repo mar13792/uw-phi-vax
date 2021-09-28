@@ -5,16 +5,16 @@
 ####### read in vaccine-preventable disease trend data
 
 # Read in list of files to prep
-file_list <- data.table(read_excel(paste0(local_data_dir, "list_of_data_used.xlsx")))
+file_list <- data.table(read_excel(paste0(data_dir, "list_of_data_used.xlsx")))
 
 # subset files to latest disease trends data
-file_list <- file_list[data_type=="disease_trends" & gbd_cycle=="2019"]
+file_list <- file_list[data_type=="disease_trends" & year=="2019"]
 
 print("Now prepping:")
 
 for(i in 1:nrow(file_list)){
   # Set up file path 
-  file_dir = paste0(data_dir, file_list$data_type[i], '/', file_list$data_source[i], '/' )
+  file_dir = paste0(data_dir, 'raw_data/', file_list$data_type[i], '/', file_list$data_source[i], '/' )
   
   # set up arguments
   args <- list(file_dir, file_list$file_name[i], file_list$data_type[i])

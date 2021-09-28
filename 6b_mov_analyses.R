@@ -42,10 +42,14 @@ format.pval(tes2, digits=3, eps=0.001)
 
 ##### repeat descriptive analysis with DPT vaccine #####
 
-table1( ~ sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
+test <- table1( ~ sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data1, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
+
 table1(~  sex_of_child + kid_agecat + edu + literate + wom_agecat + total_children_born + marital + assets + hhsize + urban + female_head | dpt_missed_opportunity, data=data2, overall=F, extra.col=list(`P-value`=pvalue), topclass="Rtable1-zebra")
 
-
+# png(filename = paste0(visDir, "aim_1/missed_opportunities/nigeria_2018_dpt_mov_table1.png") )
+# test
+# dev.off()
+# write.table(test, file = paste0(visDir, "aim_1/missed_opportunities/nigeria_2018_dpt_mov_table1.txt"), sep = ",", quote = FALSE, row.names = F)
 ###### Part III: Compare days to vaccination (observed and potential coverage) #####
 # Comparing DHS data from 2013 and 2018
 
@@ -93,7 +97,7 @@ observed.mea1 <- Surv(time=obsmea1dat$hazard_days_mea1, event=obsmea1dat$gotit)
 f0 <- survfit(observed.mea1 ~ strata, data = obsmea1dat)
 
 # Plot Survival Curves
-ggsurvplot(
+plot1 <- ggsurvplot(
   fit=f0,
   data=obsmea1dat,
   xlab="Days of observation",
@@ -106,8 +110,13 @@ ggsurvplot(
   legend.title = "Year of Nigeria DHS",
   ylim = c(0,1),
   ggtheme=theme_linedraw(), 
-  risk.table = TRUE
-  )
+  risk.table = FALSE)
+
+# save plot
+png(filename = paste0(visDir, "aim_1/missed_opportunities/measles_observed_curve.png"),
+    height = 8, width = 10, units = "in", res = 300)
+plot1
+dev.off()
 
 # find the median survival time
 f0
@@ -155,7 +164,7 @@ potmea1dat <- potmea1dat %>% mutate(gotit = case_when(
 # use survfit function to create survival curves based on a formula
 f1 <- survfit(Surv(time = hazard_days_mea1, event=gotit) ~ strata, data = potmea1dat)
 
-ggsurvplot(
+plot2 <- ggsurvplot(
   fit=f1,
   data=potmea1dat,
   xlab="Days of observation",
@@ -167,9 +176,13 @@ ggsurvplot(
   legend = "bottom", 
   legend.title = "Year of Nigeria DHS",
   ylim = c(0,1),
-  ggtheme=theme_linedraw()
-  )
+  ggtheme=theme_linedraw())
 
+# save plot
+png(filename = paste0(visDir, "aim_1/missed_opportunities/measles_potential_curve.png"),
+    height = 8, width = 10, units = "in", res = 300)
+plot2
+dev.off()
 
 ########## 2. DPT ########## 
 
@@ -212,7 +225,7 @@ observed.dpt <- Surv(time=obsdptdat$hazard_days_dpt, event=obsdptdat$gotit)
 f2 <- survfit(observed.dpt ~ strata, data = obsdptdat)
 
 # Plot Survival Curves
-fit2 <- ggsurvplot(
+plot3 <- ggsurvplot(
   fit=f2,
   data = obsdptdat,
   xlab="Days of observation",
@@ -228,8 +241,11 @@ fit2 <- ggsurvplot(
 )
 
 # save plot
-png(paste0(visDir, ""))
-png()
+png(filename = paste0(visDir, "aim_1/missed_opportunities/dpt_observed_curve.png"),
+    height = 8, width = 10, units = "in", res = 300)
+plot3
+dev.off()
+
 # find the median survival time
 f2
 
@@ -280,7 +296,7 @@ potential.dpt <- Surv(time=potdptdat$hazard_days_dpt, event=potdptdat$gotit)
 # use survfit function to create survival curves based on a formula
 f3 <- survfit(potential.dpt ~ strata, data = potdptdat)
 
-ggsurvplot(
+plot4 <- ggsurvplot(
   fit=f3,
   data=potdptdat,
   xlab="Days of observation",
@@ -294,6 +310,12 @@ ggsurvplot(
   ylim = c(0,1),
   ggtheme=theme_linedraw()
 )
+
+# save plots
+png(filename = paste0(visDir, "aim_1/missed_opportunities/dpt_potential_curve.png"),
+    height = 8, width = 10, units = "in", res = 300)
+plot4
+dev.off()
 
 # find the median survival time
 f3

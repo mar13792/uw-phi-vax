@@ -2,9 +2,7 @@
 # Purpose: Set up R for prepping UW PHI Vaccination Data
 # Date: Last modified September 20, 2021
 
-###############################
-# load required packages
-###############################
+# Load required packages -----
 library(data.table)
 library(ggplot2)
 library(readxl)
@@ -26,9 +24,7 @@ library(survival)
 library(cmprsk)
 library(survminer)
 
-###############################
-# important variables
-###############################
+# Define important variables -----
 
 # set shared team Google drive dynamically
 if (Sys.info()[1]=='Windows'){
@@ -47,9 +43,7 @@ resDir <- paste0(g_drive, "Results/")
 visDir <- paste0(g_drive,"Visualizations/")
 aim1_vis <- paste0(visDir, "aim_1/")
 
-##############################################################
-# output file names that will be created in future scripts
-##############################################################
+# Define output file names that will be created in future scripts -----
 
 # name of prepped data files stored in shared google drive
 outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
@@ -72,17 +66,13 @@ outputFile5e = paste0(aim1_vis, "high_performing_locs/5_timeseries_plots_missing
 # name of cleaned and reformatted DHS data 
 outputFile6a = paste0(prepped_data_dir, "6a_prepped_dhs_vaccination_data_for_analysis.RDS")
 
-###############################
-# source shared functions
-###############################
+# Source shared functions -----
 source(paste0(code_dir, "functions/", "prep_vax_trend_data.R"))
 source(paste0(code_dir, "functions/", "prep_dx_trend_data.R"))
 source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
 source(paste0(code_dir, "functions/", "extract_dhs_data.R"), encoding = "UTF-8")
 
-###############################
-# set Boolean switches
-##############################
+# Set Boolean switches -----
 prep_vax_trends = FALSE  # this reads in and preps data on vaccination trends
 prep_sdi = FALSE # this reads in and preps SDI location values 
 prep_dx_trends = FALSE # this reads in GBD data on vaccine-preventable diseases
@@ -96,9 +86,7 @@ id_high_sdi = FALSE # identifies highest performing countries in the high SDI ca
 
 prep_dhs_data = FALSE # reads in extracted DHS data and prepares for further analyses
 
-################################
-# source scripts in data pipeline
-################################
+# Source scripts in prep pipeline -----
 
 # ---------------------------------------
 # Prep vaccination trends data 

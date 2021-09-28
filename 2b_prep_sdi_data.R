@@ -12,7 +12,7 @@
 ###################################################
 
 # SDI data downloaded from GBD
-sdi.dat <- as.data.table(read_xlsx(path = paste0(data_dir, "sdi/IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.xlsx")))
+sdi.dat <- as.data.table(read_xlsx(path = paste0(data_dir, "raw_data/sdi/IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.xlsx")))
 
 # read in codebook for locations
 loc.codebook <- as.data.table(read_xlsx(path = paste0(codebook_directory, "IHME_GBD_2019_GBD_LOCATION_HIERARCHY_Y2020M10D15.xlsx")))
