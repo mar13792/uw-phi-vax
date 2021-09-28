@@ -1,16 +1,14 @@
-# ----------------------------------------------
-# AUTHOR: Francisco Rios
+# AUTHOR: Francisco Rios -----
 # PURPOSE: Prep of DHS data for MOV analyses
 # DATE: Last updated September 2 2021
 # 2d_prep_dhs_data_for_analysis
 
+# Load data -----
 dt <- readRDS(outputFile2d)
 
-####################################################
-# 1. calculate new variables necessary for risk analysis
-####################################################
-
-# has health card binary
+# =====
+# Define variables necessary for risk analysis: -----
+# Identify youth with health card -----
 dt$has_health_card_bin <- as.character(dt$has_health_card)
 
 dt <- dt%>%
@@ -30,8 +28,8 @@ dt$has_health_card_bin <- factor(dt$has_health_card_bin,
                                  levels = c(0,1),
                                  labels = c("No", "Yes"))
 
-# Assign the MINIMUM and MAXIMUM age at which each vaccine should be given 
-#  Assumption: Vaccine is due at month X. We will accept vaccines given at month X-0.5 through X+1.5. 
+# Assign the MINIMUM and MAXIMUM age at which each vaccine should be given -----
+# Assumption: Vaccine is due at month X. We will accept vaccines given at month X-0.5 through X+1.5.
 
 # Example: Measles due at 9 mos is acceptable 8.5-10.5 months of age.
 dt$mea1_age_due_min <- 9*30.4 - 15.2 # 258 days
@@ -48,26 +46,26 @@ dt$dpt2_age_due_max <- 11*7 + 7 # 84 days
 dt$dpt3_age_due_min <- 14*7 - 4 # 94 days
 dt$dpt3_age_due_max <- 15*7 + 7 # 112 days
 
-# # calculate the age of child in days
-# dt$age_in_days <- time_length(difftime(dt$intv_date, dt$dob), "days")
+# Calculate the age of child in days -----
+dt$age_in_days <- time_length(difftime(dt$intv_date, dt$dob), "days")
 
-# calculate the age at which child was vaccinated with measles-containing vaccine 
+# Calculate the age at which child was vaccinated with measles-containing vaccine -----
 dt$age_at_mea1 <- time_length(difftime(dt$mea1, dt$dob), "days")
 dt$age_at_mea2 <- time_length(difftime(dt$mea2, dt$dob), "days")
 
-# calculate the age at which child was vaccinated with DPT vaccines
+# Calculate the age at which child was vaccinated with DPT vaccines -----
 dt$age_at_dpt1 <- time_length(difftime(dt$dpt1, dt$dob), "days")
 dt$age_at_dpt2 <- time_length(difftime(dt$dpt2, dt$dob), "days")
 dt$age_at_dpt3 <- time_length(difftime(dt$dpt3, dt$dob), "days")
 
-# variable indicating when the oldest vaccination date took place
+# Find when the last vaccination date took place -----
 dt <- dt %>% mutate(oldest_visit = pmax(bcg, dpt1, pol1, dpt2, pol2, dpt3, pent1, pent2, pent3, pneu1, pneu2, pneu3, rota1, rota2, rota3, ipv, hepb1, hepb2, hepb3, hib1, hib2, hib3, yelfev,
                                         na.rm=TRUE))
 
-# calculate the age at the oldest visit
+# Calculate child's age at the oldest visit -----
 dt$age_at_oldest_visit = time_length(difftime(dt$oldest_visit, dt$dob), "days")
 
-# Add indicator for the difference in days between appropriate timing and the actual age at vaccination
+# Add indicator for the difference in days between appropriate timing and the actual age at vaccination -----
 # How to interpret: 
 # (1) a value of <0 for mmr_age_minus_min means that they were vaccinated too early -- all of the days lived after the end of the mmr window will be considered days at risk; 
 # (2) a value of >0 for mmr_age_minus_min and <0 for mmr_age_minus_max means that they were vaccinated in the proper time window and they will accrue 0 days at risk; 
@@ -87,7 +85,7 @@ dt$dpt2_age_minus_max <- dt$age_at_dpt2 - dt$dpt2_age_due_max
 dt$dpt3_age_minus_min <- dt$age_at_dpt3 - dt$dpt3_age_due_min
 dt$dpt3_age_minus_max <- dt$age_at_dpt3 - dt$dpt3_age_due_max
 
-# identify variables related to timing of the measles-containing vaccine
+# Identify variables related to timing of the measles-containing vaccine ----
 dt <- dt %>% 
   mutate(
     # vaccinated too early
@@ -117,19 +115,16 @@ dt <- dt %>%
                                   mea1_age_minus_min>=0 & mea1_age_minus_max<=0 ~ 0,
                                   mea1_age_minus_max>0  ~ mea1_age_minus_max))
 
-# calculate additional measles coverage variables that require re-shaping of the data
-
-# calculate how many doses of DPT were received
+# Calculate how many doses of DPT were received -----
 for (i in 1:nrow(dt)){
   dt$tot_num_dpt[i] <- sum(!is.na(dt$dpt1[i]), !is.na(dt$dpt2[i]), !is.na(dt$dpt3[i]))
 }
 
-## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! 
+## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ----
 ## ! REVIEW ! chunk is missing from here to account for DPT dates that are too close to each other!
-##
 ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! ## ! 
 
-# calculate variables related to timing among the DPT-containing vaccine (pentavalent)
+# Calculate variables related to timing among the DPT-containing vaccine (pentavalent) -----
 dt <- dt %>% 
   mutate(
     # calculate variable indicating if never received dpt vaccine
@@ -152,7 +147,7 @@ dt <- dt %>%
     # calculate age when first dose was received
     dpt_dose_6wks_when = case_when(age_at_dpt1>=dpt1_age_due_min & age_at_dpt1<=dpt1_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt1))
 
-# find out how old chid was at the first eligible dose during 6 weeks
+# Find out how old chid was at the first eligible dose during 6 weeks -----
 dt$first_elig_dpt_after_6wks <- NA
 i <- 1
 for (i in 1:nrow(dt)){
@@ -162,7 +157,7 @@ for (i in 1:nrow(dt)){
   dt$first_elig_dpt_after_6wks[i] <- d[y]
 }
     
-# only keep newly created values if age_in_days>=dpt3_age_due_max
+# Only keep newly created values if age_in_days>=dpt3_age_due_max
 dt <- dt %>% 
   mutate(first_elig_dpt_after_6wks = if_else(age_in_days>=dpt3_age_due_max, 
                                              first_elig_dpt_after_6wks, NA_real_))
@@ -175,7 +170,7 @@ dt <- dt %>% mutate(
     # calculate age when second dose was received
     dpt_dose_10wks_when = case_when(age_at_dpt2>=dpt2_age_due_min & age_at_dpt2<=dpt2_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt2))
 
-# find out how old chid was at the first eligible dose during 6 weeks
+# Find out how old child was at the first eligible dose during 10 weeks -----
 dt$first_elig_dpt_after_10wks <- NA
 i <- 1
 for (i in 1:nrow(dt)){
@@ -185,7 +180,7 @@ for (i in 1:nrow(dt)){
   dt$first_elig_dpt_after_10wks[i] <- d[y]
 }
 
-# only keep newly created values if age_in_days>=dpt3_age_due_max
+# Only keep newly created values if age_in_days>=dpt3_age_due_max
 dt <- dt %>% 
   mutate(first_elig_dpt_after_10wks = if_else(age_in_days>=dpt3_age_due_max, 
                                              first_elig_dpt_after_10wks, NA_real_))
@@ -198,7 +193,7 @@ dt <- dt %>% mutate(
     # calculate age when third dose was received
     dpt_dose_14wks_when = case_when(age_at_dpt3>=dpt3_age_due_min & age_at_dpt3<=dpt3_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt3))
 
-# find out how old chid was at the first eligible dose during 6 weeks
+# Find out how old child was at the first eligible dose during 14 weeks -----
 dt$first_elig_dpt_after_14wks <- NA
 i <- 1
 for (i in 1:nrow(dt)){
@@ -255,7 +250,7 @@ dt <- dt %>% mutate(
                                  too_few_elig_dpt==1 ~ age_in_days - dpt3_age_due_max))
 
 
-# calculate ages at other vaccines if relevant
+# Calculate ages at other vaccines  -----
 dt$age_at_bcg <- time_length(difftime(dt$bcg, dt$dob), "days")
 dt$age_at_dpt1 <- time_length(difftime(dt$dpt1, dt$dob), "days")
 dt$age_at_pol1 <- time_length(difftime(dt$pol1, dt$dob), "days")
@@ -284,7 +279,7 @@ dt$age_at_hib2 <- time_length(difftime(dt$hib2, dt$dob), "days")
 dt$age_at_hib3 <- time_length(difftime(dt$hib3, dt$dob), "days")
 dt$age_at_yelfev <- time_length(difftime(dt$yelfev, dt$dob), "days")
 
-# find out how old child was at the earliest possible visit (using all vaccination dates except measles)
+# Find out how old child was at the earliest possible visit (using all vaccination dates except measles) -----
 dt$no_mea1_mop_age <- NA
 i <- 1
 for (i in 1:nrow(dt)){
@@ -304,7 +299,7 @@ dt <- dt %>%
   mutate(no_mea1_mop_age = if_else(age_in_days>=mea1_age_due_max & never_got_mea1==1 & !is.na(mea1_days_at_risk),
                                        no_mea1_mop_age, NA_real_))
 
-# Case 2: The Child got Mea1 late, but there was another visit for another vaccine in between the mea1 due age and actual age at Mea1
+# Case 2: The Child got Mea1 late, but there was another visit for another vaccine in between the mea1 due age and actual age at Mea1 ----
 # find out how old child was at the earliest possible visit (using all vaccination dates except measles)
 dt$earliest_visit_btwn_mea1 <- NA
 i <- 1
@@ -325,8 +320,7 @@ dt <- dt %>%
   mutate(earliest_visit_btwn_mea1 = if_else(age_in_days>=mea1_age_due_max & mea1_late==1 & !is.na(mea1_age_at_counted_vac),
                                                 earliest_visit_btwn_mea1, NA_real_))
 
-# calculate WHO HAS A MISSED OPPORTUNITY & WHAT IS POTENTIAL COVERAGE?
-
+# Calculate WHO HAS A MISSED OPPORTUNITY & WHAT IS POTENTIAL COVERAGE? -----
 dt <- dt %>% mutate(
   
   # variable that indicates missed opportunities
@@ -349,7 +343,7 @@ dt <- dt %>% mutate(
     !is.na(earliest_visit_btwn_mea1) ~ earliest_visit_btwn_mea1,
     is.na(earliest_visit_btwn_mea1) ~ no_mea1_mop_age))
 
-# create new variables of when children could have had potential dpt doses
+# Create new variables of when children could have had potential dpt doses ----
 dt$potential_dpt_6wks <- NA
 dt$potential_dpt_10wks <- NA
 dt$potential_dpt_14wks <- NA
@@ -381,8 +375,7 @@ dt <- dt %>%
          potential_dpt_14wks = if_else(age_in_days>=dpt3_age_due_max,
                                        potential_dpt_14wks, NA_real_))
 
-
-# calculate missed opportunities for DPT vaccines
+# Calculate missed opportunities for DPT vaccines -----
 dt <- dt %>% mutate(
   
   dpt_missed_opportunity=case_when(
@@ -411,7 +404,7 @@ dt <- dt %>% mutate(
     # Case 2: The child WAS vaccinated for DPT, but did not have 3 doses with correct spacing by age 6 mos 
     too_few_elig_dpt==1 & !is.na(potential_dpt_14wks) & has_health_card_bin=="Yes" & age_in_days>=dpt3_age_due_max ~ potential_dpt_14wks))
 
-# COMPUTE DAYS AT RISK IF OPPORTUNITY WAS NOT MISSED 
+# COMPUTE DAYS AT RISK IF OPPORTUNITY WAS NOT MISSED -----
 
 # measles 
 dt <- dt %>% mutate(
@@ -465,9 +458,165 @@ dt <- dt %>% mutate(
   )
 )
 
-# make visuals to explore implausible values in the dataset
-# Make histograms
-# organize series and label for graphing
+# Prep variables for plotting -----
+
+# Factor mother's education -----
+data$edu <- as.character(data$v106)
+data <- data %>% mutate(edu = recode(edu,
+                                     `0`=0,
+                                     `1`=1,
+                                     `2`= 2,
+                                     `3`=2))
+data$edu <- factor(data$edu,
+                   levels = c(0,1,2),
+                   labels = c("No education", "Primary", "Secondary or higher"))
+
+# Factor mother's literacy levels ----
+data$literate <- as.character(data$v155)
+
+data <- data %>% replace_with_na(replace = list(literate = 9))
+
+data <- data %>% mutate(literate = recode(literate,
+                                          `0`=0,
+                                          `1`=1,
+                                          `2`=1,
+                                          `3`=9,
+                                          `4`=9))
+
+data$literate <- factor(data$literate,
+                        levels = c(0,1),
+                        labels = c("Iliterate", "Literate"))
+
+# Factor mother's age -----
+data$wom_agecat <- data$v012
+
+data <- data %>%
+  mutate(wom_agecat=case_when(
+    wom_agecat %in% 15:19 ~ "1",
+    wom_agecat %in% 20:34 ~ "2",
+    wom_agecat %in% 35:49 ~ "3"))
+
+data$wom_agecat <- factor(data$wom_agecat,
+                          levels = c(1,2,3),
+                          labels = c("15-19", "20-34", "35-49"))
+
+# Factor parity -----
+data$total_children_born <- data$v201 
+
+data <- data %>% 
+  mutate(total_children_born=case_when(
+    total_children_born %in% 1 ~ "1",
+    total_children_born %in% 2:3 ~ "2",
+    total_children_born %in% 4:5 ~ "3",
+    total_children_born %in% 6:20 ~ "4"
+  ))
+
+data$total_children_born <- factor(data$total_children_born,
+                                   levels = c(1,2,3,4),
+                                   labels = c("1 child", "2-3 children", "4-5 children", "6+ children"))
+
+# Factor marital status -----
+data$marital <- as.character(data$v501)
+
+data <- data %>% mutate(marital = recode(marital,
+                                         `0`=1,
+                                         `1`=2,
+                                         `2`=3,
+                                         `3`=4,
+                                         `4`=4,
+                                         `5`=4))
+
+data$marital<- factor(data$marital,
+                      levels = c(1,2,3,4),
+                      labels = c("Single", "Married", "Union", "Divorced, seperated, widowed, or other"))
+
+# Factor mother's occupation -----
+data$wom_occ <- data$v717
+
+data <- data %>% replace_with_na(replace = list(wom_occ = 99))
+
+data <- data %>% 
+  mutate(wom_occ=case_when(
+    wom_occ %in% 0 ~ 1,
+    wom_occ %in% 1:97 ~ 2
+  ))
+
+data$wom_occ <- factor(data$wom_occ,
+                       levels = c(1,2),
+                       labels = c("Not employed", "Employed"))
+
+# Factor household assets -----
+# each survey should have either v190a or v190 for the household assets
+data$assets <- ifelse(!is.na(data$v190a), data$v190a, data$v190)
+
+data$assets <- factor(data$assets,
+                      levels = c(1,2,3,4,5),
+                      labels = c("Quintile 1", "Quintile 2", "Quintile 3","Quintile 4", "Quintile 5"))
+
+# Rename variable for household size -----
+data$hhsize <- data$v136
+
+# Factor urban/rural household -----
+data$urban <- abs(data$v025-2)
+
+data$urban <-factor(data$urban,
+                    levels = c(0,1),
+                    labels = c("Rural household", "Urban household"))
+
+# Factor sex of head of household -----
+data$female_head <- data$v151
+
+data$female_head <- factor(data$female_head,
+                           levels = c(1,2),
+                           labels = c('Male', 'Female'))
+
+# Factor sex of child -----
+data$sex_of_child <- factor(data$sex_of_child,
+                            levels=c(1,2),
+                            labels=c("Male", "Female"))
+
+# Factors kid's age -----
+data$kid_agecat <- round(time_length(difftime(data$intv_date, data$dob), "years"), digits = 0)
+data$kid_agecat <- factor(data$kid_agecat, 
+                          levels = c(0,1,2,3),
+                          labels = c("0 years", "1 year", "2 years", "3 years"))
+
+# Format measles missed opportunity variable -----
+data$mea1_missed_opportunity <-factor(data$mea1_missed_opportunity,
+                                      levels=c(0,1),
+                                      labels=c("No", "Yes"))
+
+# Factor year and location of DHS survey -----
+data$strata <- data$v000
+
+data$strata <- factor(data$strata, 
+                      levels = c("NG7", "NG6"),
+                      labels=c("2018", "2013"))
+
+# Factor DPT missed opportunity-----
+data$dpt_missed_opportunity <-factor(data$dpt_missed_opportunity,
+                                     levels=c(0,1),
+                                     labels=c("No", "Yes"))
+
+# Label newly created variables -----
+label(data$sex_of_child) <- "Child's sex"
+label(data$kid_agecat) <- "Child's age (in years)"
+label(data$edu) <- "Mother's education"
+label(data$literate) <- "Literacy"
+label(data$wom_agecat) <- "Mother's age (in years)"
+label(data$total_children_born) <- "Parity"
+label(data$marital) <- "Marital status"
+label(data$wom_occ) <- "Mother's occupation"
+label(data$hhsize) <- "Household size"
+label(data$female_head) <-"Sex of head of household"
+label(data$urban) <-"Urbanicity"
+label(data$mea1_missed_opportunity) <-"Missed measles opportunity"
+label(data$assets) <-"Household assets"
+label(data$strata) <- "DHS version"
+
+# Make visuals to explore the data -----
+
+# organize series and label for graphing -----
 codebookFile <- paste0(codebook_directory, 'dhs_mov_codebook.xlsx')
 codebook <- as.data.table(read_xlsx(codebookFile))
 dataVariables = unique(codebook[Category=="derived variable" & Class=="numeric" & `Possible Values`=="many possible values"]$Variable)
@@ -481,7 +630,7 @@ ggplot(dt, aes_string(x=v)) +
 })
 
 
-# save histograms as a PDF
+# save histograms as a PDF -----
 outputFile6a2 <- paste0(visDir, "aim_1/missed_opportunities/6a_prepped_dhs_data_histograms.pdf") 
 
 print(paste('Saving:', outputFile6a2)) 
@@ -491,8 +640,8 @@ for(i in seq(length(histograms))) {
 }
 dev.off()
 
-# save output
+# Save output -----
 saveRDS(dt, outputFile6a)
 
-# print final statement
+# Print final statement -----
 print("Step 2d: Prepping of dhs vaccination data completed.")
