@@ -150,48 +150,82 @@ dt <- dt %>%
                               never_got_dpt1==1 ~ 0),
     
     # calculate age when first dose was received
-    dpt_dose_6wks_when = case_when(age_at_dpt1>=dpt1_age_due_min & age_at_dpt1<=dpt1_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt1),
+    dpt_dose_6wks_when = case_when(age_at_dpt1>=dpt1_age_due_min & age_at_dpt1<=dpt1_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt1))
+
+# find out how old chid was at the first eligible dose during 6 weeks
+dt$first_elig_dpt_after_6wks <- NA
+i <- 1
+for (i in 1:nrow(dt)){
+  d <-sort(c(dt$age_at_dpt1[i], dt$age_at_dpt2[i], dt$age_at_dpt3[i]))
+  
+  y <- which(d >= dt$dpt1_age_due_min[i])[1]
+  dt$first_elig_dpt_after_6wks[i] <- d[y]
+}
     
-    # calculate first age eligible after first dose
-    first_elig_dpt_after_6wks = case_when(age_at_dpt1>=dpt1_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt1,
-                                          age_at_dpt2>=dpt1_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt2,
-                                          age_at_dpt3>=dpt1_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt3),
-    
+# only keep newly created values if age_in_days>=dpt3_age_due_max
+dt <- dt %>% 
+  mutate(first_elig_dpt_after_6wks = if_else(age_in_days>=dpt3_age_due_max, 
+                                             first_elig_dpt_after_6wks, NA_real_))
+
+dt <- dt %>% mutate(
     # calculate whether they got the second dose in the tenth week
     dpt_dose_10wks = case_when(age_at_dpt2>=dpt2_age_due_min & age_at_dpt2<=dpt2_age_due_max & age_in_days>= dpt3_age_due_max ~ 1,
                                never_got_dpt2==1 ~ 0),
     
     # calculate age when second dose was received
-    dpt_dose_10wks_when = case_when(age_at_dpt2>=dpt2_age_due_min & age_at_dpt2<=dpt2_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt2),
-    
-    # calculate first age eligible after second dose
-    first_elig_dpt_after_10wks = case_when(age_at_dpt1>=dpt2_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt1,
-                                           age_at_dpt2>=dpt2_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt2,
-                                           age_at_dpt3>=dpt2_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt3),
-    
+    dpt_dose_10wks_when = case_when(age_at_dpt2>=dpt2_age_due_min & age_at_dpt2<=dpt2_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt2))
+
+# find out how old chid was at the first eligible dose during 6 weeks
+dt$first_elig_dpt_after_10wks <- NA
+i <- 1
+for (i in 1:nrow(dt)){
+  d <-sort(c(dt$age_at_dpt1[i], dt$age_at_dpt2[i], dt$age_at_dpt3[i]))
+  
+  y <- which(d >= dt$dpt2_age_due_min[i] & d!=dt$first_elig_dpt_after_6wks[i])[1]
+  dt$first_elig_dpt_after_10wks[i] <- d[y]
+}
+
+# only keep newly created values if age_in_days>=dpt3_age_due_max
+dt <- dt %>% 
+  mutate(first_elig_dpt_after_10wks = if_else(age_in_days>=dpt3_age_due_max, 
+                                             first_elig_dpt_after_10wks, NA_real_))
+
+dt <- dt %>% mutate(    
     # calculate whether they got the third dose in the 14th week
     dpt_dose_14wks = case_when(age_at_dpt3>=dpt3_age_due_min & age_at_dpt3<=dpt3_age_due_max & age_in_days>= dpt3_age_due_max ~ 1,
                                never_got_dpt3==1 ~ 0),
     
     # calculate age when third dose was received
-    dpt_dose_14wks_when = case_when(age_at_dpt3>=dpt3_age_due_min & age_at_dpt3<=dpt3_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt3),
+    dpt_dose_14wks_when = case_when(age_at_dpt3>=dpt3_age_due_min & age_at_dpt3<=dpt3_age_due_max & age_in_days>= dpt3_age_due_max ~ age_at_dpt3))
+
+# find out how old chid was at the first eligible dose during 6 weeks
+dt$first_elig_dpt_after_14wks <- NA
+i <- 1
+for (i in 1:nrow(dt)){
+  d <-sort(c(dt$age_at_dpt1[i], dt$age_at_dpt2[i], dt$age_at_dpt3[i]))
+  
+  y <- which(d >= dt$dpt3_age_due_min[i] & d!=dt$first_elig_dpt_after_6wks[i] & d!=dt$first_elig_dpt_after_10wks[i])[1]
+  dt$first_elig_dpt_after_14wks[i] <- d[y]
+}
+
+# only keep newly created values if age_in_days>=dpt3_age_due_max
+dt <- dt %>% 
+  mutate(first_elig_dpt_after_14wks = if_else(age_in_days>=dpt3_age_due_max, 
+                                              first_elig_dpt_after_14wks, NA_real_))
     
-    # calculate first age eligible after third dose
-    first_elig_dpt_after_14wks = case_when(age_at_dpt1>=dpt3_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt1,
-                                           age_at_dpt2>=dpt3_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt2,
-                                           age_at_dpt3>=dpt3_age_due_min & age_in_days>= dpt3_age_due_max ~ age_at_dpt3),
-    
+dt <- dt %>% mutate(    
     # generate indicator for correct interval
     dpt_within_interval = case_when(
       
       # kids that did not have all visits during the interval, but had 3 doses with the right spacing
-      tot_num_dpt==3 &first_elig_dpt_after_14wks>=dpt3_age_due_min & first_elig_dpt_after_14wks <=dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~1,
+      tot_num_dpt==3 & first_elig_dpt_after_14wks>=dpt3_age_due_min & first_elig_dpt_after_14wks <=dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~1,
       
       # kids that have perfect adherence
       dpt_dose_6wks==1 & dpt_dose_10wks==1 & dpt_dose_14wks==1 & age_in_days>=dpt3_age_due_max ~ 1,
       
       # kids without perfect adherence 
-      dpt_dose_6wks!=1 & dpt_dose_10wks!=1 & dpt_dose_14wks!=1 ~ 0),
+      # dpt_dose_6wks!=1 & dpt_dose_10wks!=1 & dpt_dose_14wks!=1 ~ 0
+      ),
     
     # generate indicator for vaccine 3rd dose too late
     dpt_late = case_when(first_elig_dpt_after_14wks>dpt3_age_due_max & age_in_days>=dpt3_age_due_max ~ 1),
@@ -209,7 +243,10 @@ dt <- dt %>%
       dpt_late==1 ~ first_elig_dpt_after_14wks),
     
     # assign indicator for too few dpt vacccines
-    too_few_elig_dpt = case_when(is.na(first_elig_dpt_after_14wks) & tot_num_dpt>0 & age_in_days>=dpt3_age_due_max & has_health_card_bin=="Yes" ~ 1),
+    too_few_elig_dpt = case_when(is.na(first_elig_dpt_after_6wks) & tot_num_dpt>0 & age_in_days>=dpt3_age_due_max & has_health_card_bin=="Yes" ~ 1,
+                                 is.na(first_elig_dpt_after_10wks) & tot_num_dpt>0 & age_in_days>=dpt3_age_due_max & has_health_card_bin=="Yes" ~ 1,
+                                 is.na(first_elig_dpt_after_14wks) & tot_num_dpt>0 & age_in_days>=dpt3_age_due_max & has_health_card_bin=="Yes" ~ 1
+                                 ),
     
     # assign days at risk
     dpt_days_at_risk = case_when(never_got_dpt==1 & age_in_days>=dpt3_age_due_max ~ age_in_days - dpt3_age_due_max,
