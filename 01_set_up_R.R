@@ -92,35 +92,35 @@ prep_dhs_data = FALSE # reads in extracted DHS data and prepares for further ana
 # Prep vaccination trends data 
 # ---------------------------------------
 if(prep_vax_trends == TRUE){
-  source('./2a_prep_vaccination_trend_data.R')
+  source('./02_prep_vaccination_trend_data.R')
 }
 
 # ---------------------------------------
 # Prep SDI data 
 # ---------------------------------------
 if(prep_sdi == TRUE){
-  source('./2b_prep_sdi_data.R')
+  source('./03_prep_sdi_data.R')
 }
 
 # ---------------------------------------
 # Prep disease trends data
 # ---------------------------------------
 if(prep_dx_trends == TRUE){
-  source('./2c_prep_disease_data.R')
+  source('./04_prep_disease_data.R')
 }
 
 # ---------------------------------------
 # Extract DHS data
 # ---------------------------------------
 if(run_extract_dhs_data == TRUE){
-  source('./2d_run_extract_dhs_data.R')
+  source('./05_run_extract_dhs_data.R')
 }
 
 # ---------------------------------------
 # Merge major data sets together
 # --------------------------------------- 
 if(merge_files == TRUE){
-  source('./3_merge_data.R')
+  source('./06_merge_data.R')
 }
 
 # ---------------------------------------
@@ -131,7 +131,7 @@ if(merge_files == TRUE){
 # Identify outlier countries
 # ---------------------------------------
 if(id_low_sdi == TRUE){
-  source('./5a_id_countries_low_sdi.R')
+  source('./08_id_countries_low_sdi.R')
 }
 
 if(id_med_sdi == TRUE){
