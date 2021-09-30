@@ -2,7 +2,7 @@
 # Part I
 # Load prepped dataset for analyses
 ####################################################
-data <- readRDS(outputFile6a)
+data <- readRDS(outputFile09)
 
 # subset data to only Nigeria
 data <- data %>% filter(v000 %in% c("NG6", "NG7"))

@@ -2,7 +2,7 @@
 # Purpose: Prep tables and visualizations for aim 1
 # Date: Last modified July 20, 2021
 
-dt <- readRDS(outputFile3)
+dt <- readRDS(outputFile06)
 
 set.seed(26)
 

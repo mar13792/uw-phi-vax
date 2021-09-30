@@ -3,7 +3,7 @@
 # Date: Last modified August 3, 2021
 
 # load data
-data = readRDS(outputFile3)
+data = readRDS(outputFile06)
 
 ##### ##### ##### #####
 # data prep
@@ -44,8 +44,8 @@ vaccines = unique(dt$vaccine_name)
 dt[,outlier:=ifelse(is_outlier(percent_change), location_name, as.numeric(NA)), by=.(vaccine_name)]
 
 # Save file
-print(paste('Saving:', outputFile5a)) 
-pdf(outputFile5a, height=5.5, width=9)
+print(paste('Saving:', outputFile08a)) 
+pdf(outputFile08a, height=5.5, width=9)
 
 # create series of boxplots
 for (i in 1:length(vaccines)) {
@@ -85,7 +85,7 @@ h <- ggplot(data=dt2, aes(x=outlier, y=N)) +
        subtitle=paste0('between 2014 and 2019, among low-SDI countries'))
 
 # save pdf of bar plot
-pdf(outputFile5b, height=9, width=11)
+pdf(outputFile08b, height=9, width=11)
 print(h)
 dev.off()
 
@@ -134,7 +134,7 @@ j <- ggplot(dt3, aes(vaccine_name, location_name)) +
        subtitle=paste0('between 2014 and 2019, among low-SDI countries'))
 
 # save pdf of raster plot
-pdf(outputFile5c, height=9, width=11.5)
+pdf(outputFile08c, height=9, width=11.5)
 print(j)
 dev.off()
 
@@ -171,8 +171,8 @@ tsPlots = lapply(seq(length(lctns)), function(g) {
 })
 
 # Save file
-print(paste('Saving:', outputFile5d)) 
-pdf(outputFile5d, height=5.5, width=9)
+print(paste('Saving:', outputFile08d)) 
+pdf(outputFile08d, height=5.5, width=9)
 for(i in seq(length(tsPlots))) { 
   print(tsPlots[[i]])
 }
@@ -196,8 +196,8 @@ msgPlots = lapply(seq(nrow(missing)), function(g) {
 })
 
 # Save file
-print(paste('Saving:', outputFile5e)) 
-pdf(outputFile5e, height=5.5, width=9)
+print(paste('Saving:', outputFile08e)) 
+pdf(outputFile08e, height=5.5, width=9)
 par(mfrow=c(2,2))
 for(i in seq(length(msgPlots))) { 
   print(msgPlots[[i]])

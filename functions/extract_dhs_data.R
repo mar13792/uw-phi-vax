@@ -527,6 +527,12 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   }
   prepped_dhs_data <- prepped_dhs_data %>% filter(!is.na(sex_of_child) & !is.na(is_child_alive) & !is.na(child_resid))
 
+  # re-code the dates of birth that take place after the date of interview to be one day before the interview
+  # these are an artifact resulting from selecting the middle of the month for date of birth for surveys with missing day of the month
+  prepped_dhs_data <- prepped_dhs_data %>%
+    mutate(dob = case_when(intv_date<dob ~ intv_date-1,
+                           TRUE ~ dob))
+  
   # calculate the child's age in days
   prepped_dhs_data$age_in_days <- time_length(difftime(prepped_dhs_data$intv_date, prepped_dhs_data$dob), "days")
     
@@ -632,25 +638,25 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                           TRUE ~ bcg),
           dpt1 = case_when(dpt1<dob & !is.na(dpt1) ~ dob,
                            TRUE ~ dpt1),
-          dpt2 = case_when(dpt2<dob & !is.na(bcg) ~ dob,
+          dpt2 = case_when(dpt2<dob & !is.na(dpt2) ~ dob,
                            TRUE ~ dpt2),
-          dpt3 = case_when(dpt3<dob & !is.na(bcg) ~ dob,
+          dpt3 = case_when(dpt3<dob & !is.na(dpt3) ~ dob,
                            TRUE ~ dpt3),
-          polbirth = case_when(polbirth<dob & !is.na(bcg) ~ dob,
+          polbirth = case_when(polbirth<dob & !is.na(polbirth) ~ dob,
                            TRUE ~ polbirth),
-          pol1 = case_when(pol1<dob & !is.na(bcg) ~ dob,
+          pol1 = case_when(pol1<dob & !is.na(pol1) ~ dob,
                            TRUE ~ pol1),
-          pol2 = case_when(pol2<dob & !is.na(bcg) ~ dob,
+          pol2 = case_when(pol2<dob & !is.na(pol2) ~ dob,
                            TRUE ~ pol2),
-          pol3 = case_when(pol3<dob & !is.na(bcg) ~ dob,
+          pol3 = case_when(pol3<dob & !is.na(pol3) ~ dob,
                            TRUE ~ pol3),
-          mea1 = case_when(mea1<dob & !is.na(bcg) ~ dob,
+          mea1 = case_when(mea1<dob & !is.na(mea1) ~ dob,
                            TRUE ~ mea1),
-          hepb1 = case_when(hepb1<dob & !is.na(bcg) ~ dob,
+          hepb1 = case_when(hepb1<dob & !is.na(hepb1) ~ dob,
                             TRUE ~ hepb1),
-          hepb2 = case_when(hepb2<dob & !is.na(bcg) ~ dob,
+          hepb2 = case_when(hepb2<dob & !is.na(hepb2) ~ dob,
                             TRUE ~ hepb2),
-          hepb3 = case_when(hepb3<dob & !is.na(bcg) ~ dob,
+          hepb3 = case_when(hepb3<dob & !is.na(hepb3) ~ dob,
                             TRUE ~ hepb3),
           yelfev = case_when(yelfev<dob & !is.na(yelfev) ~ dob,
                              TRUE ~ yelfev))
@@ -661,19 +667,19 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
                           TRUE ~ bcg),
           dpt1 = case_when(dpt1<dob & !is.na(dpt1) ~ dob,
                            TRUE ~ dpt1),
-          dpt2 = case_when(dpt2<dob & !is.na(bcg) ~ dob,
+          dpt2 = case_when(dpt2<dob & !is.na(dpt2) ~ dob,
                            TRUE ~ dpt2),
-          dpt3 = case_when(dpt3<dob & !is.na(bcg) ~ dob,
+          dpt3 = case_when(dpt3<dob & !is.na(dpt3) ~ dob,
                            TRUE ~ dpt3),
-          polbirth = case_when(polbirth<dob & !is.na(bcg) ~ dob,
+          polbirth = case_when(polbirth<dob & !is.na(polbirth) ~ dob,
                            TRUE ~ polbirth),
-          pol1 = case_when(pol1<dob & !is.na(bcg) ~ dob,
+          pol1 = case_when(pol1<dob & !is.na(pol1) ~ dob,
                            TRUE ~ pol1),
-          pol2 = case_when(pol2<dob & !is.na(bcg) ~ dob,
+          pol2 = case_when(pol2<dob & !is.na(pol2) ~ dob,
                            TRUE ~ pol2),
-          pol3 = case_when(pol3<dob & !is.na(bcg) ~ dob,
+          pol3 = case_when(pol3<dob & !is.na(pol3) ~ dob,
                            TRUE ~ pol3),
-          mea1 = case_when(mea1<dob & !is.na(bcg) ~ dob,
+          mea1 = case_when(mea1<dob & !is.na(mea1) ~ dob,
                            TRUE ~ mea1))
     }
   }

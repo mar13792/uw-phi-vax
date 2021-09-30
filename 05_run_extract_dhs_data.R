@@ -37,7 +37,7 @@ for(i in 1:nrow(file_list)){
 }
 
 # save raw extracted data 
-saveRDS(extracted_dhs_data, outputFile2d)
+saveRDS(extracted_dhs_data, outputFile05)
 
 # print final statement
-print("Step 2d: Extracting dhs vaccination data completed.")
+print("Step 05: Extracting dhs vaccination data completed.")

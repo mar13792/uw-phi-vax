@@ -60,7 +60,7 @@ for(i in 1:nrow(file_list)){
 #--if necessary--
 
 # save prepped data 
-saveRDS(prepped_vax_data, outputFile2a)
+saveRDS(prepped_vax_data, outputFile02)
 
 # print final statement
-print("Step 2a: Reading in vaccination trend data completed.")
+print("Step 02: Reading in vaccination trend data completed.")

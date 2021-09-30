@@ -4,7 +4,7 @@
 # 2d_prep_dhs_data_for_analysis
 
 # Load data -----
-dt <- as_tibble(readRDS(outputFile2d))
+dt <- as_tibble(readRDS(outputFile05))
 
 # =====
 # Define variables necessary for risk analysis: -----
@@ -116,6 +116,7 @@ dt <- dt %>%
                                   mea1_age_minus_max>0  ~ mea1_age_minus_max))
 
 # Calculate how many doses of DPT were received -----
+dt$tot_num_dpt <- NA
 for (i in 1:nrow(dt)){
   dt$tot_num_dpt[i] <- sum(!is.na(dt$dpt1[i]), !is.na(dt$dpt2[i]), !is.na(dt$dpt3[i]))
 }
@@ -430,7 +431,7 @@ dt <- dt %>% mutate(
 
 dt <- dt %>% mutate(
   dpt_days_at_risk_mop = case_when(
-    # if they did have a  MO, add enw days of risk
+    # if they did have a  MO, add new days of risk
     dpt_mop_age_minus_max>0 & age_in_days>=dpt3_age_due_max & dpt_missed_opportunity==1 ~ dpt_mop_age_minus_max,
     
     # if the child didn't have a missed opportunity then the days of risk stays the same
@@ -625,13 +626,13 @@ dataVariables = unique(codebook[Category=="derived variable" & Class=="numeric" 
 
 histograms = lapply(dataVariables, function(v){
 ggplot(dt, aes_string(x=v)) + 
-  geom_histogram() +
-    facet_wrap(~v000)
+  geom_histogram(bins=30) +
+    facet_wrap(~strata, scales = "free")
 })
 
 
 # save histograms as a PDF -----
-outputFile6a2 <- paste0(visDir, "aim_1/missed_opportunities/6a_prepped_dhs_data_histograms.pdf") 
+outputFile6a2 <- paste0(visDir, "aim_1/missed_opportunities/09_prepped_dhs_data_histograms.pdf") 
 
 print(paste('Saving:', outputFile6a2)) 
 pdf(outputFile6a2, height=5.5, width=9)
@@ -640,8 +641,12 @@ for(i in seq(length(histograms))) {
 }
 dev.off()
 
+# view summary statistics for all variables
+# pdf(file = paste0(visDir, "aim_1/missed_opportunities/summary_statistics_prepped_dhs_data.pdf"))
+st(dt, file=paste0(visDir, "aim_1/missed_opportunities/summary_stats_prepped_dhs_data"))
+
 # Save output -----
-saveRDS(dt, outputFile6a)
+saveRDS(dt, outputFile09)
 
 # Print final statement -----
-print("Step 2d: Prepping of dhs vaccination data completed.")
+print("Step 09: Prepping of DHS data for analyses complete.")

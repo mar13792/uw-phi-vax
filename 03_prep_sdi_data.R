@@ -130,7 +130,7 @@ sdi.dat.prepped.long = melt(sdi.dat.prepped, id.vars = c("location_name", "locat
 sdi.dat.prepped.long$year_id <- as.numeric(levels(sdi.dat.prepped.long$year_id))[sdi.dat.prepped.long$year_id]
 
 # save in prepped data folder
-saveRDS(sdi.dat.prepped.long, outputFile2b)
+saveRDS(sdi.dat.prepped.long, outputFile03)
 
 # print final statement
-print("Step 2b: Prepping SDI data now complete.")
+print("Step 03: Prepping SDI data now complete.")

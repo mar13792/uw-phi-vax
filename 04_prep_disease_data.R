@@ -43,7 +43,7 @@ for(i in 1:nrow(file_list)){
 #--if necessary--
 
 # save prepped data 
-saveRDS(prepped_dx_data, outputFile2c)
+saveRDS(prepped_dx_data, outputFile04)
 
 # print final statement
-print("Step 2c: Reading in disease trend data completed.")
+print("Step 04: Reading in disease trend data completed.")

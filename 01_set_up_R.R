@@ -23,6 +23,7 @@ library(naniar)
 library(survival)
 library(cmprsk)
 library(survminer)
+library(vtable)
 
 # Define important variables -----
 
@@ -46,25 +47,24 @@ aim1_vis <- paste0(visDir, "aim_1/")
 # Define output file names that will be created in future scripts -----
 
 # name of prepped data files stored in shared google drive
-outputFile2a = paste0(prepped_data_dir, "2a_vaccine_trends.RDS")
-outputFile2b = paste0(prepped_data_dir, "2b_sdi.RDS")
-outputFile2c = paste0(prepped_data_dir, "2c_disease_trends.RDS")
-outputFile2d = paste0(prepped_data_dir, "2d_raw_dhs_vaccination_data_all_locations.RDS")
-outputFile3 = paste0(prepped_data_dir, "3a_merged_data.RDS")
+outputFile02 = paste0(prepped_data_dir, "02_vaccine_trends.RDS")
+outputFile03 = paste0(prepped_data_dir, "03_sdi.RDS")
+outputFile04 = paste0(prepped_data_dir, "04_disease_trends.RDS")
+outputFile05 = paste0(prepped_data_dir, "05_raw_extracted_dhs.RDS")
+outputFile06 = paste0(prepped_data_dir, "06_merged_data_for_visuals.RDS")
+outputFile09 = paste0(prepped_data_dir, "09_prepped_dhs_for_mov.RDS")
 
 # name of sample visualizations
-outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
-outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
+# --these need to be completed
+# outputFile4 = paste0(visDir, "aim1_sample_visualizations.PDF")
+# outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
 
 # names of visualizations to identify high-performing countries
-outputFile5a = paste0(aim1_vis, "high_performing_locs/1_outliers_low_sdi.PDF")
-outputFile5b = paste0(aim1_vis, "high_performing_locs/2_barplot_low_sdi.PDF")
-outputFile5c = paste0(aim1_vis, "high_performing_locs/3_detailed_table_low_sdi.PDF")
-outputFile5d = paste0(aim1_vis, "high_performing_locs/4_timeseries_plots_improvement_low_sdi.PDF")
-outputFile5e = paste0(aim1_vis, "high_performing_locs/5_timeseries_plots_missing_data_low_sdi.PDF")
-
-# name of cleaned and reformatted DHS data 
-outputFile6a = paste0(prepped_data_dir, "6a_prepped_dhs_vaccination_data_for_analysis.RDS")
+outputFile08a = paste0(aim1_vis, "high_performing_locs/1_outliers_low_sdi.PDF")
+outputFile08b = paste0(aim1_vis, "high_performing_locs/2_barplot_low_sdi.PDF")
+outputFile08c = paste0(aim1_vis, "high_performing_locs/3_detailed_table_low_sdi.PDF")
+outputFile08d = paste0(aim1_vis, "high_performing_locs/4_timeseries_plots_improvement_low_sdi.PDF")
+outputFile08e = paste0(aim1_vis, "high_performing_locs/5_timeseries_plots_missing_data_low_sdi.PDF")
 
 # Source shared functions -----
 source(paste0(code_dir, "functions/", "prep_vax_trend_data.R"))
@@ -73,18 +73,18 @@ source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
 source(paste0(code_dir, "functions/", "extract_dhs_data.R"), encoding = "UTF-8")
 
 # Set Boolean switches -----
-prep_vax_trends = FALSE  # this reads in and preps data on vaccination trends
-prep_sdi = FALSE # this reads in and preps SDI location values 
-prep_dx_trends = FALSE # this reads in GBD data on vaccine-preventable diseases
-run_extract_dhs_data = FALSE # this reads in DHS data and extracts relevant variables
+prep_vax_trends = TRUE  # this reads in and preps data on vaccination trends
+prep_sdi = TRUE # this reads in and preps SDI location values 
+prep_dx_trends = TRUE # this reads in GBD data on vaccine-preventable diseases
+run_extract_dhs_data = TRUE # this reads in DHS data and extracts relevant variables
 
-merge_files = FALSE # merges SDI, vaccine coverage trends and disease trends by location
+merge_files = TRUE # merges SDI, vaccine coverage trends and disease trends by location
 
 id_low_sdi = FALSE # identifies highest performing countries in the low SDI category
 id_med_sdi = FALSE # identifies highest performing countries in the medium SDI category
 id_high_sdi = FALSE # identifies highest performing countries in the high SDI category
 
-prep_dhs_data = FALSE # reads in extracted DHS data and prepares for further analyses
+prep_dhs_data = TRUE # reads in extracted DHS data and prepares for further analyses
 
 # Source scripts in prep pipeline -----
 
@@ -130,16 +130,22 @@ if(merge_files == TRUE){
 # ---------------------------------------
 # Identify outlier countries
 # ---------------------------------------
-if(id_low_sdi == TRUE){
+if (id_low_sdi == TRUE){
   source('./08_id_countries_low_sdi.R')
 }
 
-if(id_med_sdi == TRUE){
-  source('.archive/5b_id_countries_med_sdi.R')
-}
+# if(id_med_sdi == TRUE){
+#   source('.archive/08b_id_countries_med_sdi.R')
+# }
+# 
+# if(id_high_sdi == TRUE){
+#   source('.archive/08c_id_countries_high_sdi.R')
+# }
 
-if(id_high_sdi == TRUE){
-  source('.archive/5c_id_countries_high_sdi.R')
+# ---------------------------------------
+# Prep DHS data for analyses
+# ---------------------------------------
+if (prep_dhs_data == TRUE){
+  source('./09_prep_dhs_data.R')
 }
-
 

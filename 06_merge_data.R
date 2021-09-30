@@ -3,10 +3,10 @@
 # Date: Last modified July 13, 2021
 
 # Read in the previously saved files for vaccination trends
-vax_dt <- readRDS(outputFile2a)
+vax_dt <- readRDS(outputFile02)
 
 # read in the previously saved files for sdi
-sdi_dt <- readRDS(outputFile2b) # this datatable contains all of the data
+sdi_dt <- readRDS(outputFile03) # this datatable contains all of the data
 
 # make sure that the merge variables align in both data tables
 sdi_concat <- paste0(sdi_dt$location_name)
@@ -28,7 +28,7 @@ dt <- dt[year_id>=1990]
 # run error checks or missing location codes--
 
 # save location data
-saveRDS(dt, outputFile3)
+saveRDS(dt, outputFile06)
 
 # Print final statement
-print("Step 3: Merging complete; data set saved in prepped data folder")
+print("Step 06: Merging complete; data set saved in prepped data folder")
