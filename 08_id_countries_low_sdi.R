@@ -2,7 +2,7 @@
 # Purpose: calculate observed percent change for medium-SDI countries
 # Date: Last modified August 3, 2021
 
-# load data
+# load data (change to load two seperate files sdi, and vaccine data which are in format most closely matching this one)
 data = readRDS(outputFile06)
 
 ##### ##### ##### #####

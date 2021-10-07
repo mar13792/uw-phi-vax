@@ -1,5 +1,5 @@
 # Author: Francisco Rios 
-# Purpose: Merges all data to be used in analyses
+# Purpose: Merges all data to be used in analyses (such as vaccination trends, SDI, disease trends)
 # Date: Last modified July 13, 2021
 
 # Read in the previously saved files for vaccination trends
@@ -7,6 +7,9 @@ vax_dt <- readRDS(outputFile02)
 
 # read in the previously saved files for sdi
 sdi_dt <- readRDS(outputFile03) # this datatable contains all of the data
+
+# read in the previously saved files for diseaese trens
+dx_dt <- readRDS(outputFile04)
 
 # make sure that the merge variables align in both data tables
 sdi_concat <- paste0(sdi_dt$location_name)
@@ -19,15 +22,17 @@ if(nrow(unmapped_loc)>0){
   stop("You have location names in the vaccine data that aren't in the SDI data!")
 }
 
-# merge two data tables sheets together
+# merge the first two data sets together
 dt <- merge(vax_dt, sdi_dt, by=c("location_name", "location_id", "year_id"), all.x = TRUE)
 
 # subset from year 1990 to present (as this is extent of SDI data)
 dt <- dt[year_id>=1990]
 
-# run error checks or missing location codes--
 
-# save location data
+ # run error checks or missing location codes--
+
+
+# save sdi and vaccine trends data together
 saveRDS(dt, outputFile06)
 
 # Print final statement

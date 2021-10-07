@@ -615,14 +615,21 @@ label(dt$mea1_missed_opportunity) <-"Missed measles opportunity"
 label(dt$assets) <-"Household assets"
 label(dt$strata) <- "DHS version"
 
+# Only keep the variable names that are in the codebook for consistency. -----
+# This should constantly be reviewed. 
+
+codebook <- as.data.table(read_xlsx(paste0(codebook_directory, 'dhs_mov_codebook.xlsx')))
+
+dropped_vars = names(dt)[!names(dt)%in%codebook$Variable]
+if (length(dropped_vars)!=0){
+  print("Some variables are being dropped because they aren't in the codebook - Review to make sure these shouldn't be in the final data.")
+  print(dropped_vars)
+}
+dt <- dt[, names(dt)%in%codebook$Variable, with=FALSE]
+
 # Make visuals to explore the data -----
 
-# organize series and label for graphing -----
-codebookFile <- paste0(codebook_directory, 'dhs_mov_codebook.xlsx')
-codebook <- as.data.table(read_xlsx(codebookFile))
 dataVariables = unique(codebook[Category=="derived variable" & Class=="numeric" & `Possible Values`=="many possible values"]$Variable)
-# labelTable <- unique(codebook[,.(Variable)])
-
 
 histograms = lapply(dataVariables, function(v){
 ggplot(dt, aes_string(x=v)) + 
@@ -632,10 +639,10 @@ ggplot(dt, aes_string(x=v)) +
 
 
 # save histograms as a PDF -----
-outputFile6a2 <- paste0(visDir, "aim_1/missed_opportunities/09_prepped_dhs_data_histograms.pdf") 
+outputImage09 <- paste0(visDir, "aim_1/missed_opportunities/01_prepped_dhs_data_histograms.pdf") 
 
-print(paste('Saving:', outputFile6a2)) 
-pdf(outputFile6a2, height=5.5, width=9)
+print(paste('Saving:', outputImage09)) 
+pdf(outputImage09, height=5.5, width=9)
 for(i in seq(length(histograms))) { 
   print(histograms[[i]])
 }
@@ -643,7 +650,7 @@ dev.off()
 
 # view summary statistics for all variables
 # pdf(file = paste0(visDir, "aim_1/missed_opportunities/summary_statistics_prepped_dhs_data.pdf"))
-st(dt, file=paste0(visDir, "aim_1/missed_opportunities/summary_stats_prepped_dhs_data"))
+st(dt, file=paste0(visDir, "aim_1/missed_opportunities/02_summary_stats_prepped_dhs_data"))
 
 # Save output -----
 saveRDS(dt, outputFile09)

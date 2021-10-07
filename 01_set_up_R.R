@@ -29,6 +29,7 @@ library(vtable)
 
 # set shared team Google drive dynamically
 if (Sys.info()[1]=='Windows'){
+  stop("Windows filepaths need to be defined")
     g_drive = "G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/"
     code_dir = "tbd"
   } else {
@@ -37,12 +38,11 @@ if (Sys.info()[1]=='Windows'){
     }
 
 setwd(code_dir)
-data_dir <- paste0(g_drive,"Data/")
-prepped_data_dir <- paste0(data_dir,"prepped_data/")
-codebook_directory <- paste0(data_dir,"documentation/codebooks/")
+raw_data_dir <- paste0(g_drive,"Data/raw_data/")
+prepped_data_dir <- paste0(g_drive,"Data/prepped_data/")
+codebook_directory <- paste0(g_drive,"Data/documentation/codebooks/")
 resDir <- paste0(g_drive, "Results/")
 visDir <- paste0(g_drive,"Visualizations/")
-aim1_vis <- paste0(visDir, "aim_1/")
 
 # Define output file names that will be created in future scripts -----
 
@@ -60,31 +60,31 @@ outputFile09 = paste0(prepped_data_dir, "09_prepped_dhs_for_mov.RDS")
 # outputFile4b = paste0(visDir, "aim1_sample_country_trends.PDF")
 
 # names of visualizations to identify high-performing countries
-outputFile08a = paste0(aim1_vis, "high_performing_locs/1_outliers_low_sdi.PDF")
-outputFile08b = paste0(aim1_vis, "high_performing_locs/2_barplot_low_sdi.PDF")
-outputFile08c = paste0(aim1_vis, "high_performing_locs/3_detailed_table_low_sdi.PDF")
-outputFile08d = paste0(aim1_vis, "high_performing_locs/4_timeseries_plots_improvement_low_sdi.PDF")
-outputFile08e = paste0(aim1_vis, "high_performing_locs/5_timeseries_plots_missing_data_low_sdi.PDF")
+outputFile08a = paste0(visDir, "aim_1/high_performing_locs/1_outliers_low_sdi.PDF")
+outputFile08b = paste0(visDir, "aim_1/high_performing_locs/2_barplot_low_sdi.PDF")
+outputFile08c = paste0(visDir, "aim_1/high_performing_locs/3_detailed_table_low_sdi.PDF")
+outputFile08d = paste0(visDir, "aim_1/high_performing_locs/4_timeseries_plots_improvement_low_sdi.PDF")
+outputFile08e = paste0(visDir, "aim_1/high_performing_locs/5_timeseries_plots_missing_data_low_sdi.PDF")
 
 # Source shared functions -----
-source(paste0(code_dir, "functions/", "prep_vax_trend_data.R"))
-source(paste0(code_dir, "functions/", "prep_dx_trend_data.R"))
-source(paste0(code_dir, "functions/", "strip_chars.R"), encoding = "UTF-8")
-source(paste0(code_dir, "functions/", "extract_dhs_data.R"), encoding = "UTF-8")
+source(paste0(code_dir, "functions/prep_vax_trend_data.R"))
+source(paste0(code_dir, "functions/prep_dx_trend_data.R"))
+source(paste0(code_dir, "functions/strip_chars.R"), encoding = "UTF-8")
+source(paste0(code_dir, "functions/extract_dhs_data.R"), encoding = "UTF-8")
 
 # Set Boolean switches -----
-prep_vax_trends = TRUE  # this reads in and preps data on vaccination trends
-prep_sdi = TRUE # this reads in and preps SDI location values 
-prep_dx_trends = TRUE # this reads in GBD data on vaccine-preventable diseases
-run_extract_dhs_data = TRUE # this reads in DHS data and extracts relevant variables
+prep_vax_trends  = FALSE  # this reads in and preps data on vaccination trends
+prep_sdi         = FALSE # this reads in and preps SDI location values 
+prep_dx_trends   = FALSE # this reads in GBD data on vaccine-preventable diseases
+run_extract_dhs  = FALSE # this reads in DHS data and extracts relevant variables
 
-merge_files = TRUE # merges SDI, vaccine coverage trends and disease trends by location
+merge_files      = FALSE # merges SDI, vaccine coverage trends and disease trends by location
 
-id_low_sdi = FALSE # identifies highest performing countries in the low SDI category
-id_med_sdi = FALSE # identifies highest performing countries in the medium SDI category
-id_high_sdi = FALSE # identifies highest performing countries in the high SDI category
+id_low_sdi       = FALSE # identifies highest performing countries in the low SDI category
+id_med_sdi       = FALSE # identifies highest performing countries in the medium SDI category
+id_high_sdi      = FALSE # identifies highest performing countries in the high SDI category
 
-prep_dhs_data = TRUE # reads in extracted DHS data and prepares for further analyses
+prep_dhs_data    = FALSE # reads in extracted DHS data and prepares for further analyses
 
 # Source scripts in prep pipeline -----
 
@@ -112,7 +112,7 @@ if(prep_dx_trends == TRUE){
 # ---------------------------------------
 # Extract DHS data
 # ---------------------------------------
-if(run_extract_dhs_data == TRUE){
+if(run_extract_dhs == TRUE){
   source('./05_run_extract_dhs_data.R')
 }
 
