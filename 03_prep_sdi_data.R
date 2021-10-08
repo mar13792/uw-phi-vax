@@ -111,20 +111,20 @@ sdi.ter <- sdi_dat_prepped[level==3]$`2019`
 # quantile(sdi.ter, c(0:3/3))
 
 # classify countries into groups based on SDI in 2019
-sdi_dat_prepped$sdi_group[sdi_dat_prepped$`2019` <= 0.5790 ] <- "low"
-sdi_dat_prepped$sdi_group[sdi_dat_prepped$`2019` > 0.5790 & sdi_dat_prepped$`2019` <= 0.7423 ] <- "medium"
-sdi_dat_prepped$sdi_group[sdi_dat_prepped$`2019` > 0.7423 ] <- "high"
+sdi_dat_prepped$sdi_group_present[sdi_dat_prepped$`2019` <= 0.5790 ] <- "low"
+sdi_dat_prepped$sdi_group_present[sdi_dat_prepped$`2019` > 0.5790 & sdi_dat_prepped$`2019` <= 0.7423 ] <- "medium"
+sdi_dat_prepped$sdi_group_present[sdi_dat_prepped$`2019` > 0.7423 ] <- "high"
 
 # reshape data
 sdi_dat_prepped_long = melt(sdi_dat_prepped, id.vars = c("location_name", "location_id", "location_set_version_id", 
-                                                         "sdi_group", "parent_id", "level", "sort_order"),
+                                                         "sdi_group_present", "parent_id", "level", "sort_order"),
                             variable.name = "year_id", value.name = "sdi")
 
 # convert variable structures
 sdi_dat_prepped_long$year_id <- as.numeric(levels(sdi_dat_prepped_long$year_id))[sdi_dat_prepped_long$year_id]
 
 # subset columns necessary
-sdi_dat_prepped_long <- sdi_dat_prepped_long %>% select(location_id, location_name, level, year_id, sdi, sdi_group)
+sdi_dat_prepped_long <- sdi_dat_prepped_long %>% select(location_id, location_name, level, year_id, sdi, sdi_group_present)
 
 # save in prepped data folder
 saveRDS(sdi_dat_prepped_long, outputFile03)

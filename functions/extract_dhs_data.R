@@ -8,11 +8,11 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   ### TROUBLESHOOTING HELP 
   # Uncomment lines below to run tests
   
-  # dir = file_dir
-  # inFile = file_list$file_name[i]
-  # containing_folder = file_list$containing_folder[i]
-  # dhs_version = file_list$data_source[i]
-  # loc = file_list$location_name[i]
+  dir = file_dir
+  inFile = file_list$file_name[i]
+  containing_folder = file_list$containing_folder[i]
+  dhs_version = file_list$data_source[i]
+  loc = file_list$location_name[i]
   
   # Load data
   if (dhs_version %in% c('dhs7', 'dhs6')){

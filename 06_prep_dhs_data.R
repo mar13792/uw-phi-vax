@@ -653,7 +653,7 @@ dev.off()
 st(dt, file=paste0(visDir, "aim_1/missed_opportunities/02_summary_stats_prepped_dhs_data"))
 
 # Save output -----
-saveRDS(dt, outputFile09)
+saveRDS(dt, outputFile06)
 
 # Print final statement -----
 print("Step 09: Prepping of DHS data for analyses complete.")

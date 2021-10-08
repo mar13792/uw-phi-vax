@@ -57,8 +57,11 @@ tidy_data <- dt %>%
     values_from = c(val, upper, lower)
   )
 
+# convert from tibble to datatable
+tidy_data <- as.data.table(tidy_data)
+
 # save prepped data 
 saveRDS(tidy_data, outputFile02)
 
 # print final statement
-print("Step 02: Reading in vaccination trend data completed.")
+print("Step 02: Reading and prepping vaccination trend data completed.")

@@ -93,7 +93,7 @@ tidy_data <- dx_numb %>%
   full_join(dx_perc, by = mergeCols)
 
 # save prepped data 
-saveRDS(tidy_data, outputFile04)
+saveRDS(tidy_data, outputFile08)
 
 # print final statement
 print("Step 04: Reading in disease trend data completed.")
