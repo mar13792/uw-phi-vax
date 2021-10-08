@@ -108,7 +108,7 @@ if (id_low_sdi == TRUE){
 # ---------------------------------------
 # 4. Extract DHS data
 # ---------------------------------------
-if(run_extract_dhs == TRUE){
+if (run_extract_dhs == TRUE){
   source('./05_run_extract_dhs_data.R')
 }
 
