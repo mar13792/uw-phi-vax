@@ -96,4 +96,4 @@ tidy_data <- dx_numb %>%
 saveRDS(tidy_data, outputFile08)
 
 # print final statement
-print("Step 04: Reading in disease trend data completed.")
+print("Step 08: Reading in disease trend data completed.")
