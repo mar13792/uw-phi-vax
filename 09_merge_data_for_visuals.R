@@ -6,11 +6,13 @@
 vax_dt <- readRDS(outputFile02)
 
 # read in the previously saved files for sdi
-sdi_dt <- readRDS(outputFile03) # this datatable contains all of the data
+sdi_dt <- readRDS(outputFile03)
 
 # # read in the previously saved files for diseaese trens
-dx_dt <- readRDS(outputFile04)
-# 
+dx_dt <- readRDS(outputFile08)
+
+
+
 # # make sure that the merge variables align in both data tables
 # sdi_concat <- paste0(sdi_dt$location_name)
 # vax_concat <- paste0(vax_dt$location_name)

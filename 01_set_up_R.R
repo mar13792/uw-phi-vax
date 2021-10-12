@@ -68,7 +68,7 @@ id_high_sdi      = FALSE # identifies highest performing countries in the high S
 run_extract_dhs  = FALSE # this reads in DHS data and extracts relevant variables
 prep_dhs_data    = FALSE # reads in extracted DHS data and prepares for further analyses
 
-prep_dx_trends   = TRUE # this reads in GBD data on vaccine-preventable diseases
+prep_dx_trends   = FALSE # this reads in GBD data on vaccine-preventable diseases
 
 merge_files      = FALSE # merges SDI, vaccine coverage trends and disease trends by location
 
