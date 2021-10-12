@@ -65,8 +65,8 @@ id_low_sdi       = FALSE # identifies highest performing countries in the low SD
 id_med_sdi       = FALSE # identifies highest performing countries in the medium SDI category
 id_high_sdi      = FALSE # identifies highest performing countries in the high SDI category
 
-run_extract_dhs  = TRUE # this reads in DHS data and extracts relevant variables
-prep_dhs_data    = TRUE # reads in extracted DHS data and prepares for further analyses
+run_extract_dhs  = FALSE # this reads in DHS data and extracts relevant variables
+prep_dhs_data    = FALSE # reads in extracted DHS data and prepares for further analyses
 
 prep_dx_trends   = TRUE # this reads in GBD data on vaccine-preventable diseases
 
