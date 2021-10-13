@@ -2,7 +2,7 @@
 # Part I
 # Load prepped dataset for analyses
 ####################################################
-data <- readRDS(outputFile09)
+data <- readRDS(outputFile06)
 
 # subset data to only Nigeria
 data <- data %>% filter(v000 %in% c("NG6", "NG7"))
@@ -519,3 +519,28 @@ setcolorder(all_vax_data,
               "vac_coverage", "mop", "percent_with_mop", "potential_coverage_with_no_mop"))
 
 write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table.csv"))
+
+# ------
+# Part V. Stratify coverage cascade by additional variables: such as mother's education, SES, and states
+# -----
+
+################
+# Measles
+################
+dt1 <- dtnew[,.(total_with_card= .N), by = .(strata, edu)]
+
+# # calculate how many children received mea1 according to health card only
+dt2 <- dtnew[mea1_within_interval==1 | mea1_late==1,.(received_vaccine= .N), by = .(strata, edu)]
+
+# calculate how many children did not receive the measles vaccine
+dt3 <- dtnew[never_got_mea1==1 | early_mea1==1, .(no_vaccine=.N), by=.(strata,edu)]
+
+# calculate how many children that were not vaccinated had a missed opportunity
+dt4 <- dtnew[(never_got_mea1==1 | early_mea1==1) & mea1_missed_opportunity=="Yes", .(mop=.N), by=.(strata, edu)]
+
+# merge datatables together
+mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
+
+# add vaccine indicator
+mea1_dt[,vaccine:="mea1"]
+
