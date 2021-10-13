@@ -2,7 +2,7 @@
 # Part I
 # Load prepped dataset for analyses
 ####################################################
-data <- readRDS(outputFile09)
+data <- readRDS(outputFile06)
 
 # subset data to only Nigeria
 data <- data %>% filter(v000 %in% c("NG6", "NG7"))
@@ -520,8 +520,9 @@ setcolorder(all_vax_data,
 
 write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table.csv"))
 
-#-----
-# Recreate table with additional variables: education, SES, and subnational location
+# ------
+# Part V. Stratify coverage cascade by additional variables: such as mother's education, SES, and states
+# -----
 
 ################
 # Measles
