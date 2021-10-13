@@ -28,7 +28,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   # fix white space in caseid variable
   dhs_data$caseid <- gsub('\\s+', '', dhs_data$caseid) # unfortunately the spaces in between have meaning which might result in duplicate caseids
   
-  idVars = c("caseid", "v009", "v010", "v011", "v000", "v005", "v007", "v006", "v016") # id variables for merging (include mother's date of birth)
+  idVars = c("caseid", "v009", "v010", "v011", "v000", "v005", "v007", "v006", "v016", "sstate") # id variables for merging (include mother's date of birth)
   
   # add check to make sure 
   if (sum(duplicated(dhs_data %>% select(all_of(idVars))))>0){
@@ -81,7 +81,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   dobyearData <- dobyearData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("variable", "child"),
       names_sep = "_",
       values_to = "birth_year",
@@ -98,7 +98,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   dobmonthData <- dobmonthData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("variable", "child"),
       names_sep = "_",
       values_to = "birth_month",
@@ -118,7 +118,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
 
     dobdayData <- dobdayData %>%
       pivot_longer(
-        !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+        !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
         names_to = c("variable", "child"),
         names_sep = "_",
         values_to = "birth_day",
@@ -138,7 +138,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   childsexData <- childsexData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("remove", "child"),
       names_sep = "_",
       values_to = "sex_of_child",
@@ -155,7 +155,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   childlivingData <- childlivingData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("remove", "child"),
       names_sep = "_",
       values_to = "is_child_alive",
@@ -172,7 +172,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   childresidData <- childresidData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("remove", "child"),
       names_sep = "_",
       values_to = "child_resid",
@@ -189,7 +189,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   vaxcardData <- vaxcardData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("remove", "child"),
       names_sep = "_",
       values_to = "has_health_card",
@@ -206,7 +206,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   vaxcarddateData <- vaxcarddateData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("vaccine", "child"),
       names_sep = "_",
       values_to = "is_date_recorded",
@@ -220,7 +220,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   vaxyearData <- vaxyearData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("vaccine", "child"),
       names_sep = "_",
       values_to = "year",
@@ -241,7 +241,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   vaxmonthData <- vaxmonthData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("vaccine", "child"),
       names_sep = "_",
       values_to = "month",
@@ -262,7 +262,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   
   vaxdayData <- vaxdayData %>%
     pivot_longer(
-      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016),
+      !c(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate),
       names_to = c("vaccine", "child"),
       names_sep = "_",
       values_to = "day",
