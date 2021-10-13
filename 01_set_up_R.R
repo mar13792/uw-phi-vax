@@ -23,15 +23,15 @@ library(survival)
 # Define important variables -----
 
 # set shared team Google drive and code repo dynamically
-if (Sys.info()[1]=='Windows'){
-    g_drive <- 'G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/'
+if (Sys.info()[2]=='10 x64'){
+    g_drive  <- 'G:/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/'
     code_dir <- 'C:/Users/frc2/Documents/uw-phi-vax/'
   } else if (Sys.info()[2]=='Server x64'){
-    g_drive <- G:/"
-    code_dir <- "H:/uw-phi-vax/'"
-  } {
-    g_drive = "/Volumes/GoogleDrive/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/"
-    code_dir = "~/Documents/uw-phi-vax/"
+    g_drive  <- 'G:/Shared with Me/Merck Vaccine Improvement Index Project/'
+    code_dir <- 'H:/uw-phi-vax/'
+  } else {
+    g_drive  <- '/Volumes/GoogleDrive/.shortcut-targets-by-id/1P7ITMVB9x01fuYfHW8-uWogw4SpbuvwO/Merck Vaccine Improvement Index Project/'
+    code_dir <- '~/Documents/uw-phi-vax/'
     }
 
 setwd(code_dir) # set the working directory to wherever code is stored
