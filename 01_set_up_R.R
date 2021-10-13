@@ -12,13 +12,13 @@ library(haven)
 # library(table1)
 library(tidyr)
 # library(plyr)
-# library(dplyr)
+library(dplyr)
 library(tidyverse)
 library(lubridate)
 library(survival)
 # library(cmprsk)
 # library(survminer)
-# library(vtable)
+library(vtable)
 
 # Define important variables -----
 
@@ -47,7 +47,7 @@ outputFile03 <- paste0(prepped_data_dir, "02_sdi.RDS")
 outputFile05 <- paste0(prepped_data_dir, "03_raw_extracted_dhs.RDS")
 outputFile06 <- paste0(prepped_data_dir, "04_prepped_dhs_for_mov.RDS")
 outputFile08 <- paste0(prepped_data_dir, "05_disease_trends.RDS")
-outputFile09 <- paste0(prepped_data_dir, "06_merged_data_for_visuals.RDS")
+# outputFile09 <- paste0(prepped_data_dir, "06_merged_data_for_visuals.RDS")
 
 # Source shared functions -----
 source(paste0(code_dir, "functions/prep_vax_trend_data.R"))

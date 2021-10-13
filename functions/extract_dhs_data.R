@@ -8,11 +8,11 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   ### TROUBLESHOOTING HELP 
   # Uncomment lines below to run tests
   
-  dir = file_dir
-  inFile = file_list$file_name[i]
-  containing_folder = file_list$containing_folder[i]
-  dhs_version = file_list$data_source[i]
-  loc = file_list$location_name[i]
+  # dir = file_dir
+  # inFile = file_list$file_name[i]
+  # containing_folder = file_list$containing_folder[i]
+  # dhs_version = file_list$data_source[i]
+  # loc = file_list$location_name[i]
   
   # Load data
   if (dhs_version %in% c('dhs7', 'dhs6')){
@@ -379,7 +379,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   )
   
   # subset column names
-  dt2 <- dt2 %>% select(caseid, v009, v010, v011, v000, v005, v007, v006, v016, child, has_health_card, vaccine_date_recorded, is_date_recorded)
+  dt2 <- dt2 %>% select(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate, child, has_health_card, vaccine_date_recorded, is_date_recorded)
   
   # pivot dataset wider
   dt2 <- dt2 %>% 
@@ -465,7 +465,7 @@ extract_dhs_data <- function(dir, inFile, containing_folder, dhs_version, loc){
   dt3 <- dt3 %>% mutate(vaxdate := make_date(month=month, day=day, year=year))
   
   # subset relevant columns
-  dt3 <- dt3 %>% select(caseid, v009, v010, v011, v000, v005, v007, v006, v016, vaccine, child, vaxdate)
+  dt3 <- dt3 %>% select(caseid, v009, v010, v011, v000, v005, v007, v006, v016, sstate, vaccine, child, vaxdate)
   
   # pivot vaccine dates wider
   dt3 <- dt3 %>% 
