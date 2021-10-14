@@ -11,7 +11,7 @@ dt <- as_tibble(readRDS(outputFile05))
 # Identify youth with health card -----
 dt$has_health_card_bin <- as.character(dt$has_health_card)
 
-dt <- dt%>%
+dt <- dt %>%
   mutate(has_health_card_bin = na_if(has_health_card_bin, 9)) %>%
   mutate(has_health_card_bin=recode(has_health_card_bin,
                                     `0`=0,                                 
@@ -598,6 +598,63 @@ dt$strata <- factor(dt$strata,
 dt$dpt_missed_opportunity <-factor(dt$dpt_missed_opportunity,
                                      levels=c(0,1),
                                      labels=c("No", "Yes"))
+
+# Factor states
+dt$state <- as.numeric(dt$sstate)
+
+dt <- dt %>% mutate(state=recode(state,
+                               `10`='Sokoto',
+                               `20`='Zamfara',
+                               `30`='Katsina',
+                               `40`='Jigawa',
+                               `50`='Yobe',
+                               `60`='Borno',
+                               `70`='Adamawa',
+                               `80`='Gombe',
+                               `90`='Bauchi',
+                               `100`='Kano',
+                               `110`='Kaduna',
+                               `120`='Kebbi',
+                               `130`='Niger',
+                               `140`='FCT Abuja',
+                               `150`='Nasarawa',
+                               `160`='Plateau',
+                               `170`='Taraba',
+                               `180`='Benue',
+                               `190`='Kogi',
+                               `200`='Kwara',
+                               `210`='Oyo',
+                               `220`='Osun',
+                               `230`='Ekiti',
+                               `240`='Ondo',
+                               `250`='Edo',
+                               `260`='Anambra',
+                               `270`='Enugu',
+                               `280`='Ebonyi',
+                               `290`='Cross River',
+                               `300`='Akwa Ibom',
+                               `310`='Abia',
+                               `320`='Imo',
+                               `330`='Rivers',
+                               `340`='Bayelsa',
+                               `350`='Delta',
+                               `360`='Lagos',
+                               `370`='Ogun'))
+
+dt$state <- factor(dt$state)
+
+# Factor Zone
+dt$zone <- as.numeric(dt$sstate)
+
+dt <- dt %>% mutate(
+  # create zones from subnational state
+  zone = case_when(sstate%in%c(130, 140, 150, 160, 180, 190, 200) ~ 1, # North Central
+                   sstate%in%c(50, 60, 70, 80, 90, 170) ~ 2, # North East
+                   sstate%in%c(100, 300) ~ 3, # North West
+                   sstate%in%c(100, 300) ~ 4,
+                   sstate%in%c(100, 300) ~ 5,
+                   sstate%in%c(100, 300) ~ 6
+                   ))
 
 # Label newly created variables -----
 label(dt$sex_of_child) <- "Child's sex"
