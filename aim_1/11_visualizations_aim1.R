@@ -1,5 +1,5 @@
 # Author: Francisco Rios 
-# Purpose: Prep tables and visualizations for aim 1
+# Purpose: Create sample tables and visualizations for public-facing website
 # Date: Last modified July 20, 2021
 
 dt <- readRDS(outputFile06)

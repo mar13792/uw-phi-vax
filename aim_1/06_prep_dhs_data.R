@@ -1,7 +1,6 @@
-# AUTHOR: Francisco Rios -----
+# AUTHOR: Francisco Rios 
 # PURPOSE: Prep of DHS data for MOV analyses
-# DATE: Last updated September 2 2021
-# 2d_prep_dhs_data_for_analysis
+# DATE: Last updated October 14 2021
 
 # Load data -----
 dt <- as_tibble(readRDS(outputFile05))
@@ -650,11 +649,15 @@ dt <- dt %>% mutate(
   # create zones from subnational state
   zone = case_when(sstate%in%c(130, 140, 150, 160, 180, 190, 200) ~ 1, # North Central
                    sstate%in%c(50, 60, 70, 80, 90, 170) ~ 2, # North East
-                   sstate%in%c(100, 300) ~ 3, # North West
-                   sstate%in%c(100, 300) ~ 4,
-                   sstate%in%c(100, 300) ~ 5,
-                   sstate%in%c(100, 300) ~ 6
+                   sstate%in%c(40, 110, 100, 30, 120, 10, 20) ~ 3, # North West
+                   sstate%in%c(310, 260, 280, 270, 320) ~ 4, # South East
+                   sstate%in%c(300, 340, 290, 330, 350, 250) ~ 5, # South South
+                   sstate%in%c(230, 360, 370, 240, 220, 210) ~ 6  # South West
                    ))
+
+dt$zone <- factor(dt$zone,
+                  levels = c(1,2,3,4,5,6),
+                  labels = c("North Central", "North East", "North West", "South East", "South South", "South West"))
 
 # Label newly created variables -----
 label(dt$sex_of_child) <- "Child's sex"
@@ -671,6 +674,8 @@ label(dt$urban) <-"Urbanicity"
 label(dt$mea1_missed_opportunity) <-"Missed measles opportunity"
 label(dt$assets) <-"Household assets"
 label(dt$strata) <- "DHS version"
+label(dt$state) <- "State"
+label(dt$zone) <- "Zone"
 
 # Only keep the variable names that are in the codebook for consistency. -----
 # This should constantly be reviewed. 

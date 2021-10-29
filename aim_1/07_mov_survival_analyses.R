@@ -1,7 +1,10 @@
-####################################################
-# Part I
+# AUTHOR: Francisco Rios Casas
+# PURPOSE: Creates survival curves and calculates hazard ratios for mov immunizations
+# DATE: latest version October 13, 2021
+
+# Part I -----
 # Load prepped dataset for analyses
-####################################################
+
 data <- readRDS(outputFile06)
 
 # subset data to only Nigeria

@@ -5,14 +5,13 @@
 # Read in the previously saved files for vaccination trends
 vax_dt <- readRDS(outputFile02)
 
-# read in the previously saved files for sdi
+# Read in the previously saved files for SDI trends
 sdi_dt <- readRDS(outputFile03)
 
-# # read in the previously saved files for diseaese trens
+# Read in the previously saved files for disease trends
 dx_dt <- readRDS(outputFile08)
 
-
-
+# Read in the previously 
 # # make sure that the merge variables align in both data tables
 # sdi_concat <- paste0(sdi_dt$location_name)
 # vax_concat <- paste0(vax_dt$location_name)

@@ -1,4 +1,3 @@
-# ----------------------------------------------
 # AUTHOR: Francisco Rios
 # PURPOSE: Extract all necessary DHS data
 # DATE: Last updated September 2 2021

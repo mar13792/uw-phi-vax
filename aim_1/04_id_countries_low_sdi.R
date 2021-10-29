@@ -1,5 +1,5 @@
 # Author: Francisco Rios 
-# Purpose: calculate observed percent change for medium-SDI countries
+# Purpose: calculate observed percent change for low-SDI countries
 # Date: Last modified August 3, 2021
 
 # load data ----

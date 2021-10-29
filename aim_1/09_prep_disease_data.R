@@ -1,6 +1,6 @@
 # Author: Francisco Rios 
-# Purpose: prep disease trend data
-# Date: Last modified July 29, 2021
+# Purpose: read and prep vaccine-preventable disease trend data
+# Date: Last modified October 28, 2021
 
 ####### read in vaccine-preventable disease trend data
 
