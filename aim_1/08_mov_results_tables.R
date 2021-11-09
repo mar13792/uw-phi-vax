@@ -53,6 +53,15 @@ mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 mea1_dt[,vaccine:="mea1"]
 
+# statistical test 
+mea1_test <- mea1_dt %>% select(strata, no_vaccine, mop)
+mea1_test[,no_mop:=no_vaccine-mop]
+chisq.test(mea1_test %>% select(mop, no_mop), correct = FALSE)
+
+# statistical test of change in vaccine coverage
+mea1_cov_test <- mea1_dt %>% select(strata, no_vaccine, received_vaccine)
+chisq.test(mea1_cov_test %>% select(no_vaccine, received_vaccine), correct = FALSE)
+
 # DPT All -----
 
 # calculate how many children has a vaccination card
@@ -72,6 +81,15 @@ dpt_all_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt_all_dt[,vaccine:="dpt_all"]
+
+# statistical test
+dpt_all_test <- dpt_all_dt %>% select(strata, no_vaccine, mop)
+dpt_all_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt_all_test %>% select(mop, no_mop), correct = FALSE)
+
+# statistical test of change in vaccine coverage
+dpt_cov_test <- dpt_all_dt %>% select(strata, no_vaccine, received_vaccine)
+chisq.test(dpt_cov_test %>% select(no_vaccine, received_vaccine), correct = FALSE)
 
 # DPT 1 -----
 
@@ -93,6 +111,11 @@ dpt1_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt1_dt[,vaccine:="dpt1"]
 
+# statistical test
+dpt1_test <- dpt1_dt %>% select(strata, no_vaccine, mop)
+dpt1_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt1_test %>% select(mop, no_mop), correct = FALSE)
+
 # DPT 2 -----
 
 # calculate how many children have a vaccination card
@@ -112,6 +135,11 @@ dpt2_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt2_dt[,vaccine:="dpt2"]
+
+# statistical test
+dpt2_test <- dpt2_dt %>% select(strata, no_vaccine, mop)
+dpt2_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt2_test %>% select(mop, no_mop), correct = FALSE)
 
 # DPT 3 -----
 
@@ -133,6 +161,11 @@ dpt3_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt3_dt[,vaccine:="dpt3"]
 
+# statistical test
+dpt3_test <- dpt3_dt %>% select(strata, no_vaccine, mop)
+dpt3_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt3_test %>% select(mop, no_mop), correct = FALSE)
+
 # merge all vaccine data together
 all_vax_data <- rbind(mea1_dt, dpt_all_dt, dpt1_dt, dpt2_dt, dpt3_dt)
 
@@ -150,6 +183,8 @@ setcolorder(all_vax_data,
               "vac_coverage", "mop", "percent_with_mop", "potential_coverage_with_no_mop"))
 
 write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table.csv"))
+
+
 
 # Part 2: Stratify coverage cascade by mother's education -----
 
@@ -171,6 +206,13 @@ mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 mea1_dt[,vaccine:="mea1"]
 
+# statistical test within each level of education
+mea1_test <- mea1_dt %>% select(strata, edu, no_vaccine, mop)
+mea1_test[,no_mop:=no_vaccine-mop]
+chisq.test(mea1_test[edu=="No education",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[edu=="Primary",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[edu=="Secondary or higher",.(mop, no_mop)], correct = FALSE)
+
 # DPT All -----
 # calculate how many children has a vaccination card
 dt1 <- data2[,.(total_with_card= .N), by = .(strata, edu)]
@@ -189,6 +231,13 @@ dpt_all_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt_all_dt[,vaccine:="dpt_all"]
+
+# statistical test within each level of education
+dpt_all_test <- mea1_dt %>% select(strata, edu, no_vaccine, mop)
+dpt_all_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt_all_test[edu=="No education",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[edu=="Primary",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[edu=="Secondary or higher",.(mop, no_mop)], correct = FALSE)
 
 # DPT 1 -----
 
@@ -210,6 +259,13 @@ dpt1_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt1_dt[,vaccine:="dpt1"]
 
+# statistical test within each level of education
+dpt1_test <- dpt1_dt %>% select(strata, edu, no_vaccine, mop)
+dpt1_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt1_test[edu=="No education",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[edu=="Primary",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[edu=="Secondary or higher",.(mop, no_mop)], correct = FALSE)
+
 # DPT 2 -----
 
 # # calculate how many children have a vaccination card
@@ -229,6 +285,13 @@ dpt2_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt2_dt[,vaccine:="dpt2"]
+
+# statistical test within each level of education
+dpt2_test <- dpt1_dt %>% select(strata, edu, no_vaccine, mop)
+dpt2_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt2_test[edu=="No education",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[edu=="Primary",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[edu=="Secondary or higher",.(mop, no_mop)], correct = FALSE)
 
 # DPT 3 ----
 
@@ -250,6 +313,13 @@ dpt3_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt3_dt[,vaccine:="dpt3"]
 
+# statistical test within each level of education
+dpt3_test <- dpt3_dt %>% select(strata, edu, no_vaccine, mop)
+dpt3_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt3_test[edu=="No education",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[edu=="Primary",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[edu=="Secondary or higher",.(mop, no_mop)], correct = FALSE)
+
 # merge all vaccine data together
 all_vax_data <- rbind(mea1_dt, dpt_all_dt, dpt1_dt, dpt2_dt, dpt3_dt)
 
@@ -269,8 +339,9 @@ setcolorder(all_vax_data,
 write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table_education.csv"))
 
 
-# Part 3: Stratify coverage cascade by household assets -----
 
+
+# Part 3: Stratify coverage cascade by household assets -----
 # Measles ----
 dt1 <- data1[,.(total_with_card= .N), by = .(strata, assets)]
 
@@ -289,6 +360,18 @@ mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 mea1_dt[,vaccine:="mea1"]
 
+# statistical test within each level of household assets
+mea1_test <- mea1_dt %>% select(strata, assets, no_vaccine, mop)
+mea1_test[,no_mop:=no_vaccine-mop]
+chisq.test(mea1_test[assets=="Quintile 1",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[assets=="Quintile 2",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[assets=="Quintile 3",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[assets=="Quintile 4",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[assets=="Quintile 5",.(mop, no_mop)], correct = FALSE)
+
+# statistical test within each year for association with assets and mop
+chisq.test(mea1_test[strata=="2013",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[strata=="2018",.(mop, no_mop)], correct = FALSE)
 
 # DPT All -----
 
@@ -310,6 +393,15 @@ dpt_all_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt_all_dt[,vaccine:="dpt_all"]
 
+# statistical test within each level of household assets
+dpt_all_test <- dpt_all_dt %>% select(strata, assets, no_vaccine, mop)
+dpt_all_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt_all_test[assets=="Quintile 1",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[assets=="Quintile 2",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[assets=="Quintile 3",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[assets=="Quintile 4",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[assets=="Quintile 5",.(mop, no_mop)], correct = FALSE)
+
 # DPT 1 -----
 
 # calculate how many children have a vaccination card
@@ -329,6 +421,15 @@ dpt1_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt1_dt[,vaccine:="dpt1"]
+
+# statistical test within each level of household assets
+dpt1_test <- dpt1_dt %>% select(strata, assets, no_vaccine, mop)
+dpt1_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt1_test[assets=="Quintile 1",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[assets=="Quintile 2",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[assets=="Quintile 3",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[assets=="Quintile 4",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[assets=="Quintile 5",.(mop, no_mop)], correct = FALSE)
 
 # DPT 2 -----
 
@@ -350,6 +451,15 @@ dpt2_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt2_dt[,vaccine:="dpt2"]
 
+# statistical test within each level of household assets
+dpt2_test <- dpt2_dt %>% select(strata, assets, no_vaccine, mop)
+dpt2_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt2_test[assets=="Quintile 1",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[assets=="Quintile 2",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[assets=="Quintile 3",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[assets=="Quintile 4",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[assets=="Quintile 5",.(mop, no_mop)], correct = FALSE)
+
 # DPT 3 -----
 
 # # calculate how many children have a vaccination card
@@ -369,6 +479,15 @@ dpt3_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt3_dt[,vaccine:="dpt3"]
+
+# statistical test within each level of household assets
+dpt3_test <- dpt3_dt %>% select(strata, assets, no_vaccine, mop)
+dpt3_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt3_test[assets=="Quintile 1",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[assets=="Quintile 2",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[assets=="Quintile 3",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[assets=="Quintile 4",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[assets=="Quintile 5",.(mop, no_mop)], correct = FALSE)
 
 # merge all vaccine data together
 all_vax_data <- rbind(mea1_dt, dpt_all_dt, dpt1_dt, dpt2_dt, dpt3_dt)
@@ -507,6 +626,8 @@ setcolorder(all_vax_data,
 
 write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table_states.csv"))
 
+
+
 # Part 5: Stratify coverage cascade by sub-national zones -----
 # Measles ----
 dt1 <- data1[,.(total_with_card= .N), by = .(strata, zone)]
@@ -526,6 +647,15 @@ mea1_dt <- Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 mea1_dt[,vaccine:="mea1"]
 
+# statistical test within each zone
+mea1_test <- mea1_dt %>% select(strata, zone, no_vaccine, mop)
+mea1_test[,no_mop:=no_vaccine-mop]
+chisq.test(mea1_test[zone=="North Central",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[zone=="North East",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[zone=="North West",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[zone=="South East",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[zone=="South South",.(mop, no_mop)], correct = FALSE)
+chisq.test(mea1_test[zone=="South West",.(mop, no_mop)], correct = FALSE)
 
 # DPT All -----
 
@@ -547,6 +677,16 @@ dpt_all_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt_all_dt[,vaccine:="dpt_all"]
 
+# statistical test within each zone
+dpt_all_test <- dpt_all_dt %>% select(strata, zone, no_vaccine, mop)
+dpt_all_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt_all_test[zone=="North Central",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[zone=="North East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[zone=="North West",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[zone=="South East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[zone=="South South",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt_all_test[zone=="South West",.(mop, no_mop)], correct = FALSE)
+
 # DPT 1 -----
 
 # calculate how many children have a vaccination card
@@ -566,6 +706,16 @@ dpt1_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 
 # add vaccine indicator
 dpt1_dt[,vaccine:="dpt1"]
+
+# statistical test within each zone
+dpt1_test <- dpt1_dt %>% select(strata, zone, no_vaccine, mop)
+dpt1_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt1_test[zone=="North Central",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[zone=="North East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[zone=="North West",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[zone=="South East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[zone=="South South",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt1_test[zone=="South West",.(mop, no_mop)], correct = FALSE)
 
 # DPT 2 -----
 
@@ -587,6 +737,16 @@ dpt2_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt2_dt[,vaccine:="dpt2"]
 
+# statistical test within each zone
+dpt2_test <- dpt2_dt %>% select(strata, zone, no_vaccine, mop)
+dpt2_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt2_test[zone=="North Central",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[zone=="North East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[zone=="North West",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[zone=="South East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[zone=="South South",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt2_test[zone=="South West",.(mop, no_mop)], correct = FALSE)
+
 # DPT 3 -----
 
 # # calculate how many children have a vaccination card
@@ -607,6 +767,16 @@ dpt3_dt <-Reduce(merge,list(dt1,dt2,dt3,dt4))
 # add vaccine indicator
 dpt3_dt[,vaccine:="dpt3"]
 
+# statistical test within each zone
+dpt3_test <- dpt3_dt %>% select(strata, zone, no_vaccine, mop)
+dpt3_test[,no_mop:=no_vaccine-mop]
+chisq.test(dpt3_test[zone=="North Central",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[zone=="North East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[zone=="North West",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[zone=="South East",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[zone=="South South",.(mop, no_mop)], correct = FALSE)
+chisq.test(dpt3_test[zone=="South West",.(mop, no_mop)], correct = FALSE)
+
 # merge all vaccine data together
 all_vax_data <- rbind(mea1_dt, dpt_all_dt, dpt1_dt, dpt2_dt, dpt3_dt)
 
@@ -619,8 +789,24 @@ all_vax_data[,percent_with_mop:=round((mop/no_vaccine)*100, 1)]
 # # calculate coverage if no missed opportunity
 all_vax_data[,potential_coverage_with_no_mop:=round((mop+received_vaccine)/total_with_card*100, 1)]
 
+
+# Save the results -----
 setcolorder(all_vax_data,
             c("strata", "zone", "total_with_card", "vaccine", "received_vaccine", "no_vaccine",
               "vac_coverage", "mop", "percent_with_mop", "potential_coverage_with_no_mop"))
 
 write.csv(all_vax_data, file=paste0(resDir, "aim_1/missed_opportunities/mop_vaccine_table_zones.csv"))
+
+# check data for correlation between three variables: education, assets, zones -----
+x <- table(data$edu, data$assets)
+chi2 <- chisq.test(x, correct = FALSE)
+sqrt(chi2$statistic / sum(x))
+
+y <- table(data$assets, data$zone)
+chi2 <- chisq.test(y, data$zone)
+sqrt(chi2$statistic / sum(y))
+
+z <- table(data$edu, data$zone)
+chi2 <- chisq.test(z, correct = FALSE)
+sqrt(chi2$statistic / sum(z))
+
