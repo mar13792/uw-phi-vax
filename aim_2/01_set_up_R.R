@@ -8,7 +8,6 @@ library(ggplot2)
 library(readxl)
 library(tidyverse)
 
-
 # Define important variables -----
 
 # set shared team Google drive and code repo dynamically
