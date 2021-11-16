@@ -43,4 +43,4 @@ prepped_migr_rate_dataset$mig_rate <- as.numeric(prepped_migr_rate_dataset$mig_r
 prepped_migr_rate_dataset$iso_num_code <- as.numeric(prepped_migr_rate_dataset$iso_num_code)
 
 # Save file in the prepped data folder
-saveRDS(prepped_migr_rate_dataset, file = paste0(prepped_data_dir, "aim_2/06_prepped_un_net_migr_rate_data.R"))
+saveRDS(prepped_migr_rate_dataset, file = paste0(prepped_data_dir, "aim_2/06_prepped_un_net_migr_rate_data.RDS"))

@@ -19,10 +19,11 @@ dt1 <- dt1 %>% filter(indicator_name=="Healthcare Access and Quality")
 dt1 <- dt1 %>% select(location_id, location_name, year_id, val)
 
 # rename the "val" variable
-rename(dt1, haqi = val,
+dt1 <- rename(dt1, 
+       haqi = val,
        gbd_location_id = location_id, 
        location = location_name, 
        year = year_id)
 
 # save the new data set
-saveRDS(dt1, file = paste0(prepped_data_dir, "aim_2/02_prepped_ihme_haqi_data.R"))
+saveRDS(dt1, file = paste0(prepped_data_dir, "aim_2/02_prepped_ihme_haqi_data.RDS"))

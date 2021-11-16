@@ -16,14 +16,14 @@ dt1 <- read_csv(file_path, show_col_types = FALSE)
 dt1 <- dt1 %>% filter(elim_ch==0)
 
 # Subset columns
-dt1 <- dt1 %>% select(year, source, recipient_isocode, recipient_country, gbd_location_id, wb_location_id, nch_cnv_dah_20)
+dt1 <- dt1 %>% select(year, source, recipient_isocode, recipient_country, gbd_location_id, nch_cnv_dah_20)
 
 # Transform column from character to numeric
 dt1$nch_cnv_dah_20 <- as.numeric(dt1$nch_cnv_dah_20)
 
 # sum donations across all sources
 dt1 <- as.data.table(dt1)
-dt1 <- dt1[, .(nch_cnv_dah_20=sum(nch_cnv_dah_20, na.rm = T)), by=c('year', 'recipient_isocode', 'recipient_country', 'gbd_location_id', 'wb_location_id')]
+dt1 <- dt1[, .(nch_cnv_dah_20=sum(nch_cnv_dah_20, na.rm = T)), by=c('year', 'recipient_isocode', 'recipient_country', 'gbd_location_id')]
 
 # Change the name of the variables to make sure they are standardized
 setnames(dt1, 

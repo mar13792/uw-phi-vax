@@ -3,6 +3,7 @@
 # set up file
 # prep of individual data files
 # merging of data into rectangularized file
-# visualizations of data to prep filnal  data
-# imputations and transformations
-# analyses and save of final data prep
+# visualizations of data to plan for final data prep
+# transformations and imputations
+# save final data set
+# final index analyses
